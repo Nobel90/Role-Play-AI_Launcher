@@ -318,7 +318,20 @@ ipcMain.handle('select-install-dir', async (event) => {
         properties: ['openDirectory'],
         title: 'Select Installation Directory'
     });
-    return canceled ? null : filePaths[0];
+
+    if (canceled || !filePaths || filePaths.length === 0) {
+        return null;
+    }
+
+    let selectedPath = filePaths[0];
+    
+    // Enforce installation in a "VRClassroom" folder
+    if (path.basename(selectedPath).toLowerCase() !== 'vrclassroom') {
+        selectedPath = path.join(selectedPath, 'VRClassroom');
+    }
+
+    // The handler now returns the potentially modified path
+    return selectedPath;
 });
 
 ipcMain.handle('verify-install-path', async (event, { gameId, manifestUrl }) => {
@@ -363,8 +376,17 @@ ipcMain.handle('move-install-path', async (event, currentPath) => {
     const newParentDir = filePaths[0];
     const newPath = path.join(newParentDir, path.basename(currentPath));
 
-    if (newPath.toLowerCase() === currentPath.toLowerCase()) {
+    const normalizedCurrentPath = path.normalize(currentPath);
+    const normalizedNewPath = path.normalize(newPath);
+
+    if (normalizedNewPath.toLowerCase() === normalizedCurrentPath.toLowerCase()) {
         dialog.showErrorBox('Invalid Path', 'The new installation path cannot be the same as the current one.');
+        return null;
+    }
+
+    // Prevent moving a directory into itself
+    if (normalizedNewPath.toLowerCase().startsWith(normalizedCurrentPath.toLowerCase() + path.sep)) {
+        dialog.showErrorBox('Invalid Path', 'You cannot move the game into a subfolder of its current location.');
         return null;
     }
 

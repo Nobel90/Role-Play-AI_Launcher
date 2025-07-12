@@ -258,6 +258,10 @@
                             game.installPath = selectedPath;
                             await window.electronAPI.saveGameData(gameLibrary);
                             await checkForUpdates(currentGameId);
+                            // If the check finds files to download (fresh install), start immediately.
+                            if (game.status === 'needs_update') {
+                                handleActionButtonClick();
+                            }
                         }
                         break;
                     case 'needs_update':
@@ -381,9 +385,10 @@
                         game.status = 'installed';
                         renderGame(currentGameId);
                     } else {
+                        // If move fails, the main process already showed an error dialog.
+                        // Just revert the UI state peacefully.
                         game.status = 'installed';
                         renderGame(currentGameId);
-                        alert('Move Failed: The folder could not be moved. Please check permissions and try again.');
                     }
                 });
 
