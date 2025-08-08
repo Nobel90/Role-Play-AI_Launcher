@@ -33,6 +33,8 @@ const userInfo = document.getElementById('user-info');
 const guestInfo = document.getElementById('guest-info');
 const showLoginButton = document.getElementById('show-login-button');
 const backToLauncherButton = document.getElementById('back-to-launcher');
+const websiteLink = document.getElementById('website-link');
+const myAccountLink = document.getElementById('my-account-link');
 
 // --- AUTHENTICATION LOGIC ---
 
@@ -98,6 +100,16 @@ backToLauncherButton.addEventListener('click', () => {
     showLauncher(null);
 });
 
+websiteLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.electronAPI.openExternal('https://vrcentre.com.au/');
+});
+
+myAccountLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.electronAPI.openExternal('https://vrcentre.com.au/account/');
+});
+
 
 // --- VIEW MANAGEMENT ---
 let launcherInitialized = false;
@@ -140,10 +152,10 @@ function initLauncher() {
     let gameLibrary = {
         'VRClassroom': {
             name: 'VR Classroom',
-            tagline: 'The future of immersive learning.',
-            version: '0.0.0',
+            tagline: 'Brining the Worksite into the Classroom',
+            version: '1.1.0.8',
             status: 'uninstalled',
-            logoUrl: 'https://vrcentre.com.au/wp-content/uploads/2021/06/cropped-favicon-Master.png',
+            logoUrl: 'assets/icon-white_s.png',
             backgroundUrl: 'https://vrcentre.com.au/wp-content/uploads/2021/06/cropped-Primary_Logo_Horizontal_Web-01-1.png',
             installPath: null,
             executable: 'VRClassroom.exe',
@@ -222,7 +234,7 @@ function initLauncher() {
             case 'installed':
                 actionButtonEl.innerText = 'LAUNCH';
                 actionButtonEl.classList.add('bg-green-500', 'hover:bg-green-600', 'btn-glow');
-                gameStatusTextEl.innerText = 'Ready to Play';
+                gameStatusTextEl.innerText = 'Ready to Launch!';
                 settingsButtonEl.classList.remove('hidden');
                 uninstallButtonEl.classList.remove('hidden');
                 checkUpdateButtonEl.classList.remove('hidden');

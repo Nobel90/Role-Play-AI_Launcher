@@ -43,6 +43,10 @@ function createWindow() {
 
 app.whenReady().then(createWindow);
 
+ipcMain.on('open-external', (event, url) => {
+    shell.openExternal(url);
+});
+
 async function getFileChecksum(filePath) {
     try {
         const extension = path.extname(filePath).toLowerCase();

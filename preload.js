@@ -22,6 +22,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     handleDownloadAction: (action) => ipcRenderer.send('handle-download-action', action),
     onDownloadStateUpdate: (callback) => ipcRenderer.on('download-state-update', (event, state) => callback(state)),
     
+    // --- Browser/OS Interaction ---
+    openExternal: (url) => ipcRenderer.send('open-external', url),
+    
     // --- Other Event Listeners ---
     onUninstallComplete: (callback) => ipcRenderer.on('uninstall-complete', () => callback()),
     onMoveProgress: (callback) => ipcRenderer.on('move-progress', (event, value) => callback(value))
