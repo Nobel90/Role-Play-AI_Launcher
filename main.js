@@ -2,6 +2,7 @@
 
 const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const { autoUpdater } = require('electron-updater');
+const log = require('electron-log');
 const path = require('path');
 const fs = require('fs').promises; // Use promises-based fs
 const fsSync = require('fs'); // Use sync for specific cases if needed
@@ -41,10 +42,17 @@ function createWindow() {
     win.loadFile('index.html');
     downloadManager = new DownloadManager(win);
 
-    autoUpdater.checkForUpdatesAndNotify();
+    log.transports.file.level = "info";
+    log.info('App starting...');
+    log.info(`Checking for GH_TOKEN: ${process.env.GH_TOKEN ? 'Token is set' : 'Token is NOT set'}`);
 }
 
-app.whenReady().then(createWindow);
+autoUpdater.logger = log;
+
+app.whenReady().then(() => {
+    createWindow();
+    autoUpdater.checkForUpdates();
+});
 
 autoUpdater.on('checking-for-update', () => {
     console.log('Checking for update...');
@@ -66,6 +74,16 @@ autoUpdater.on('download-progress', (progressObj) => {
 });
 autoUpdater.on('update-downloaded', (info) => {
     console.log('Update downloaded');
+    dialog.showMessageBox({
+        type: 'info',
+        title: 'Update Ready',
+        message: 'A new version has been downloaded. Restart the application to apply the updates.',
+        buttons: ['Restart', 'Later']
+    }).then((buttonIndex) => {
+        if (buttonIndex.response === 0) {
+            autoUpdater.quitAndInstall();
+        }
+    });
 });
 
 ipcMain.handle('get-app-version', () => {
