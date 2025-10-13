@@ -24,6 +24,7 @@
       "target": "nsis",
       "icon": "assets/icon-white_s.ico"
     },
+    "artifactName": "${productName}-Setup-${version}.${ext}",
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
