@@ -12,12 +12,17 @@
   "author": "VRC",
   "license": "ISC",
   "build": {
+    "publish": {
+      "provider": "github",
+      "owner": "Nobel90",
+      "repo": "VRC_Launcher"
+    },
     "appId": "com.vrc.launcher",
     "productName": "VRC Launcher",
     "win": {
       "target": [
         {
-          "target": "portable",
+          "target": "nsis",
           "arch": [
             "x64"
           ]
@@ -32,7 +37,8 @@
   "devDependencies": {
     "electron": "^37.2.0",
     "electron-builder": "^26.0.0",
-    "electron-packager": "^17.1.2"
+    "electron-packager": "^17.1.2",
+    "electron-updater": "^6.6.2"
   },
   "dependencies": {
     "adm-zip": "^0.5.16",
