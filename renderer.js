@@ -125,7 +125,7 @@ function showLauncher(userData) {
         // User is logged out or anonymous
         userInfo.classList.add('hidden');
         userInfo.classList.remove('flex');
-        guestInfo.classList.remove('hidden');
+        // guestInfo.classList.remove('hidden');
     }
     
     loginView.classList.add('hidden');

@@ -113,10 +113,36 @@ class DownloadManager {
     async start(gameId, installPath, files, latestVersion) {
         if (this.state.status === 'downloading') return;
 
+        console.log(`Starting download for ${files.length} files.`);
+        const filteredFiles = files.filter(file => {
+            const fileName = path.basename(file.path);
+            const pathString = file.path.toLowerCase();
+
+            // Filter out 'Saved' folders, which often contain user-specific, non-essential data.
+            const isSavedFolder = pathString.startsWith('saved/') || pathString.startsWith('saved\\') || pathString.includes('/saved/') || pathString.includes('\\saved\\');
+            
+            const isManifest = fileName.toLowerCase() === 'manifest_nonufsfiles_win64.txt';
+            const isLauncher = fileName.toLowerCase() === 'vrclassroom launcher.exe';
+            const isVrClassroomTxt = fileName.toLowerCase() === 'vrclassroom.txt';
+
+            if (isSavedFolder || isManifest || isLauncher || isVrClassroomTxt) {
+                console.log(`Filtering out non-essential file: ${file.path}`);
+                return false;
+            }
+            return true;
+        });
+        console.log(`After filtering, ${filteredFiles.length} files remain.`);
+
+        if (filteredFiles.length === 0) {
+            console.log("No critical files to update. Finalizing update process.");
+            this.setState({ status: 'success', progress: 100, downloadSpeed: 0 });
+            return;
+        }
+
         this.setState({
             ...this.getInitialState(),
             status: 'downloading',
-            totalFiles: files.length,
+            totalFiles: filteredFiles.length,
         });
         
         this.bytesSinceLastInterval = 0;
@@ -133,13 +159,13 @@ class DownloadManager {
         }, 250);
 
         let i = 0;
-        while (i < files.length) {
+        while (i < filteredFiles.length) {
             if (this.state.status === 'cancelling') {
                 break;
             }
 
             // This is the core loop for a single file, allowing retries and resume.
-            const file = files[i];
+            const file = filteredFiles[i];
             this.setState({ 
                 currentFileName: path.basename(file.path), 
                 downloadedBytes: 0, 
@@ -216,7 +242,20 @@ class DownloadManager {
 
                 this.request.on('data', (chunk) => {
                     this.bytesSinceLastInterval += chunk.length;
-                    this.setState({ downloadedBytes: (this.state.downloadedBytes || 0) + chunk.length });
+                    const newDownloadedBytes = (this.state.downloadedBytes || 0) + chunk.length;
+                    
+                    const baseProgress = (this.state.filesDownloaded / this.state.totalFiles) * 100;
+                    
+                    let currentFileProgress = 0;
+                    if (this.state.totalBytes > 0) {
+                        const currentFileDownloadPercentage = newDownloadedBytes / this.state.totalBytes;
+                        currentFileProgress = currentFileDownloadPercentage * (1 / this.state.totalFiles) * 100;
+                    }
+                    
+                    this.setState({ 
+                        downloadedBytes: newDownloadedBytes,
+                        progress: baseProgress + currentFileProgress
+                    });
                 });
 
                 this.writer.on('finish', () => resolve());
