@@ -30,7 +30,7 @@ function createWindow() {
         height: 720,
         resizable: true,
         frame: true,
-        title: 'VR Centre Apps Launcher',
+        title: 'Role-Play-AI Launcher',
         autoHideMenuBar: true,
         icon: path.join(__dirname, '/assets/icon-white.png'),
         webPreferences: {
@@ -169,8 +169,8 @@ class DownloadManager {
             const isSavedFolder = pathString.startsWith('saved/') || pathString.startsWith('saved\\') || pathString.includes('/saved/') || pathString.includes('\\saved\\');
             
             const isManifest = fileName.toLowerCase() === 'manifest_nonufsfiles_win64.txt';
-            const isLauncher = fileName.toLowerCase() === 'vrclassroom launcher.exe';
-            const isVrClassroomTxt = fileName.toLowerCase() === 'vrclassroom.txt';
+            const isLauncher = fileName.toLowerCase() === 'roleplayai launcher.exe';
+            const isVrClassroomTxt = fileName.toLowerCase() === 'roleplayai.txt';
 
             if (isSavedFolder || isManifest || isLauncher || isVrClassroomTxt) {
                 console.log(`Filtering out non-essential file: ${file.path}`);
@@ -437,9 +437,9 @@ ipcMain.handle('select-install-dir', async (event) => {
 
     let selectedPath = filePaths[0];
     
-    // Enforce installation in a "VRClassroom" folder
-    if (path.basename(selectedPath).toLowerCase() !== 'vrclassroom') {
-        selectedPath = path.join(selectedPath, 'VRClassroom');
+    // Enforce installation in a "RolePlayAI" folder
+    if (path.basename(selectedPath).toLowerCase() !== 'roleplayai') {
+        selectedPath = path.join(selectedPath, 'RolePlayAI');
     }
 
     // The handler now returns the potentially modified path
@@ -614,8 +614,8 @@ ipcMain.handle('check-for-updates', async (event, { gameId, installPath, manifes
             const isSavedFolder = pathString.startsWith('saved/') || pathString.startsWith('saved\\') || pathString.includes('/saved/') || pathString.includes('\\saved\\');
             
             const isManifest = fileName.toLowerCase() === 'manifest_nonufsfiles_win64.txt';
-            const isLauncher = fileName.toLowerCase() === 'vrclassroom launcher.exe';
-            const isVrClassroomTxt = fileName.toLowerCase() === 'vrclassroom.txt';
+            const isLauncher = fileName.toLowerCase() === 'roleplayai launcher.exe';
+            const isVrClassroomTxt = fileName.toLowerCase() === 'roleplayai.txt';
 
             if (isSavedFolder || isManifest || isLauncher || isVrClassroomTxt) {
                 console.log(`Skipping non-essential file during check: ${fileInfo.path}`);

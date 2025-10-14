@@ -150,23 +150,23 @@ function showLogin() {
 function initLauncher() {
     // All of your original launcher code goes here.
     let gameLibrary = {
-        'VRClassroom': {
-            name: 'VR Classroom',
-            tagline: 'Brining the Worksite into the Classroom',
-            version: '1.1.0.8',
+        'RolePlayAI': {
+            name: 'Role Play AI',
+            tagline: 'SYNTHETIC SCENES™ – Avatar-Led Role Play Platform',
+            version: '1.0.0',
             status: 'uninstalled',
             logoUrl: 'assets/icon-white_s.png',
-            backgroundUrl: 'https://vrcentre.com.au/wp-content/uploads/2021/06/cropped-Primary_Logo_Horizontal_Web-01-1.png',
+            backgroundUrl: 'assets/BG.png',
             installPath: null,
-            executable: 'VRClassroom.exe',
-            manifestUrl: 'https://vrcentre.com.au/launcher_files/vrclassroom/vrclassroom_manifest.json',
-            versionUrl: 'https://vrcentre.com.au/launcher_files/vrclassroom/version.json',
+            executable: 'RolePlayAI.exe',
+            manifestUrl: 'https://example.com/placeholder_manifest.json', // Placeholder
+            versionUrl: 'https://example.com/placeholder_version.json', // Placeholder
             filesToUpdate: [],
             isPaused: false,
         },
     };
 
-    let currentGameId = 'VRClassroom';
+    let currentGameId = 'RolePlayAI';
 
     // --- DOM Elements ---
     const gameListEl = document.getElementById('game-list'),
@@ -191,7 +191,9 @@ function initLauncher() {
           closeSettingsButtonEl = document.getElementById('close-settings-button'),
           installPathDisplayEl = document.getElementById('install-path-display'),
           changePathButtonEl = document.getElementById('change-path-button'),
-          locateGameLinkEl = document.getElementById('locate-game-link');
+          locateGameLinkEl = document.getElementById('locate-game-link'),
+          sidebarEl = document.getElementById('sidebar'),
+          sidebarToggleEl = document.getElementById('sidebar-toggle');
 
     function formatBytes(bytes, decimals = 2) {
         if (!bytes || bytes === 0) return '0 Bytes';
@@ -200,6 +202,30 @@ function initLauncher() {
         const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
+
+    // Sidebar toggle functionality
+    function toggleSidebar() {
+        sidebarEl.classList.toggle('expanded');
+        sidebarEl.classList.toggle('collapsed');
+        
+        // Save sidebar state to localStorage
+        const isExpanded = sidebarEl.classList.contains('expanded');
+        localStorage.setItem('sidebarExpanded', isExpanded);
+    }
+
+    // Initialize sidebar state from localStorage
+    function initializeSidebar() {
+        const savedState = localStorage.getItem('sidebarExpanded');
+        if (savedState === null) {
+            // Default to collapsed on first visit for better UX
+            sidebarEl.classList.add('collapsed');
+            localStorage.setItem('sidebarExpanded', 'false');
+        } else if (savedState === 'true') {
+            sidebarEl.classList.add('expanded');
+        } else {
+            sidebarEl.classList.add('collapsed');
+        }
     }
 
     function renderGame(gameId) {
@@ -407,18 +433,35 @@ function initLauncher() {
         gameListEl.innerHTML = '';
         for (const gameId in gameLibrary) {
             const game = gameLibrary[gameId];
+            
+            // Create container for each game item
+            const gameItemEl = document.createElement('div');
+            gameItemEl.className = 'flex items-center space-x-3';
+            
+            // Create logo element - larger size
             const logoEl = document.createElement('img');
             logoEl.src = game.logoUrl;
             logoEl.alt = `${game.name} Logo`;
-            logoEl.className = 'w-16 h-16 rounded-lg cursor-pointer transition-all duration-200 hover:scale-110 game-logo';
+            logoEl.className = 'w-12 h-12 rounded-lg cursor-pointer transition-all duration-300 hover:scale-110 game-logo flex-shrink-0';
             logoEl.dataset.gameId = gameId;
-            logoEl.addEventListener('click', () => {
+            logoEl.title = game.name; // Tooltip for collapsed state
+            
+            // Create text element (hidden when collapsed) - larger size
+            const textEl = document.createElement('span');
+            textEl.textContent = game.name;
+            textEl.className = 'text-white font-medium text-base whitespace-nowrap opacity-0 transition-opacity duration-300 game-text';
+            
+            // Add click handler to the container
+            gameItemEl.addEventListener('click', () => {
                if (gameLibrary[currentGameId].status !== 'downloading' && gameLibrary[currentGameId].status !== 'paused') {
                    currentGameId = gameId;
                    renderGame(gameId);
                }
             });
-            gameListEl.appendChild(logoEl);
+            
+            gameItemEl.appendChild(logoEl);
+            gameItemEl.appendChild(textEl);
+            gameListEl.appendChild(gameItemEl);
         }
         actionButtonEl.addEventListener('click', handleActionButtonClick);
         pauseResumeButtonEl.addEventListener('click', handlePauseResumeClick);
@@ -426,6 +469,10 @@ function initLauncher() {
         
         settingsButtonEl.addEventListener('click', openSettingsModal);
         closeSettingsButtonEl.addEventListener('click', closeSettingsModal);
+        
+        // Sidebar toggle functionality
+        sidebarToggleEl.addEventListener('click', toggleSidebar);
+        initializeSidebar();
 
         uninstallButtonEl.addEventListener('click', () => {
             const game = gameLibrary[currentGameId];

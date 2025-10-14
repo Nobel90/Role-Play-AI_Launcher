@@ -1,2 +1,2 @@
-# VRC_Launcher
-Game Launcher and Updater for VRC's VR App
+# Role-Play-AI_Launcher
+App Launcher and Updater for VRC's Role-Play-AI App

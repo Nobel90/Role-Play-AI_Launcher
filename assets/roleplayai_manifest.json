@@ -1,805 +1,805 @@
 {
-  "version": "1.1.0.8",
+  "version": "1.0.0",
   "files": [
     {
       "path": "AFEOS/Binaries/Win64/AFEOS.exe",
       "checksum": "77533b1ef829b2a3477ab2e0be4375ee7e816ac7ae3a5df723843bebd3145671",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Binaries/Win64/AFEOS.exe"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Binaries/Win64/AFEOS.exe"
     },
     {
       "path": "AFEOS/Binaries/Win64/OpenImageDenoise.dll",
       "checksum": "11213c268e6c67262d48e7351e1f6c196acbb91a9a1cf059d4d758c34368f08a",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Binaries/Win64/OpenImageDenoise.dll"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Binaries/Win64/OpenImageDenoise.dll"
     },
     {
       "path": "AFEOS/Binaries/Win64/tbb12.dll",
       "checksum": "061f3b283b3e5b24c5ac45772ee19e2f4b24cdacb3ff8ae4f815fe62836e5a45",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Binaries/Win64/tbb12.dll"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Binaries/Win64/tbb12.dll"
     },
     {
       "path": "AFEOS/Config/SteamVRBindings/gamepad.json",
       "checksum": "50ea9b6b55f8f4c967314494d5289c1b4656b88bd24ae214430135a2c2d7135d",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Config/SteamVRBindings/gamepad.json"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Config/SteamVRBindings/gamepad.json"
     },
     {
       "path": "AFEOS/Config/SteamVRBindings/holographic_controller.json",
       "checksum": "0a7b3e3f92d260b72aefd7f0ad14bf0fc5d8802bc157e364d21b9b7f31f46afa",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Config/SteamVRBindings/holographic_controller.json"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Config/SteamVRBindings/holographic_controller.json"
     },
     {
       "path": "AFEOS/Config/SteamVRBindings/hpmotioncontroller.json",
       "checksum": "6c9ef6f129cc050298ccee0f19562ff5a0ca303ae49036f8dab7ef0d905ce511",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Config/SteamVRBindings/hpmotioncontroller.json"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Config/SteamVRBindings/hpmotioncontroller.json"
     },
     {
       "path": "AFEOS/Config/SteamVRBindings/indexhmd.json",
       "checksum": "6e6130a0310277a79fdae856415225ab7cc048d553bfd142bcefa2a84635c0df",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Config/SteamVRBindings/indexhmd.json"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Config/SteamVRBindings/indexhmd.json"
     },
     {
       "path": "AFEOS/Config/SteamVRBindings/knuckles.json",
       "checksum": "7a42dbd1f4812fa1c663fadcbe2009bdde59b5679494e5d61fa0f3f918049b55",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Config/SteamVRBindings/knuckles.json"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Config/SteamVRBindings/knuckles.json"
     },
     {
       "path": "AFEOS/Config/SteamVRBindings/oculus_touch.json",
       "checksum": "81c09c85963f13925bc40f57815accc5a23cd4e0b8d6851a0bade67d06b72429",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Config/SteamVRBindings/oculus_touch.json"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Config/SteamVRBindings/oculus_touch.json"
     },
     {
       "path": "AFEOS/Config/SteamVRBindings/rift.json",
       "checksum": "338c792544975834a4f4ed213f8d745d3142ccfa19692f2fd5694f5a9a4ab470",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Config/SteamVRBindings/rift.json"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Config/SteamVRBindings/rift.json"
     },
     {
       "path": "AFEOS/Config/SteamVRBindings/steamvr_manifest.json",
       "checksum": "e0377c253a10d0a4ad5600a4498c3f746e73fee0f401ab4c20533d53ae24fb8b",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Config/SteamVRBindings/steamvr_manifest.json"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Config/SteamVRBindings/steamvr_manifest.json"
     },
     {
       "path": "AFEOS/Config/SteamVRBindings/vive.json",
       "checksum": "9924354aff85ce99fc428cd43d8df13c5cc3f67a51063cd614aee620d5d28fe5",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Config/SteamVRBindings/vive.json"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Config/SteamVRBindings/vive.json"
     },
     {
       "path": "AFEOS/Config/SteamVRBindings/vive_controller.json",
       "checksum": "1dfb5422ec12a367068cad39a4d3dd2eded3159e9ea6584b5ca3b0534f96fbff",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Config/SteamVRBindings/vive_controller.json"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Config/SteamVRBindings/vive_controller.json"
     },
     {
       "path": "AFEOS/Config/SteamVRBindings/vive_cosmos_controller.json",
       "checksum": "989243c24c809ddcdf1c642ac0b3b5829893ec5e929085102670a053a09d634c",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Config/SteamVRBindings/vive_cosmos_controller.json"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Config/SteamVRBindings/vive_cosmos_controller.json"
     },
     {
       "path": "AFEOS/Config/SteamVRBindings/vive_pro.json",
       "checksum": "de89e9973c127215e43a49823125120cac61693f337ef372b28c5737863ac305",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Config/SteamVRBindings/vive_pro.json"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Config/SteamVRBindings/vive_pro.json"
     },
     {
       "path": "AFEOS/Config/SteamVRBindings/vive_tracker.json",
       "checksum": "a9edf35f7477f73cd74013678ffa7d489c659b54905297b5294d57d414f4a038",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Config/SteamVRBindings/vive_tracker.json"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Config/SteamVRBindings/vive_tracker.json"
     },
     {
       "path": "AFEOS/Config/SteamVRBindings/vive_tracker_camera.json",
       "checksum": "632a590e5fbe8e2d8867b1c42cc4238aa4d52a5f8306d6f4a648d95acf7ebc21",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Config/SteamVRBindings/vive_tracker_camera.json"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Config/SteamVRBindings/vive_tracker_camera.json"
     },
     {
       "path": "AFEOS/Config/SteamVRBindings/vive_tracker_chest.json",
       "checksum": "dcf1e936396312ceac978ebeeded12da4372a15fc6ac1abbab9a63d6fd44a8ba",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Config/SteamVRBindings/vive_tracker_chest.json"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Config/SteamVRBindings/vive_tracker_chest.json"
     },
     {
       "path": "AFEOS/Config/SteamVRBindings/vive_tracker_handed.json",
       "checksum": "1022e5f9db68a61174a9fb96c3681a6bd78f1461e89d37623b4fef23a987bb6c",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Config/SteamVRBindings/vive_tracker_handed.json"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Config/SteamVRBindings/vive_tracker_handed.json"
     },
     {
       "path": "AFEOS/Config/SteamVRBindings/vive_tracker_keyboard.json",
       "checksum": "2f5a356cfa4c5d18b95dd6167f3dfa76331fac719346427a1079a74066c2ef24",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Config/SteamVRBindings/vive_tracker_keyboard.json"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Config/SteamVRBindings/vive_tracker_keyboard.json"
     },
     {
       "path": "AFEOS/Config/SteamVRBindings/vive_tracker_left_elbow.json",
       "checksum": "dfe14801e931132c6c677b27ce74f247c30e842aa21dde3143015b447a7e71d1",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Config/SteamVRBindings/vive_tracker_left_elbow.json"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Config/SteamVRBindings/vive_tracker_left_elbow.json"
     },
     {
       "path": "AFEOS/Config/SteamVRBindings/vive_tracker_left_foot.json",
       "checksum": "cfdafd92accc6724e38c036160ac8fb6595fc71488c7e6deb7f41da3628dacf2",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Config/SteamVRBindings/vive_tracker_left_foot.json"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Config/SteamVRBindings/vive_tracker_left_foot.json"
     },
     {
       "path": "AFEOS/Config/SteamVRBindings/vive_tracker_left_knee.json",
       "checksum": "9540c1d4f1db81f5afd81aa1f1442519435efe7dbf39c5c7086f2eaff5d81d6b",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Config/SteamVRBindings/vive_tracker_left_knee.json"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Config/SteamVRBindings/vive_tracker_left_knee.json"
     },
     {
       "path": "AFEOS/Config/SteamVRBindings/vive_tracker_left_shoulder.json",
       "checksum": "36eab19a26a3b17d40cab61becb2be5e5dc2d899a97e32b6648fb3b83878ec0d",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Config/SteamVRBindings/vive_tracker_left_shoulder.json"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Config/SteamVRBindings/vive_tracker_left_shoulder.json"
     },
     {
       "path": "AFEOS/Config/SteamVRBindings/vive_tracker_right_elbow.json",
       "checksum": "f148e3b2ba26a6733a18058ed6e272209d0c6529969224eb685368eb35ff88d0",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Config/SteamVRBindings/vive_tracker_right_elbow.json"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Config/SteamVRBindings/vive_tracker_right_elbow.json"
     },
     {
       "path": "AFEOS/Config/SteamVRBindings/vive_tracker_right_foot.json",
       "checksum": "fa11b1956db75817f7e0f83dd006860ce611b92e36c8ebe9607597b509f1042e",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Config/SteamVRBindings/vive_tracker_right_foot.json"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Config/SteamVRBindings/vive_tracker_right_foot.json"
     },
     {
       "path": "AFEOS/Config/SteamVRBindings/vive_tracker_right_knee.json",
       "checksum": "39703c7b127b4828f5a7a3366000a74dfbfc9057b987da2df29667bac4e522b8",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Config/SteamVRBindings/vive_tracker_right_knee.json"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Config/SteamVRBindings/vive_tracker_right_knee.json"
     },
     {
       "path": "AFEOS/Config/SteamVRBindings/vive_tracker_right_shoulder.json",
       "checksum": "bb863eca26cadd26a7ad32fbd5c5a588bb580e76d5a5a5b2e8be1b4459cd55cd",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Config/SteamVRBindings/vive_tracker_right_shoulder.json"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Config/SteamVRBindings/vive_tracker_right_shoulder.json"
     },
     {
       "path": "AFEOS/Config/SteamVRBindings/vive_tracker_waist.json",
       "checksum": "46829b64cf08e37e0d9be6d69378ce9559216916476e81e89bb3e2d60278213d",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Config/SteamVRBindings/vive_tracker_waist.json"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Config/SteamVRBindings/vive_tracker_waist.json"
     },
     {
       "path": "AFEOS/Content/Paks/AFEOS-WindowsNoEditor.pak",
       "checksum": "94b42d946e3a3b79c348052b16716fdf3429dbe067381f49d87ec9aaaeae2d06",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Content/Paks/AFEOS-WindowsNoEditor.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Content/Paks/AFEOS-WindowsNoEditor.pak"
     },
     {
       "path": "AFEOS/Saved/Config/CrashReportClient/UE4CC-Windows-03D0A9DA4ABD38098789E7B11E53DE28/CrashReportClient.ini",
       "checksum": "bef31ccf1777031eb19e7b55b387ac3a66b591c5a3fd43902deb6c01d8e63943",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Saved/Config/CrashReportClient/UE4CC-Windows-03D0A9DA4ABD38098789E7B11E53DE28/CrashReportClient.ini"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Saved/Config/CrashReportClient/UE4CC-Windows-03D0A9DA4ABD38098789E7B11E53DE28/CrashReportClient.ini"
     },
     {
       "path": "AFEOS/Saved/Config/CrashReportClient/UE4CC-Windows-1039963949AFDBBA4A89AB9B6D534217/CrashReportClient.ini",
       "checksum": "bef31ccf1777031eb19e7b55b387ac3a66b591c5a3fd43902deb6c01d8e63943",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Saved/Config/CrashReportClient/UE4CC-Windows-1039963949AFDBBA4A89AB9B6D534217/CrashReportClient.ini"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Saved/Config/CrashReportClient/UE4CC-Windows-1039963949AFDBBA4A89AB9B6D534217/CrashReportClient.ini"
     },
     {
       "path": "AFEOS/Saved/Config/CrashReportClient/UE4CC-Windows-454A1546434489AC4D76318897F01450/CrashReportClient.ini",
       "checksum": "bef31ccf1777031eb19e7b55b387ac3a66b591c5a3fd43902deb6c01d8e63943",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Saved/Config/CrashReportClient/UE4CC-Windows-454A1546434489AC4D76318897F01450/CrashReportClient.ini"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Saved/Config/CrashReportClient/UE4CC-Windows-454A1546434489AC4D76318897F01450/CrashReportClient.ini"
     },
     {
       "path": "AFEOS/Saved/Config/WindowsNoEditor/Compat.ini",
       "checksum": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Saved/Config/WindowsNoEditor/Compat.ini"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Saved/Config/WindowsNoEditor/Compat.ini"
     },
     {
       "path": "AFEOS/Saved/Config/WindowsNoEditor/DataprepEditor.ini",
       "checksum": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Saved/Config/WindowsNoEditor/DataprepEditor.ini"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Saved/Config/WindowsNoEditor/DataprepEditor.ini"
     },
     {
       "path": "AFEOS/Saved/Config/WindowsNoEditor/DeviceProfiles.ini",
       "checksum": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Saved/Config/WindowsNoEditor/DeviceProfiles.ini"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Saved/Config/WindowsNoEditor/DeviceProfiles.ini"
     },
     {
       "path": "AFEOS/Saved/Config/WindowsNoEditor/EditorScriptingUtilities.ini",
       "checksum": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Saved/Config/WindowsNoEditor/EditorScriptingUtilities.ini"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Saved/Config/WindowsNoEditor/EditorScriptingUtilities.ini"
     },
     {
       "path": "AFEOS/Saved/Config/WindowsNoEditor/Engine.ini",
       "checksum": "719f456c36a4eea408f6aa8aad646b6d99054868625aecb2b04cbcd0662f1918",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Saved/Config/WindowsNoEditor/Engine.ini"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Saved/Config/WindowsNoEditor/Engine.ini"
     },
     {
       "path": "AFEOS/Saved/Config/WindowsNoEditor/Game.ini",
       "checksum": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Saved/Config/WindowsNoEditor/Game.ini"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Saved/Config/WindowsNoEditor/Game.ini"
     },
     {
       "path": "AFEOS/Saved/Config/WindowsNoEditor/GameplayTags.ini",
       "checksum": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Saved/Config/WindowsNoEditor/GameplayTags.ini"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Saved/Config/WindowsNoEditor/GameplayTags.ini"
     },
     {
       "path": "AFEOS/Saved/Config/WindowsNoEditor/GameUserSettings.ini",
       "checksum": "0b01b7a8ab1f0496bff64ab71d2546ed974f6cb31906e91fcd6c420870ce9411",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Saved/Config/WindowsNoEditor/GameUserSettings.ini"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Saved/Config/WindowsNoEditor/GameUserSettings.ini"
     },
     {
       "path": "AFEOS/Saved/Config/WindowsNoEditor/Hardware.ini",
       "checksum": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Saved/Config/WindowsNoEditor/Hardware.ini"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Saved/Config/WindowsNoEditor/Hardware.ini"
     },
     {
       "path": "AFEOS/Saved/Config/WindowsNoEditor/Input.ini",
       "checksum": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Saved/Config/WindowsNoEditor/Input.ini"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Saved/Config/WindowsNoEditor/Input.ini"
     },
     {
       "path": "AFEOS/Saved/Config/WindowsNoEditor/LiveLink.ini",
       "checksum": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Saved/Config/WindowsNoEditor/LiveLink.ini"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Saved/Config/WindowsNoEditor/LiveLink.ini"
     },
     {
       "path": "AFEOS/Saved/Config/WindowsNoEditor/MagicLeap.ini",
       "checksum": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Saved/Config/WindowsNoEditor/MagicLeap.ini"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Saved/Config/WindowsNoEditor/MagicLeap.ini"
     },
     {
       "path": "AFEOS/Saved/Config/WindowsNoEditor/MagicLeapLightEstimation.ini",
       "checksum": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Saved/Config/WindowsNoEditor/MagicLeapLightEstimation.ini"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Saved/Config/WindowsNoEditor/MagicLeapLightEstimation.ini"
     },
     {
       "path": "AFEOS/Saved/Config/WindowsNoEditor/MotoSynth.ini",
       "checksum": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Saved/Config/WindowsNoEditor/MotoSynth.ini"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Saved/Config/WindowsNoEditor/MotoSynth.ini"
     },
     {
       "path": "AFEOS/Saved/Config/WindowsNoEditor/Niagara.ini",
       "checksum": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Saved/Config/WindowsNoEditor/Niagara.ini"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Saved/Config/WindowsNoEditor/Niagara.ini"
     },
     {
       "path": "AFEOS/Saved/Config/WindowsNoEditor/OculusVR.ini",
       "checksum": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Saved/Config/WindowsNoEditor/OculusVR.ini"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Saved/Config/WindowsNoEditor/OculusVR.ini"
     },
     {
       "path": "AFEOS/Saved/Config/WindowsNoEditor/Paper2D.ini",
       "checksum": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Saved/Config/WindowsNoEditor/Paper2D.ini"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Saved/Config/WindowsNoEditor/Paper2D.ini"
     },
     {
       "path": "AFEOS/Saved/Config/WindowsNoEditor/PhysXVehicles.ini",
       "checksum": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Saved/Config/WindowsNoEditor/PhysXVehicles.ini"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Saved/Config/WindowsNoEditor/PhysXVehicles.ini"
     },
     {
       "path": "AFEOS/Saved/Config/WindowsNoEditor/RemoteControl.ini",
       "checksum": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Saved/Config/WindowsNoEditor/RemoteControl.ini"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Saved/Config/WindowsNoEditor/RemoteControl.ini"
     },
     {
       "path": "AFEOS/Saved/Config/WindowsNoEditor/RuntimeOptions.ini",
       "checksum": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Saved/Config/WindowsNoEditor/RuntimeOptions.ini"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Saved/Config/WindowsNoEditor/RuntimeOptions.ini"
     },
     {
       "path": "AFEOS/Saved/Config/WindowsNoEditor/Scalability.ini",
       "checksum": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Saved/Config/WindowsNoEditor/Scalability.ini"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Saved/Config/WindowsNoEditor/Scalability.ini"
     },
     {
       "path": "AFEOS/Saved/Config/WindowsNoEditor/Synthesis.ini",
       "checksum": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Saved/Config/WindowsNoEditor/Synthesis.ini"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Saved/Config/WindowsNoEditor/Synthesis.ini"
     },
     {
       "path": "AFEOS/Saved/Config/WindowsNoEditor/VariantManagerContent.ini",
       "checksum": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Saved/Config/WindowsNoEditor/VariantManagerContent.ini"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Saved/Config/WindowsNoEditor/VariantManagerContent.ini"
     },
     {
       "path": "AFEOS/Saved/Logs/AFEOS-backup-2025.07.08-07.12.30.log",
       "checksum": "a7706ca0df3bdcf6b49e151079179d8f929b27bc39012c7d9a4c187f2c548385",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Saved/Logs/AFEOS-backup-2025.07.08-07.12.30.log"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Saved/Logs/AFEOS-backup-2025.07.08-07.12.30.log"
     },
     {
       "path": "AFEOS/Saved/Logs/AFEOS.log",
       "checksum": "d4c201606cd3097d5eab020f35e784bcc786ef6d356f387e236f3736b6ea6dbc",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Saved/Logs/AFEOS.log"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Saved/Logs/AFEOS.log"
     },
     {
       "path": "AFEOS/Saved/Logs/cef3.log",
       "checksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Saved/Logs/cef3.log"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Saved/Logs/cef3.log"
     },
     {
       "path": "AFEOS/Saved/SaveGames/PlayerInfo.sav",
       "checksum": "bffdabe02e8681aa541370d2e540e618ab163f8542bb799165180a7b667a75da",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Saved/SaveGames/PlayerInfo.sav"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Saved/SaveGames/PlayerInfo.sav"
     },
     {
       "path": "AFEOS/Saved/webcache/Visited Links",
       "checksum": "d94f181ed95c63a4367e41447e7b970552c4b1a7db423758c4787f0bc1fedbb9",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/AFEOS/Saved/webcache/Visited Links"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/AFEOS/Saved/webcache/Visited Links"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/chrome_elf.dll",
       "checksum": "8a06b6f35fde228a7aa55ce6d6a4cc84a0c3443468d618850a868ce4e56909bb",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/chrome_elf.dll"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/chrome_elf.dll"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/d3dcompiler_43.dll",
       "checksum": "2f23182ec6f4889397ac4bf03d62536136c5bdba825c7d2c4ef08c827f3a8a1c",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/d3dcompiler_43.dll"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/d3dcompiler_43.dll"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/d3dcompiler_47.dll",
       "checksum": "d82f77d802ff05d4da0c82335a05613604da243513faa7fb145aaad0119bddb5",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/d3dcompiler_47.dll"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/d3dcompiler_47.dll"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/icudtl.dat",
       "checksum": "51b93e0bc7e6d697ccc29703e2ebc9210c231c931fe764c372e5ba0d26098d3b",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/icudtl.dat"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/icudtl.dat"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/libcef.dll",
       "checksum": "801f122c61770d97af98f560e16b6279e3b65ba4eec0d9e1786f691b1bddf7a2",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/libcef.dll"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/libcef.dll"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/libEGL.dll",
       "checksum": "63580999b8210315b664e7742b6d4f59e587d20b4d0826072a5ef311c6f25b74",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/libEGL.dll"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/libEGL.dll"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/libGLESv2.dll",
       "checksum": "99f261fa5a69dd2b3bd6192aaf72a0d9f88d769a311fac87963658a7573ec669",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/libGLESv2.dll"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/libGLESv2.dll"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/natives_blob.bin",
       "checksum": "20210a0e530832a0267d584015eecb331c2ac0d841faf7b36feb9d326c32c113",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/natives_blob.bin"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/natives_blob.bin"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/cef.pak",
       "checksum": "c26ff7260312b10cf2659e048a0c7d8989f8e63a1069802265e47d2f67e65d85",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/cef.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/cef.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/cef_100_percent.pak",
       "checksum": "5db46cebb4085976d52d9d27280fad10b64bdf50b768d3a61b23fc1cda01ed14",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/cef_100_percent.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/cef_100_percent.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/cef_200_percent.pak",
       "checksum": "5de8af5fec935ffd1227b4d2c2be1afaba3aeaa334e842ab3f86a63bcf999e26",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/cef_200_percent.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/cef_200_percent.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/cef_extensions.pak",
       "checksum": "0268ed1497f3951662efffb7f14a388c65fd14a1b4e477e8380a31dd9cc6872f",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/cef_extensions.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/cef_extensions.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/devtools_resources.pak",
       "checksum": "86ca2607ee8256a55a7aa0b30b7ff3a3bef5c1c095d2e4310e7efda257bfd1c1",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/devtools_resources.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/devtools_resources.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/am.pak",
       "checksum": "644d8494114542e0cc62f09c325b1504bfa8e63fbfa7e32f8d9e70375d21e5b6",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/am.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/am.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/ar.pak",
       "checksum": "78a728f45c5f0e245153656c277f452d7fa9670bf7d947f41d2a5b4434d21b91",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/ar.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/ar.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/bg.pak",
       "checksum": "966f12b6bdfbccec17b3aaf41cd267b3b50adc08ebb9d4052bc056cf4a9a3c92",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/bg.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/bg.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/bn.pak",
       "checksum": "baab6045ab40c9d0b9f684a70296d759033501981bc9dcd7d6f320e7ecefa4c0",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/bn.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/bn.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/ca.pak",
       "checksum": "fcf071199dff9eadf87088c8604a4e7feeb746b52f7a2250a4b4708c7c3253e1",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/ca.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/ca.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/cs.pak",
       "checksum": "f6cbb6464f7a89c133d66c919c48227a6fa10285b3ccb5d87581f168584f6574",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/cs.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/cs.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/da.pak",
       "checksum": "4834233e031169260acb8864a4fd6a35bd9f295f74ba39c88e56b8850d145c20",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/da.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/da.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/de.pak",
       "checksum": "b2b3f9a080951e1b42447f6fab93ba70f3f18dfb2618b3bb7a9bcd03ac21f1d5",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/de.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/de.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/el.pak",
       "checksum": "73245db3afa2d270533773e35f15cda1d4d09a8fe6f2f8a05bd9b117c760b8d5",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/el.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/el.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/en-GB.pak",
       "checksum": "3cb1ae145de1892ce5c1dc4ecc00a247f32de71d04c3720de49c800c48be6073",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/en-GB.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/en-GB.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/en-US.pak",
       "checksum": "de2958f810539e85e770f4dec86ff880dc0223cd36071d5b1ab4eea2052b6fa0",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/en-US.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/en-US.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/es-419.pak",
       "checksum": "0e97ee85938625a9a317cd35b66501b02ce56bba0e36ab79d59e76bad6635aa9",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/es-419.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/es-419.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/es.pak",
       "checksum": "4515a47223a992a72d4cf5cb6f1b290eecc499e96b00e01c71942e20ba8e12d4",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/es.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/es.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/et.pak",
       "checksum": "9b3839f55f186318e257a07149a07caa2a2171b8a740cd251c245323c8a7524f",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/et.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/et.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/fa.pak",
       "checksum": "a0e38afc45902bae2e2ead3e51972495558fd75e420ad8a05752c76c5c3df5a3",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/fa.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/fa.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/fi.pak",
       "checksum": "a31ce159b03a3ea1dc144d14e31b5525bddc28e9bce366713c7e90580ef3df8c",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/fi.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/fi.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/fil.pak",
       "checksum": "4128934b8dc6fbc90d7d68bd926bd63006ed9869f77ec9a7b78434903fadd18e",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/fil.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/fil.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/fr.pak",
       "checksum": "7d2f5a575e6090cc15d28ca2c20723310528278f89bacb31c0cb5d918fec929e",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/fr.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/fr.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/gu.pak",
       "checksum": "b62fe556a941b1ca2cc89bc36508694fb61cf145a2e2bcc505ef1aabb9a60993",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/gu.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/gu.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/he.pak",
       "checksum": "600fc783659a765efb3086a992f1f5c7e780687bd4cab67fca41c8115582e57d",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/he.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/he.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/hi.pak",
       "checksum": "8e5021c07399ae0f28a4b3816f6606fe161347e65d1a7d01f5ed57ba4377a535",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/hi.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/hi.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/hr.pak",
       "checksum": "ba334953f117ade947420c5f58fd21623a1979b4a7821267bdeff7e1d0ca8c26",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/hr.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/hr.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/hu.pak",
       "checksum": "c449703b65f0796b298cb2f932166cbc0acecb2a061e2d3c823724825877f4aa",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/hu.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/hu.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/id.pak",
       "checksum": "788c6504013495df3ade34f2a8fb81c1fea1bb49351879d56f587680f807a78e",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/id.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/id.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/it.pak",
       "checksum": "39c6b3f68f5bd3dabffc7b907e9cc026ee037d5cb9dc36fb1f3dec38f299af29",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/it.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/it.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/ja.pak",
       "checksum": "f9fa579100cbe58df0f06f39bf7c4719aea9af8d6b5e01bf7b91a9793b653154",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/ja.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/ja.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/kn.pak",
       "checksum": "8339140afdec8f08aba5cf4c87474bd4e4e420293c6332833b9821dc713de290",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/kn.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/kn.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/ko.pak",
       "checksum": "4eb2136286e136dd0c0490e8163607fa8f5dc3eb804802ca5ca05302d5691745",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/ko.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/ko.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/lt.pak",
       "checksum": "80fd3e71172cfd78d360eaa9b7a157beaa5c128ac64a1fb784cec49701b88207",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/lt.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/lt.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/lv.pak",
       "checksum": "73c17bc97d8173949aab0a9748d86b934c14e0418ee8ec314102a5fed40ec5d2",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/lv.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/lv.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/ml.pak",
       "checksum": "db9928f514679e50a41e19bbbc582042ec8ca9fb6cd8088abe594af56b83bb18",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/ml.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/ml.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/mr.pak",
       "checksum": "05d3620c0fcb083647fae506a4e084add864434c5e9d35b23671e6aecf733de1",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/mr.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/mr.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/ms.pak",
       "checksum": "29800443a6afc617029c61c5f825814ecc08ee2ae50f4d06cd3d233a1cf78154",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/ms.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/ms.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/nb.pak",
       "checksum": "ece4d7ffe733ee39d1d12f4999fdcd4cc33c96fbf93f86d64c0a93253737f9fc",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/nb.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/nb.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/nl.pak",
       "checksum": "d1803e3c6d64050fc5a16c5168a99e3165b1137a2a676af2709c3ae13083cac5",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/nl.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/nl.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/pl.pak",
       "checksum": "ffcad2748416d25b0e23114e620bfec21be3c8c0dbd7fce3495535cb42e30da8",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/pl.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/pl.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/pt-BR.pak",
       "checksum": "649de1c7b2b78d4a647ee3426e36ab93a379c5e7060933419d5f28493236efa3",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/pt-BR.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/pt-BR.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/pt-PT.pak",
       "checksum": "335df6ef67e6f7346426f7f108498cdf0c49b748ceeab4eb4f4a53eed3882ae9",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/pt-PT.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/pt-PT.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/ro.pak",
       "checksum": "2807da4230c77df6188ce6607486d499290ecf8daca118b3925fc2a3dd52f902",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/ro.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/ro.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/ru.pak",
       "checksum": "2667857778df720e0768c05c55eb46485f5477169dc716e3b1b5bdbf8fea2c86",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/ru.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/ru.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/sk.pak",
       "checksum": "fea92269172e1e38ba3d1e3400d1de989364bab5d49334aed5352e24b8cb640b",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/sk.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/sk.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/sl.pak",
       "checksum": "2fc6a7bbac450cb583bef9b12d21ca43a31205865faf2352982a29adeb44fc4e",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/sl.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/sl.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/sr.pak",
       "checksum": "9a0e5008633ebe6270bd3101f09a764dff12b4f4118c763f9998c3f432b6b829",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/sr.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/sr.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/sv.pak",
       "checksum": "935d6d3968fa20c7e6e10865e8ecee15a2bb8363a28e4470fbea8e16942b085e",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/sv.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/sv.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/sw.pak",
       "checksum": "fe2502a37371ea88acc8d6e75c16e764cc1212f9ed4142079a0d5dbe8e7f2669",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/sw.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/sw.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/ta.pak",
       "checksum": "70049a6dd560d54b94705e084d638c231f324aad726122d013396f9e976f8f0c",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/ta.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/ta.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/te.pak",
       "checksum": "b959a78fb5cfc0239eb94f15530402ce9aee0ca61ab7e0d763edb3ead0423fd1",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/te.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/te.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/th.pak",
       "checksum": "25e4775efabcc22b87e02c393cebd85ef39fe24790a9c83b96dcddab80501ba6",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/th.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/th.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/tr.pak",
       "checksum": "0fe9c7b8849c9e386c34215e7544afbaac04360896e6dd79d206511ab6a78e37",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/tr.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/tr.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/uk.pak",
       "checksum": "d31fa0678019ffe21d693ab809800a127d9585c9d21eba55094299396c61d448",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/uk.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/uk.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/vi.pak",
       "checksum": "6c42b4810b9ff2bc6deece746385d0ab8bba1c4ac213be8bf6007dbe990b8059",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/vi.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/vi.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/zh-CN.pak",
       "checksum": "24938e63e4d487c96bc74d17a76629c837db11dc3adbf4cba58c90cdd6ae5645",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/zh-CN.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/zh-CN.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/zh-TW.pak",
       "checksum": "7bedce5280dd86b5ed52b950a0b39b5349e7e8b3123e23027230469341327e0e",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/zh-TW.pak"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/Resources/locales/zh-TW.pak"
     },
     {
       "path": "Engine/Binaries/ThirdParty/CEF3/Win64/snapshot_blob.bin",
       "checksum": "8d6b166f4fb2a3910f0dd1958850cbf101a8f4b60823e324d57626383561dd19",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/CEF3/Win64/snapshot_blob.bin"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/CEF3/Win64/snapshot_blob.bin"
     },
     {
       "path": "Engine/Binaries/ThirdParty/DbgHelp/dbghelp.dll",
       "checksum": "9a02133854ff9f06c3b23a70f8c2a4814b2ed4eef613244b485e3737259ddf9e",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/DbgHelp/dbghelp.dll"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/DbgHelp/dbghelp.dll"
     },
     {
       "path": "Engine/Binaries/ThirdParty/NVIDIA/GeForceNOW/Win64/GfnRuntimeSdk.dll",
       "checksum": "e741479b13faab35b34a60bd9e8b09791ea57d260a9336b44916e73ba2246d30",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/NVIDIA/GeForceNOW/Win64/GfnRuntimeSdk.dll"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/NVIDIA/GeForceNOW/Win64/GfnRuntimeSdk.dll"
     },
     {
       "path": "Engine/Binaries/ThirdParty/NVIDIA/NVaftermath/Win64/GFSDK_Aftermath_Lib.x64.dll",
       "checksum": "516e14af41a91fe960363728965f354aecc06bcdfaef6bcb45dd3537ede09195",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/NVIDIA/NVaftermath/Win64/GFSDK_Aftermath_Lib.x64.dll"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/NVIDIA/NVaftermath/Win64/GFSDK_Aftermath_Lib.x64.dll"
     },
     {
       "path": "Engine/Binaries/ThirdParty/Oculus/Audio/Win64/ovraudio64.dll",
       "checksum": "40f4cae5a44a8c51a9a586abb6ec3427138e1345fb7a43d7c6eb5b24aa2c2a19",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/Oculus/Audio/Win64/ovraudio64.dll"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/Oculus/Audio/Win64/ovraudio64.dll"
     },
     {
       "path": "Engine/Binaries/ThirdParty/Oculus/OVRPlugin/OVRPlugin/Win64/OVRPlugin.dll",
       "checksum": "d42d9a1b40ae9e4a86a1dc00536cc7139daea5addbddd32ca386c5b24b000cb6",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/Oculus/OVRPlugin/OVRPlugin/Win64/OVRPlugin.dll"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/Oculus/OVRPlugin/OVRPlugin/Win64/OVRPlugin.dll"
     },
     {
       "path": "Engine/Binaries/ThirdParty/Ogg/Win64/VS2015/libogg_64.dll",
       "checksum": "284a6e70a6dce01f8a02d93e1bb78baf0efb6140459c587d8986d59fb6bd675b",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/Ogg/Win64/VS2015/libogg_64.dll"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/Ogg/Win64/VS2015/libogg_64.dll"
     },
     {
       "path": "Engine/Binaries/ThirdParty/OpenVR/OpenVRv1_5_17/Win64/openvr_api.dll",
       "checksum": "6c5e18a3c12ddb9618c1edb36cd4834115735c1f3096bd4cb2022c3593af28b8",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/OpenVR/OpenVRv1_5_17/Win64/openvr_api.dll"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/OpenVR/OpenVRv1_5_17/Win64/openvr_api.dll"
     },
     {
       "path": "Engine/Binaries/ThirdParty/OpenXR/win64/openxr_loader.dll",
       "checksum": "2ae94572256dfd6d7e992a4474797d8cfe14cf3c030b2040a5b91a7d7bdfd8d8",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/OpenXR/win64/openxr_loader.dll"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/OpenXR/win64/openxr_loader.dll"
     },
     {
       "path": "Engine/Binaries/ThirdParty/PhysX3/Win64/VS2015/ApexFrameworkPROFILE_x64.dll",
       "checksum": "243e4b82d84f6abfc400aaa8c2cc4fc93f36e670c016bc673f18569eb04d47ec",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/PhysX3/Win64/VS2015/ApexFrameworkPROFILE_x64.dll"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/PhysX3/Win64/VS2015/ApexFrameworkPROFILE_x64.dll"
     },
     {
       "path": "Engine/Binaries/ThirdParty/PhysX3/Win64/VS2015/APEX_ClothingPROFILE_x64.dll",
       "checksum": "6d0bf48f8e20b2876a0924fe23128fed4bfbe7c6263d0b98ede45bedd7486b41",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/PhysX3/Win64/VS2015/APEX_ClothingPROFILE_x64.dll"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/PhysX3/Win64/VS2015/APEX_ClothingPROFILE_x64.dll"
     },
     {
       "path": "Engine/Binaries/ThirdParty/PhysX3/Win64/VS2015/APEX_LegacyPROFILE_x64.dll",
       "checksum": "9841fd409a788d0a8cb38c8e5ce06a5b7192d43a465ccbe0a6714fccdde67b79",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/PhysX3/Win64/VS2015/APEX_LegacyPROFILE_x64.dll"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/PhysX3/Win64/VS2015/APEX_LegacyPROFILE_x64.dll"
     },
     {
       "path": "Engine/Binaries/ThirdParty/PhysX3/Win64/VS2015/NvClothPROFILE_x64.dll",
       "checksum": "e62523756094e9a7f83e2b752bd4452401978bb85e180e2efd9a7d8e1c93c851",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/PhysX3/Win64/VS2015/NvClothPROFILE_x64.dll"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/PhysX3/Win64/VS2015/NvClothPROFILE_x64.dll"
     },
     {
       "path": "Engine/Binaries/ThirdParty/PhysX3/Win64/VS2015/PhysX3CommonPROFILE_x64.dll",
       "checksum": "3d0de2d0d5952857acc0234cba8e515cb79ce23569967f0b604ebc2ea70cbd15",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/PhysX3/Win64/VS2015/PhysX3CommonPROFILE_x64.dll"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/PhysX3/Win64/VS2015/PhysX3CommonPROFILE_x64.dll"
     },
     {
       "path": "Engine/Binaries/ThirdParty/PhysX3/Win64/VS2015/PhysX3CookingPROFILE_x64.dll",
       "checksum": "47e6124c9afa2f16ace856f415ee958fcb53109317e7b0191722bdc9c6626507",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/PhysX3/Win64/VS2015/PhysX3CookingPROFILE_x64.dll"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/PhysX3/Win64/VS2015/PhysX3CookingPROFILE_x64.dll"
     },
     {
       "path": "Engine/Binaries/ThirdParty/PhysX3/Win64/VS2015/PhysX3PROFILE_x64.dll",
       "checksum": "b69d19c37c2a08b0aa61cf16595dec31935dafa1023cf27a4457cad2b5bc0a1e",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/PhysX3/Win64/VS2015/PhysX3PROFILE_x64.dll"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/PhysX3/Win64/VS2015/PhysX3PROFILE_x64.dll"
     },
     {
       "path": "Engine/Binaries/ThirdParty/PhysX3/Win64/VS2015/PxFoundationPROFILE_x64.dll",
       "checksum": "4c2d25266e8b0b1b6efd2ada08fd9f352140c54a9c3670086905758adc3ec4ce",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/PhysX3/Win64/VS2015/PxFoundationPROFILE_x64.dll"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/PhysX3/Win64/VS2015/PxFoundationPROFILE_x64.dll"
     },
     {
       "path": "Engine/Binaries/ThirdParty/PhysX3/Win64/VS2015/PxPvdSDKPROFILE_x64.dll",
       "checksum": "a64d533c7486a346470e119111ef98bbe2a38b0d42d22f9c80ee7aec85cb53e3",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/PhysX3/Win64/VS2015/PxPvdSDKPROFILE_x64.dll"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/PhysX3/Win64/VS2015/PxPvdSDKPROFILE_x64.dll"
     },
     {
       "path": "Engine/Binaries/ThirdParty/Steamworks/Steamv151/Win64/steam_api64.dll",
       "checksum": "ca1fa9a7609ab10b7926400559cf073e5888423cc156af72c6027d72a89eea73",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/Steamworks/Steamv151/Win64/steam_api64.dll"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/Steamworks/Steamv151/Win64/steam_api64.dll"
     },
     {
       "path": "Engine/Binaries/ThirdParty/Vorbis/Win64/VS2015/libvorbisfile_64.dll",
       "checksum": "a9d6f5538f44011c1f65d7ace64216a237636717cb0c8c59f4f89cc08dd3d24f",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/Vorbis/Win64/VS2015/libvorbisfile_64.dll"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/Vorbis/Win64/VS2015/libvorbisfile_64.dll"
     },
     {
       "path": "Engine/Binaries/ThirdParty/Vorbis/Win64/VS2015/libvorbis_64.dll",
       "checksum": "0f66dcb5837e9b59c499277fd272b862043356aa9145802cf0a63e00a1bcca59",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/Vorbis/Win64/VS2015/libvorbis_64.dll"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/Vorbis/Win64/VS2015/libvorbis_64.dll"
     },
     {
       "path": "Engine/Binaries/ThirdParty/Windows/WinPixEventRuntime/x64/WinPixEventRuntime.dll",
       "checksum": "0afaa35527ac034861ffa5564e5f6bd9e4d54e79132b3283cdd98e41f5584d19",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/Windows/WinPixEventRuntime/x64/WinPixEventRuntime.dll"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/Windows/WinPixEventRuntime/x64/WinPixEventRuntime.dll"
     },
     {
       "path": "Engine/Binaries/ThirdParty/Windows/XAudio2_9/x64/xaudio2_9redist.dll",
       "checksum": "0e01f400baa09694cacfd2cfbff0d721c17b56785d2d6e29b6fdd117f70ccc1e",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/ThirdParty/Windows/XAudio2_9/x64/xaudio2_9redist.dll"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/ThirdParty/Windows/XAudio2_9/x64/xaudio2_9redist.dll"
     },
     {
       "path": "Engine/Binaries/Win64/UnrealCEFSubProcess.exe",
       "checksum": "0499c4073b070710da3cf39ecb7abae803a8dfbe74fb2a5d7b81bbd146c46f49",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Binaries/Win64/UnrealCEFSubProcess.exe"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Binaries/Win64/UnrealCEFSubProcess.exe"
     },
     {
       "path": "Engine/Extras/Redist/en-us/UE4PrereqSetup_x64.exe",
       "checksum": "145f4e4d11e76a2612db5ffbfae8f9ab8e4385ff7660802ffd2f473c9dcb2a0d",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Extras/Redist/en-us/UE4PrereqSetup_x64.exe"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Extras/Redist/en-us/UE4PrereqSetup_x64.exe"
     },
     {
       "path": "Engine/Plugins/Experimental/BlastPlugin/Binaries/Win64/NvBlastExtAuthoringPROFILE_x64.dll",
       "checksum": "dfdad402a22cdc66692834e3cd86a5d5859ccbea012e6aaa4eb8fcbd018bbcbc",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Plugins/Experimental/BlastPlugin/Binaries/Win64/NvBlastExtAuthoringPROFILE_x64.dll"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Plugins/Experimental/BlastPlugin/Binaries/Win64/NvBlastExtAuthoringPROFILE_x64.dll"
     },
     {
       "path": "Engine/Plugins/Experimental/BlastPlugin/Binaries/Win64/NvBlastGlobalsPROFILE_x64.dll",
       "checksum": "5a8d77292016d081ba5bb68500b14a2365b6d0083587b4fb1dda6e994b2144a2",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Plugins/Experimental/BlastPlugin/Binaries/Win64/NvBlastGlobalsPROFILE_x64.dll"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Plugins/Experimental/BlastPlugin/Binaries/Win64/NvBlastGlobalsPROFILE_x64.dll"
     },
     {
       "path": "Engine/Plugins/Experimental/BlastPlugin/Binaries/Win64/NvBlastPROFILE_x64.dll",
       "checksum": "2c5d0fdef05cf6da16da22f57dc527254c71abcee51e28423c2208ea8dd70094",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Plugins/Experimental/BlastPlugin/Binaries/Win64/NvBlastPROFILE_x64.dll"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Plugins/Experimental/BlastPlugin/Binaries/Win64/NvBlastPROFILE_x64.dll"
     },
     {
       "path": "Engine/Saved/Config/WindowsNoEditor/Manifest.ini",
       "checksum": "e706d6c7c899d8d28e83512d7f29946334086c4a6eaf56f790bf0010e7df1e9c",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Engine/Saved/Config/WindowsNoEditor/Manifest.ini"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Engine/Saved/Config/WindowsNoEditor/Manifest.ini"
     },
     {
       "path": "Manifest_NonUFSFiles_Win64.txt",
       "checksum": "8fbe3b98e6c74c162734394c575a3f0dde8f1e1c081ad2db361e5cf10aca2be8",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/Manifest_NonUFSFiles_Win64.txt"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/Manifest_NonUFSFiles_Win64.txt"
     },
     {
       "path": "VRClassroom Launcher.exe",
       "checksum": "739946c22dcd6c3676feed004ee07d4ae61236e9726e2945bb7d0bc21fa32e24",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/VRClassroom Launcher.exe"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/VRClassroom Launcher.exe"
     },
     {
-      "path": "VRClassroom.exe",
+      "path": "RolePlayAI.exe",
       "checksum": "96c7a47638ad4b46bc2f6b3842e4ff105afbb1946e12c3b3b22ff48cfff5875a",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/VRClassroom.exe"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/RolePlayAI.exe"
     },
     {
       "path": "VRClassroom.txt",
       "checksum": "f3b72049ef64e6b320df419047d11a78ece3bbf14b78ed385bc540c8378e6c86",
-      "url": "https://vrcentre.com.au/launcher_files/vrclassroom/1.1.0.8/VRClassroom.txt"
+      "url": "https://vrcentre.com.au/launcher_files/roleplayai/1.0.0/VRClassroom.txt"
     }
   ]
 }

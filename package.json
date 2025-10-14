@@ -1,7 +1,7 @@
 {
-  "name": "launcher",
+  "name": "role-play-ai-launcher",
   "version": "1.0.2",
-  "description": "VRC Launcher",
+  "description": "Role-Play-AI Launcher",
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -15,11 +15,11 @@
     "publish": {
       "provider": "github",
       "owner": "Nobel90",
-      "repo": "VRC_Launcher",
+      "repo": "Role-Play-AI_Launcher",
       "private": true
     },
-    "appId": "com.vrc.launcher",
-    "productName": "VRC-Launcher",
+    "appId": "com.role-play-ai.launcher",
+    "productName": "Role-Play-AI-Launcher",
     "win": {
       "target": "nsis",
       "icon": "assets/icon-white_s.ico"

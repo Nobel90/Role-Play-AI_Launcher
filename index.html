@@ -22,6 +22,66 @@
             -ms-user-select: none; /* IE 10+ */
             user-select: none; /* Standard syntax */
         }
+        
+        /* Sidebar Styles */
+        #sidebar {
+            width: 6rem; /* 96px - collapsed state (increased for better icon spacing) */
+            position: relative;
+        }
+        
+        #sidebar.expanded {
+            width: 16rem; /* 256px - expanded state */
+        }
+        
+        #sidebar.collapsed {
+            width: 6rem; /* 96px - collapsed state (increased for better icon spacing) */
+        }
+        
+        /* Drawer Button Styles */
+        #sidebar-toggle {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        #sidebar-toggle:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+        
+        
+        /* Game List Visibility - Always visible */
+        #game-list {
+            transition: opacity 0.3s ease-in-out;
+            opacity: 1; /* Always visible */
+        }
+        
+        /* Game Logos - Always visible, fixed to left */
+        .game-logo {
+            transition: all 0.3s ease-in-out;
+            position: relative;
+            left: 0rem; /* 0px from left edge */
+        }
+        
+        /* Container positioning - always left-aligned */
+        #sidebar.collapsed #game-list .flex {
+            justify-content: flex-start;
+        }
+        
+        #sidebar.expanded #game-list .flex {
+            justify-content: flex-start;
+        }
+        
+        /* Game Text - Only visible when expanded, larger size */
+        .game-text {
+            transition: opacity 0.3s ease-in-out;
+            font-size: 1rem; /* text-sm - larger than before */
+        }
+        
+        #sidebar.collapsed .game-text {
+            opacity: 0;
+        }
+        
+        #sidebar.expanded .game-text {
+            opacity: 1;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white overflow-hidden h-screen">
@@ -34,7 +94,7 @@
                     &larr; Back to Launcher
                 </button>
             </div>
-            <h1 class="text-3xl font-black text-center mb-6">VRC Launcher Login</h1>
+            <h1 class="text-3xl font-black text-center mb-6">Role-Play-AI Launcher Login</h1>
             <form id="electron-login-form" class="bg-gray-800 shadow-xl rounded-lg px-8 pt-6 pb-8 mb-4">
                 <div class="mb-4">
                     <label class="block text-gray-400 text-sm font-bold mb-2" for="email">
@@ -61,16 +121,29 @@
     <!-- Main Launcher View -->
     <div id="launcher-view" class="hidden">
     <div id="launcher" class="flex h-screen w-screen">
-        <aside class="w-24 bg-gray-900/80 backdrop-blur-sm p-4 flex flex-col items-center space-y-6 border-r border-gray-700/50">
-            <div class="text-blue-500 font-black text-2xl">VRC</div>
-            <nav id="game-list" class="flex flex-col items-center space-y-4"></nav>
+        <aside id="sidebar" class="bg-gray-900/80 backdrop-blur-sm p-4 flex flex-col items-center space-y-6 border-r border-gray-700/50 transition-all duration-300 ease-in-out relative">
+            <!-- Drawer Toggle Button -->
+            <button id="sidebar-toggle" class="absolute top-1/2 -right-2 transform -translate-y-1/2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white px-2 py-6 rounded-l-lg transition-all duration-200 z-10 border border-gray-600 hover:border-gray-500">
+                <div class="flex flex-col items-center space-y-1">
+                    <div class="w-1 h-1 bg-current rounded-full"></div>
+                    <div class="w-1 h-1 bg-current rounded-full"></div>
+                    <div class="w-1 h-1 bg-current rounded-full"></div>
+                </div>
+            </button>
+            
+            <!-- Sidebar Content -->
+            <div class="flex flex-col space-y-6 w-full">
+                <!-- Game List -->
+                <nav id="game-list" class="flex flex-col space-y-4 w-full opacity-0 transition-opacity duration-300 px-2"></nav>
+            </div>
         </aside>
 
         <main class="flex-1 relative">
             <div class="absolute inset-0 w-full h-full z-0">
                 <img id="game-background" src="" class="w-full h-full object-cover transition-opacity duration-1000" alt="Game Background">
-                <div class="absolute inset-0 bg-black/60"></div>
-                <div class="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-gray-900 to-transparent"></div>
+                <div class="absolute inset-0 bg-black/70"></div>
+                <div class="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-gray-900/90 to-transparent"></div>
+                <div class="absolute top-0 left-0 right-0 h-1/3 bg-gradient-to-b from-gray-900/80 to-transparent"></div>
             </div>
             <div class="relative z-10 flex flex-col h-full p-8 md:p-12">
                 <header class="flex justify-between items-center">
@@ -95,7 +168,7 @@
                 </header>
                 <div class="flex-grow flex items-end">
                     <div class="w-full">
-                        <h1 id="game-title" class="text-5xl md:text-7xl font-black uppercase tracking-wider transition-opacity duration-500"></h1>
+                        <h1 id="game-title" class="text-2xl md:text-3xl font-black uppercase tracking-wider transition-opacity duration-500"></h1>
                         <p id="game-tagline" class="text-gray-400 mt-2 text-lg"></p>
                         <div class="mt-8 flex items-center space-x-6">
                             <button id="action-button" class="px-12 py-4 text-xl font-bold rounded-lg transition-all duration-300 flex items-center justify-center min-w-[200px]"></button>
