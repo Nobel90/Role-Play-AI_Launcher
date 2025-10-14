@@ -1,7 +1,7 @@
 {
-  "name": "launcher",
-  "version": "1.0.2",
-  "description": "VRC Launcher",
+  "name": "role-play-ai-launcher",
+  "version": "1.0.0",
+  "description": "A custom launcher for the Role Play AI platform",
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

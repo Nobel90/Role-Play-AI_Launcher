@@ -150,23 +150,23 @@ function showLogin() {
 function initLauncher() {
     // All of your original launcher code goes here.
     let gameLibrary = {
-        'VRClassroom': {
-            name: 'VR Classroom',
-            tagline: 'Brining the Worksite into the Classroom',
-            version: '1.1.0.8',
+        'RolePlayAI': {
+            name: 'Role Play AI',
+            tagline: 'SYNTHETIC SCENES™ – Avatar-Led Role Play Platform',
+            version: '1.0.0',
             status: 'uninstalled',
             logoUrl: 'assets/icon-white_s.png',
-            backgroundUrl: 'https://vrcentre.com.au/wp-content/uploads/2021/06/cropped-Primary_Logo_Horizontal_Web-01-1.png',
+            backgroundUrl: 'assets/game_background.png',
             installPath: null,
-            executable: 'VRClassroom.exe',
-            manifestUrl: 'https://vrcentre.com.au/launcher_files/vrclassroom/vrclassroom_manifest.json',
-            versionUrl: 'https://vrcentre.com.au/launcher_files/vrclassroom/version.json',
+            executable: 'RolePlayAI_Launcher.exe',
+            manifestUrl: 'https://example.com/placeholder_manifest.json', // Placeholder
+            versionUrl: 'https://example.com/placeholder_version.json', // Placeholder
             filesToUpdate: [],
             isPaused: false,
         },
     };
 
-    let currentGameId = 'VRClassroom';
+    let currentGameId = 'RolePlayAI';
 
     // --- DOM Elements ---
     const gameListEl = document.getElementById('game-list'),

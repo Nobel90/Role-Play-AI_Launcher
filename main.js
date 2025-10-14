@@ -437,9 +437,9 @@ ipcMain.handle('select-install-dir', async (event) => {
 
     let selectedPath = filePaths[0];
     
-    // Enforce installation in a "VRClassroom" folder
-    if (path.basename(selectedPath).toLowerCase() !== 'vrclassroom') {
-        selectedPath = path.join(selectedPath, 'VRClassroom');
+    // Enforce installation in a "RolePlayAI" folder
+    if (path.basename(selectedPath).toLowerCase() !== 'roleplayai') {
+        selectedPath = path.join(selectedPath, 'RolePlayAI');
     }
 
     // The handler now returns the potentially modified path
