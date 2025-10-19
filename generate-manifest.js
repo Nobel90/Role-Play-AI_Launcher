@@ -4,8 +4,8 @@ const path = require('path');
 const crypto = require('crypto');
 
 const gameRoot = './'; // Run this script from your game's root directory
-const manifestVersion = '1.1.0.8'; // Change this for each new version
-const baseUrl = `https://vrcentre.com.au/launcher_files/vrclassroom/${manifestVersion}`;
+const manifestVersion = '1.0.0.1'; // Change this for each new version
+const baseUrl = `https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/${manifestVersion}`;
 
 // --- Create a version file ---
 const versionData = { version: manifestVersion };
@@ -49,7 +49,7 @@ function getFilesRecursively(dir) {
                 fileList = fileList.concat(getFilesRecursively(fullPath));
             }
         } else if (entry.isFile()) {
-            if (entry.name !== 'generate-manifest.js' && entry.name !== 'vrclassroom_manifest.json' && entry.name !== 'manifest.json') {
+            if (entry.name !== 'generate-manifest.js' && entry.name !== 'roleplayai_manifest.json' && entry.name !== 'manifest.json') {
                  fileList.push(fullPath);
             }
         }
@@ -80,8 +80,8 @@ async function createManifest() {
         files: manifestFiles
     };
 
-    fs.writeFileSync('vrclassroom_manifest.json', JSON.stringify(manifest, null, 2));
-    console.log(`vrclassroom_manifest.json for version ${manifestVersion} created successfully!`);
+    fs.writeFileSync('roleplayai_manifest.json', JSON.stringify(manifest, null, 2));
+    console.log(`roleplayai_manifest.json for version ${manifestVersion} created successfully!`);
 }
 
 createManifest().catch(console.error);

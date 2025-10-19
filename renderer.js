@@ -158,9 +158,9 @@ function initLauncher() {
             logoUrl: 'assets/icon-white_s.png',
             backgroundUrl: 'assets/BG.png',
             installPath: null,
-            executable: 'RolePlayAI.exe',
-            manifestUrl: 'https://example.com/placeholder_manifest.json', // Placeholder
-            versionUrl: 'https://example.com/placeholder_version.json', // Placeholder
+            executable: 'RolePlay_AI.exe',
+            manifestUrl: 'https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/roleplayai_manifest.json',
+            versionUrl: 'https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/version.json',
             filesToUpdate: [],
             isPaused: false,
         },
@@ -322,15 +322,21 @@ function initLauncher() {
     
     async function handleActionButtonClick() {
         const game = gameLibrary[currentGameId];
+        console.log(`Action button clicked for ${currentGameId}, status: ${game.status}`);
         
         switch (game.status) {
             case 'uninstalled':
+                console.log('Game is uninstalled, selecting install directory...');
                 const selectedPath = await window.electronAPI.selectInstallDir();
+                console.log('Selected path:', selectedPath);
                 if (selectedPath) {
                     game.installPath = selectedPath;
                     await window.electronAPI.saveGameData(gameLibrary);
+                    console.log('Calling checkForUpdates...');
                     await checkForUpdates(currentGameId);
+                    console.log(`After checkForUpdates, status is: ${game.status}`);
                     if (game.status === 'needs_update') {
+                        console.log('Status is needs_update, calling handleActionButtonClick again...');
                         handleActionButtonClick();
                     }
                 }
@@ -381,6 +387,8 @@ function initLauncher() {
 
     async function checkForUpdates(gameId) {
         const game = gameLibrary[gameId];
+        console.log(`Checking for updates for ${gameId}, status: ${game.status}, installPath: ${game.installPath}`);
+        
         if (!game.installPath && game.status !== 'uninstalled') {
             game.status = 'uninstalled';
             renderGame(gameId);
@@ -390,14 +398,29 @@ function initLauncher() {
         game.status = 'checking_update';
         renderGame(gameId);
 
+        console.log(`Calling checkForUpdates with manifestUrl: ${game.manifestUrl}`);
         const result = await window.electronAPI.checkForUpdates({ gameId, installPath: game.installPath, manifestUrl: game.manifestUrl });
+        console.log('checkForUpdates result:', result);
         if (result.error) {
-            game.status = 'installed';
-            gameStatusTextEl.innerText = result.error;
+            if (result.needsReinstall) {
+                game.status = 'uninstalled';
+                game.installPath = null;
+                gameStatusTextEl.innerText = result.error;
+            } else {
+                game.status = 'installed';
+                gameStatusTextEl.innerText = result.error;
+            }
         } else if (result.isUpdateAvailable) {
             game.status = 'needs_update';
             game.filesToUpdate = result.filesToUpdate;
             game.version = result.latestVersion;
+            
+            // Show appropriate message based on whether executable is missing
+            if (result.executableMissing) {
+                gameStatusTextEl.innerText = result.message || 'Main executable missing. Click INSTALL to download missing files.';
+            } else {
+                gameStatusTextEl.innerText = result.message || `Update available. ${result.filesToUpdate.length} files to download.`;
+            }
         } else {
             game.status = 'installed';
             game.version = result.latestVersion;
@@ -417,7 +440,15 @@ function initLauncher() {
         if (loadedLibrary) {
             for (const gameId in gameLibrary) {
                 if (loadedLibrary[gameId]) {
+                    // Merge loaded data but preserve the correct manifest URLs and executable name
+                    const correctManifestUrl = gameLibrary[gameId].manifestUrl;
+                    const correctVersionUrl = gameLibrary[gameId].versionUrl;
+                    const correctExecutable = gameLibrary[gameId].executable;
                     gameLibrary[gameId] = { ...gameLibrary[gameId], ...loadedLibrary[gameId] };
+                    // Ensure we always use the correct URLs and executable name
+                    gameLibrary[gameId].manifestUrl = correctManifestUrl;
+                    gameLibrary[gameId].versionUrl = correctVersionUrl;
+                    gameLibrary[gameId].executable = correctExecutable;
                 }
             }
         }
@@ -425,8 +456,24 @@ function initLauncher() {
         for (const gameId in gameLibrary) {
             const game = gameLibrary[gameId];
             if (game.installPath && (game.status === 'installed' || game.status === 'needs_update')) {
-                const localVersion = await window.electronAPI.getLocalVersion(game.installPath);
-                game.version = localVersion;
+                console.log(`Verifying installation for ${gameId} at ${game.installPath}`);
+                // Verify the installation is still valid
+                const result = await window.electronAPI.checkForUpdates({ 
+                    gameId, 
+                    installPath: game.installPath, 
+                    manifestUrl: game.manifestUrl 
+                });
+                
+                if (result.pathInvalid) {
+                    // Installation is invalid, reset to uninstalled
+                    console.log(`Game ${gameId} marked as uninstalled due to invalid installation`);
+                    game.status = 'uninstalled';
+                    game.installPath = null;
+                    game.version = '0.0.0';
+                } else {
+                    const localVersion = await window.electronAPI.getLocalVersion(game.installPath);
+                    game.version = localVersion;
+                }
             }
         }
 
@@ -480,6 +527,36 @@ function initLauncher() {
                 window.electronAPI.uninstallGame(game.installPath);
             }
         });
+
+        // Add a manual reset function for debugging
+        window.resetGameStatus = () => {
+            const game = gameLibrary[currentGameId];
+            console.log('Manually resetting game status to uninstalled');
+            game.status = 'uninstalled';
+            game.installPath = null;
+            game.version = '0.0.0';
+            game.filesToUpdate = [];
+            window.electronAPI.saveGameData(gameLibrary);
+            renderGame(currentGameId);
+        };
+
+        // Add a function to clear all stored data and reset URLs
+        window.clearAllGameData = async () => {
+            console.log('Clearing all stored game data and resetting URLs');
+            for (const gameId in gameLibrary) {
+                gameLibrary[gameId].status = 'uninstalled';
+                gameLibrary[gameId].installPath = null;
+                gameLibrary[gameId].version = '0.0.0';
+                gameLibrary[gameId].filesToUpdate = [];
+                // Ensure correct URLs and executable name are set
+                gameLibrary[gameId].manifestUrl = 'https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/roleplayai_manifest.json';
+                gameLibrary[gameId].versionUrl = 'https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/version.json';
+                gameLibrary[gameId].executable = 'RolePlay_AI.exe';
+            }
+            await window.electronAPI.saveGameData(gameLibrary);
+            renderGame(currentGameId);
+            console.log('All game data cleared and URLs reset');
+        };
 
         checkUpdateButtonEl.addEventListener('click', () => checkForUpdates(currentGameId));
 
@@ -578,7 +655,25 @@ function initLauncher() {
                 case 'error':
                     game.status = 'needs_update';
                     renderGame(currentGameId);
-                    gameStatusTextEl.innerText = `Error: ${state.error}`;
+                    
+                    // Enhanced error display with debug information
+                    let errorMessage = `Error: ${state.error}`;
+                    if (state.debugInfo) {
+                        errorMessage += `\n\n🔍 Debug Info (${state.debugInfo.method}):`;
+                        
+                        if (state.debugInfo.method === 'size_verification') {
+                            errorMessage += `\n📋 Expected size: ${state.debugInfo.expectedSize} bytes`;
+                            errorMessage += `\n💾 Actual size:   ${state.debugInfo.actualSize} bytes`;
+                            errorMessage += `\n📊 Difference:    ${state.debugInfo.difference} bytes`;
+                        } else if (state.debugInfo.method === 'size_verification_no_manifest_size') {
+                            errorMessage += `\n📏 File size: ${state.debugInfo.actualSize} bytes`;
+                            errorMessage += `\n⚠️  No size info in manifest - using basic verification`;
+                        }
+                        
+                        errorMessage += `\n📁 File: ${state.debugInfo.fileName}`;
+                    }
+                    
+                    gameStatusTextEl.innerText = errorMessage;
                     downloadSpeedEl.innerText = '';
                     break;
                 case 'idle':
@@ -619,6 +714,13 @@ function initLauncher() {
                     game.status = 'needs_update';
                     game.version = versionResult.latestVersion;
                     game.filesToUpdate = versionResult.filesToUpdate;
+                    
+                    // Show appropriate message based on whether executable is missing
+                    if (versionResult.executableMissing) {
+                        gameStatusTextEl.innerText = versionResult.message || 'Main executable missing. Click INSTALL to download missing files.';
+                    } else {
+                        gameStatusTextEl.innerText = versionResult.message || `Update available. ${versionResult.filesToUpdate.length} files to download.`;
+                    }
                 } else {
                     game.status = 'installed';
                     game.version = versionResult.latestVersion;

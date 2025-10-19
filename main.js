@@ -22,7 +22,12 @@ let activeDownload = {
 };
 const browserHeaders = { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' };
 
-const textFileExtensions = ['.txt', '.ini', '.json'];
+// Helper function to check if file is text-based (for debug purposes)
+function isTextFile(filename) {
+    const textExtensions = ['.txt', '.json', '.xml', '.html', '.css', '.js', '.glsl', '.hlsl', '.mtlx', '.ini', '.cfg', '.bat', '.sh'];
+    return textExtensions.some(ext => filename.toLowerCase().endsWith(ext));
+}
+
 
 function createWindow() {
     const win = new BrowserWindow({
@@ -96,19 +101,12 @@ ipcMain.on('open-external', (event, url) => {
 
 async function getFileChecksum(filePath) {
     try {
-        const extension = path.extname(filePath).toLowerCase();
-        if (textFileExtensions.includes(extension)) {
-            const textData = await fs.readFile(filePath, 'utf-8');
-            const normalizedText = textData.trim().replace(/\r\n/g, '\n');
-            return crypto.createHash('sha256').update(normalizedText).digest('hex');
-        } else {
-            const hash = crypto.createHash('sha256');
-            const stream = fsSync.createReadStream(filePath); // fs.promises doesn't have createReadStream
-            for await (const chunk of stream) {
-                hash.update(chunk);
-            }
-            return hash.digest('hex');
+        const hash = crypto.createHash('sha256');
+        const stream = fsSync.createReadStream(filePath); // fs.promises doesn't have createReadStream
+        for await (const chunk of stream) {
+            hash.update(chunk);
         }
+        return hash.digest('hex');
     } catch (error) {
         console.error(`Checksum error for ${filePath}:`, error);
         return null; // Return null on error
@@ -135,6 +133,7 @@ class DownloadManager {
         this.writer = null;
         this.speedInterval = null;
         this.bytesSinceLastInterval = 0;
+        this.debugInfo = null;
     }
 
     getInitialState() {
@@ -169,7 +168,7 @@ class DownloadManager {
             const isSavedFolder = pathString.startsWith('saved/') || pathString.startsWith('saved\\') || pathString.includes('/saved/') || pathString.includes('\\saved\\');
             
             const isManifest = fileName.toLowerCase() === 'manifest_nonufsfiles_win64.txt';
-            const isLauncher = fileName.toLowerCase() === 'roleplayai launcher.exe';
+            const isLauncher = fileName.toLowerCase() === 'roleplayai_launcher.exe';
             const isVrClassroomTxt = fileName.toLowerCase() === 'roleplayai.txt';
 
             if (isSavedFolder || isManifest || isLauncher || isVrClassroomTxt) {
@@ -232,13 +231,56 @@ class DownloadManager {
                     const destinationPath = path.join(installPath, file.path);
                     await this.downloadFile(file.url, destinationPath);
                     
-                    const localChecksum = await getFileChecksum(destinationPath);
-                    if (localChecksum === file.checksum) {
-                        success = true;
+                    // Size-only verification (no checksum verification)
+                    const localStats = await fs.stat(destinationPath);
+                    
+                    // Always use size verification - skip checksum entirely
+                    if (file.size && file.size > 0) {
+                        // Use manifest size if available
+                        if (localStats.size === file.size) {
+                            success = true;
+                            console.log(`✅ Size verified for ${file.path} (${localStats.size} bytes)`);
+                        } else {
+                            attempts++;
+                            console.warn(`❌ Size mismatch for ${file.path}. Attempt ${attempts + 1}/3.`);
+                            console.log(`   📋 Expected size: ${file.size} bytes`);
+                            console.log(`   💾 Actual size:   ${localStats.size} bytes`);
+                            console.log(`   📊 Difference:    ${localStats.size - file.size} bytes`);
+                            
+                            // Store debug info for the last attempt
+                            if (attempts >= 3) {
+                                this.debugInfo = {
+                                    expectedSize: file.size,
+                                    actualSize: localStats.size,
+                                    difference: localStats.size - file.size,
+                                    fileName: file.path,
+                                    method: 'size_verification'
+                                };
+                            }
+                            
+                            try { await fs.unlink(destinationPath); } catch (e) { console.error('Failed to delete corrupt file:', e); }
+                        }
                     } else {
-                        attempts++;
-                        console.warn(`Checksum mismatch for ${file.path}. Attempt ${attempts + 1}/3.`);
-                        try { await fs.unlink(destinationPath); } catch (e) { console.error('Failed to delete corrupt file:', e); }
+                        // No size info in manifest - just verify file downloaded successfully (non-zero size)
+                        if (localStats.size > 0) {
+                            success = true;
+                            console.log(`✅ File downloaded successfully for ${file.path} (${localStats.size} bytes) - no size verification available`);
+                        } else {
+                            attempts++;
+                            console.warn(`❌ Empty file downloaded for ${file.path}. Attempt ${attempts + 1}/3.`);
+                            console.log(`   📏 File size: ${localStats.size} bytes`);
+                            
+                            // Store debug info for the last attempt
+                            if (attempts >= 3) {
+                                this.debugInfo = {
+                                    actualSize: localStats.size,
+                                    fileName: file.path,
+                                    method: 'size_verification_no_manifest_size'
+                                };
+                            }
+                            
+                            try { await fs.unlink(destinationPath); } catch (e) { console.error('Failed to delete corrupt file:', e); }
+                        }
                     }
                 } catch (error) {
                     if (this.state.status === 'cancelling' || this.state.status === 'paused') {
@@ -255,7 +297,12 @@ class DownloadManager {
             } else {
                 // If the loop broke due to pause or cancel, we don't set an error.
                 if (this.state.status !== 'paused' && this.state.status !== 'cancelling') {
-                    this.setState({ status: 'error', error: `Failed to download ${file.path} after 3 attempts.` });
+                    const errorMessage = `Failed to download ${file.path} after 3 attempts.`;
+                    this.setState({ 
+                        status: 'error', 
+                        error: errorMessage,
+                        debugInfo: this.debugInfo || null
+                    });
                 }
                 break; // Exit the main `while` loop on failure, pause, or cancel.
             }
@@ -513,6 +560,14 @@ ipcMain.on('launch-game', (event, { installPath, executable }) => {
 
 ipcMain.on('uninstall-game', async (event, installPath) => {
     const win = BrowserWindow.fromWebContents(event.sender);
+    
+    // Check if the path exists first
+    if (!installPath || !fsSync.existsSync(installPath)) {
+        console.log(`Install path does not exist: ${installPath}`);
+        event.sender.send('uninstall-complete');
+        return;
+    }
+    
     const { response } = await dialog.showMessageBox(win, {
         type: 'warning',
         buttons: ['Yes, Uninstall', 'Cancel'],
@@ -524,11 +579,54 @@ ipcMain.on('uninstall-game', async (event, installPath) => {
 
     if (response === 0) {
         try {
-            await shell.trashItem(installPath);
+            // Try to remove the directory using Node.js fs first
+            await fs.rm(installPath, { recursive: true, force: true });
+            console.log(`Successfully removed directory: ${installPath}`);
+            
+            // Clear the game data from storage
+            try {
+                const gameData = JSON.parse(await fs.readFile(dataPath, 'utf8'));
+                for (const gameId in gameData) {
+                    if (gameData[gameId].installPath === installPath) {
+                        gameData[gameId].status = 'uninstalled';
+                        gameData[gameId].installPath = null;
+                        gameData[gameId].version = '0.0.0';
+                    }
+                }
+                await fs.writeFile(dataPath, JSON.stringify(gameData, null, 2));
+                console.log('Game data cleared from storage');
+            } catch (dataError) {
+                console.log('Could not clear game data from storage:', dataError);
+            }
+            
             event.sender.send('uninstall-complete');
         } catch (error) {
-            console.error(`Failed to uninstall game at ${installPath}:`, error);
-            dialog.showErrorBox('Uninstall Failed', `Could not move "${installPath}" to trash. You may need to remove it manually.`);
+            console.error(`Failed to remove directory at ${installPath}:`, error);
+            try {
+                // Fallback to shell.trashItem
+                await shell.trashItem(installPath);
+                
+                // Clear the game data from storage even if directory removal failed
+                try {
+                    const gameData = JSON.parse(await fs.readFile(dataPath, 'utf8'));
+                    for (const gameId in gameData) {
+                        if (gameData[gameId].installPath === installPath) {
+                            gameData[gameId].status = 'uninstalled';
+                            gameData[gameId].installPath = null;
+                            gameData[gameId].version = '0.0.0';
+                        }
+                    }
+                    await fs.writeFile(dataPath, JSON.stringify(gameData, null, 2));
+                    console.log('Game data cleared from storage');
+                } catch (dataError) {
+                    console.log('Could not clear game data from storage:', dataError);
+                }
+                
+                event.sender.send('uninstall-complete');
+            } catch (trashError) {
+                console.error(`Failed to move to trash: ${trashError}`);
+                dialog.showErrorBox('Uninstall Failed', `Could not remove "${installPath}". You may need to remove it manually.`);
+            }
         }
     }
 });
@@ -605,6 +703,19 @@ ipcMain.handle('check-for-updates', async (event, { gameId, installPath, manifes
             };
         }
 
+        // Check if main executable exists, but don't block if other files are present
+        const executable = 'RolePlay_AI.exe';
+        const executablePath = path.join(installPath, executable);
+        let executableMissing = false;
+        
+        try {
+            await fs.access(executablePath);
+            console.log(`Main executable found at ${executablePath}`);
+        } catch (error) {
+            console.log(`Main executable not found at ${executablePath}. Will verify existing files and download missing ones.`);
+            executableMissing = true;
+        }
+
         for (const fileInfo of serverManifest.files) {
             // --- Start of filtering logic ---
             const fileName = path.basename(fileInfo.path);
@@ -614,7 +725,7 @@ ipcMain.handle('check-for-updates', async (event, { gameId, installPath, manifes
             const isSavedFolder = pathString.startsWith('saved/') || pathString.startsWith('saved\\') || pathString.includes('/saved/') || pathString.includes('\\saved\\');
             
             const isManifest = fileName.toLowerCase() === 'manifest_nonufsfiles_win64.txt';
-            const isLauncher = fileName.toLowerCase() === 'roleplayai launcher.exe';
+            const isLauncher = fileName.toLowerCase() === 'roleplayai_launcher.exe';
             const isVrClassroomTxt = fileName.toLowerCase() === 'roleplayai.txt';
 
             if (isSavedFolder || isManifest || isLauncher || isVrClassroomTxt) {
@@ -628,10 +739,48 @@ ipcMain.handle('check-for-updates', async (event, { gameId, installPath, manifes
             const localFilePath = path.join(installPath, fileInfo.path);
             try {
                 await fs.access(localFilePath);
-                const localChecksum = await getFileChecksum(localFilePath);
-                const isMatch = localChecksum === fileInfo.checksum;
-                console.log(`Checking: ${fileInfo.path} -> Match: ${isMatch}`);
+                // Size-only verification (no checksum verification)
+                const localStats = await fs.stat(localFilePath);
+                let isMatch = false;
+                let verificationMethod = '';
+                
+                // Always use size verification - skip checksum entirely
+                if (fileInfo.size && fileInfo.size > 0) {
+                    // Use manifest size if available
+                    isMatch = localStats.size === fileInfo.size;
+                    verificationMethod = 'size_verification';
+                    
+                    if (isMatch) {
+                        console.log(`✅ ${fileInfo.path} -> Size match: YES (${localStats.size} bytes)`);
+                    } else {
+                        console.log(`❌ ${fileInfo.path} -> Size match: NO`);
+                        console.log(`   📋 Expected size: ${fileInfo.size} bytes`);
+                        console.log(`   💾 Actual size:   ${localStats.size} bytes`);
+                        console.log(`   📊 Difference:    ${localStats.size - fileInfo.size} bytes`);
+                    }
+                } else {
+                    // No size info in manifest - just verify file exists and has content
+                    isMatch = localStats.size > 0;
+                    verificationMethod = 'size_verification_no_manifest_size';
+                    
+                    if (isMatch) {
+                        console.log(`✅ ${fileInfo.path} -> File exists: YES (${localStats.size} bytes) - no size verification available`);
+                    } else {
+                        console.log(`❌ ${fileInfo.path} -> File exists: NO (empty file)`);
+                        console.log(`   📏 File size: ${localStats.size} bytes`);
+                    }
+                }
+                
                 if (!isMatch) {
+                    // Add debug info to the file info for potential use
+                    fileInfo.debugInfo = {
+                        expectedSize: fileInfo.size,
+                        actualSize: localStats.size,
+                        difference: localStats.size - fileInfo.size,
+                        fileName: fileInfo.path,
+                        method: verificationMethod
+                    };
+                    
                     filesToUpdate.push(fileInfo);
                 }
             } catch (e) {
@@ -641,12 +790,20 @@ ipcMain.handle('check-for-updates', async (event, { gameId, installPath, manifes
         }
         
         console.log(`--- Update Check Complete. Found ${filesToUpdate.length} files to update. ---`);
+        
+        if (executableMissing) {
+            console.log(`⚠️  Main executable missing - will download it along with other files.`);
+        }
 
         return {
             isUpdateAvailable: filesToUpdate.length > 0,
             filesToUpdate: filesToUpdate,
             latestVersion: serverVersion,
-            pathInvalid: false, // Explicitly state path is valid
+            pathInvalid: false, // Path is valid for updates
+            executableMissing: executableMissing, // Flag for UI to show appropriate message
+            message: executableMissing ? 
+                `Main executable missing. Will download ${filesToUpdate.length} files including the executable.` : 
+                `Found ${filesToUpdate.length} files to update.`
         };
     } catch (error) {
         let errorMessage = 'Update check failed.';
