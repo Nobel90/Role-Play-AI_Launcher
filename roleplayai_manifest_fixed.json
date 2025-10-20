@@ -1,0 +1,1981 @@
+{
+  "version": "1.0.0.2",
+  "files": [
+    {
+      "path": "Engine/Binaries/ThirdParty/DbgHelp/dbghelp.dll",
+      "checksum": "c1bed91901a4c3f24ad32f09a160d6c92f23543a7030812b2a2df6618a420669",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/DbgHelp/dbghelp.dll"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/disney_brdf_2012.mtlx",
+      "checksum": "319cf1ff13f1ea7e2cd090649005ef9017de2b8c1e2536d285a1834b83945bce",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/disney_brdf_2012.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/disney_brdf_2015.mtlx",
+      "checksum": "284023fdd32b13cb6c033df0af7fbcbaa0ff5722b97c2d055ae613ea72875c49",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/disney_brdf_2015.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/gltf_pbr.mtlx",
+      "checksum": "d5235ef17b75d98b62b07c9f219478fbb9423d54c4f87cf6a42221cae29903bb",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/gltf_pbr.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/lama/lama_add.mtlx",
+      "checksum": "ca8de575cc9a74502757cc3f82e4d38c69a41ed5a41f8c44c9c2788c1361504c",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/lama/lama_add.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/lama/lama_conductor.mtlx",
+      "checksum": "e8bc666dea00b26dc706953fbc38579f29215386e47dd03df5b9f8af768a53b4",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/lama/lama_conductor.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/lama/lama_dielectric.mtlx",
+      "checksum": "8cde279934cebfcff2bb8b336b3f4611469cf285c9c02891281674f711787d23",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/lama/lama_dielectric.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/lama/lama_diffuse.mtlx",
+      "checksum": "2a038241ea6a0fe71a606485966bb32f9a618f14d02637fd7f5c43e246bde149",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/lama/lama_diffuse.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/lama/lama_emission.mtlx",
+      "checksum": "1d1eaac2e8ee8c3d6c1fffa48392a8a4b28332d8c81749f4a888208a6900f440",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/lama/lama_emission.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/lama/lama_layer.mtlx",
+      "checksum": "89de5caa7558da4ca0f61acb919da766f549bad703775e0b3618a0eb1d8c5d44",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/lama/lama_layer.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/lama/lama_mix.mtlx",
+      "checksum": "db2834d99f994ae2b149e2a1348a2cf3de46a651ea0d74ada9914baac5821be9",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/lama/lama_mix.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/lama/lama_sheen.mtlx",
+      "checksum": "948691af369c6c5963d63fcff9f33aacd791decf0f48ea9a754f4a28e6b99086",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/lama/lama_sheen.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/lama/lama_sss.mtlx",
+      "checksum": "347c4c0f00bc33b58d6bca2559aa68ebb2282af8ceadfa3bee9b95338e91b4b8",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/lama/lama_sss.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/lama/lama_translucent.mtlx",
+      "checksum": "c1de06e60cf50beda4d0684cfebf213542b8f45c091bdde8729103031e432842",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/lama/lama_translucent.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/open_pbr_surface.mtlx",
+      "checksum": "c846669933b9c532a942ca802a05ce848af2e4e36e37183a8a9a977f6a68ba70",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/open_pbr_surface.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/standard_surface.mtlx",
+      "checksum": "4923f80ffca83abae431e1fae51ceb369ad3eb6e6a8412447c23abfbf5b49703",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/standard_surface.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/translation/standard_surface_to_gltf_pbr.mtlx",
+      "checksum": "2794b5100715dae79cd7ec7d3ddc8deadaa084ce911d53c7f59e4b71c33c1ca2",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/translation/standard_surface_to_gltf_pbr.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/translation/standard_surface_to_usd.mtlx",
+      "checksum": "c67b58a820cf8274909a3d62ca93b30bf960fde3d7d11e7d30125d39029d7794",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/translation/standard_surface_to_usd.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/usd_preview_surface.mtlx",
+      "checksum": "2ecab26c896d2182ffdbebc129f06c835fa90489c15d257c52db15ef18e659fd",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/bxdf/usd_preview_surface.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/cmlib/cmlib_defs.mtlx",
+      "checksum": "23b965b09b3ee709b6219b875143ecb03a4f896695ccf53f61b2fda44b820cb7",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/cmlib/cmlib_defs.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/cmlib/cmlib_ng.mtlx",
+      "checksum": "83dc2a9078d817550791c1d52154ed48a47792fcc38e06cb9457eebd6285e40b",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/cmlib/cmlib_ng.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/lights/genglsl/lights_genglsl_impl.mtlx",
+      "checksum": "599d9b394fc4f937481e5ef27485a9f6f702c736eca283bf2f741e107c900219",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/lights/genglsl/lights_genglsl_impl.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/lights/genglsl/mx_directional_light.glsl",
+      "checksum": "5802638b8f718b7d3e9882f8f420db1fea9c2d6593bbb9e4b977a35e7eb2de2a",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/lights/genglsl/mx_directional_light.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/lights/genglsl/mx_point_light.glsl",
+      "checksum": "9dfc4723cb512080d87b01491d42caac11394bfb7ea23bddbadc3d081ab2db63",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/lights/genglsl/mx_point_light.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/lights/genglsl/mx_spot_light.glsl",
+      "checksum": "a432b1c3a2f5fcd0878c2f5e2647aa3371288f6ff3c971dd545f658b794a4829",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/lights/genglsl/mx_spot_light.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/lights/genmsl/lights_genmsl_impl.mtlx",
+      "checksum": "d5d9cd1dba4170a8bf6abfef16cfcaf78cce2b9456388c510b976d8a9db7bc67",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/lights/genmsl/lights_genmsl_impl.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/lights/genmsl/mx_directional_light.metal",
+      "checksum": "b3ea9221ea954738453ebe8aa7ed44fe82205dd6ac3c9bf0740a2b218b841659",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/lights/genmsl/mx_directional_light.metal"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/lights/genmsl/mx_point_light.metal",
+      "checksum": "f6b82daad1fed158f9d52d42871addb8d57f78829d7e5d40dc5b2f24759822d0",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/lights/genmsl/mx_point_light.metal"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/lights/genmsl/mx_spot_light.metal",
+      "checksum": "5f5a060e5540a37ea43f405fce6422888d21002ffc613dc19cdac91cfe06239d",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/lights/genmsl/mx_spot_light.metal"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/lights/lights_defs.mtlx",
+      "checksum": "d3a2dd68d255a8681908dffdbe52c1f73b6768fb4cfe76181eb09dacfabb47ab",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/lights/lights_defs.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/mdl/materialx/core.mdl",
+      "checksum": "313fd6182685e4904f83da7c8ca6b48276af273c2d80a420b30e2969da150ed0",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/mdl/materialx/core.mdl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/mdl/materialx/hsv.mdl",
+      "checksum": "7bcc783ff8e489b2c0c0f8d1f42428ca4b8c42eb7c3989b64cf638c585e5ff99",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/mdl/materialx/hsv.mdl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/mdl/materialx/noise.mdl",
+      "checksum": "679743027d3384311bcdcd8a2754875df0912f4973e5146f450bcde8b07f2b8d",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/mdl/materialx/noise.mdl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/mdl/materialx/pbrlib.mdl",
+      "checksum": "08b26d13dfcc34ba454e8ce2724324206ff17510032a4088a585c7cfc3542674",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/mdl/materialx/pbrlib.mdl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/mdl/materialx/pbrlib_1_6.mdl",
+      "checksum": "7d5ab750120c046c01301f9e69db3faa06464521ee668c556b2e51b54bc65b4e",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/mdl/materialx/pbrlib_1_6.mdl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/mdl/materialx/pbrlib_1_7.mdl",
+      "checksum": "3cb505430c48c6533ee83ffb493be3954bafbb70c32d0564a84ecf91aef5cd60",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/mdl/materialx/pbrlib_1_7.mdl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/mdl/materialx/pbrlib_1_8.mdl",
+      "checksum": "3d618501c61155e7e51b9a13f8ca4a486076fc26dabebd6a37e1b4712490e1ba",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/mdl/materialx/pbrlib_1_8.mdl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/mdl/materialx/sampling.mdl",
+      "checksum": "0220ba53fe6b03c8e87ee7a0a6c1cc52c4383e3b573ac483b77b8681913a728f",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/mdl/materialx/sampling.mdl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/mdl/materialx/stdlib.mdl",
+      "checksum": "376f3c302bd74af34c692ff0f84d62a93aa53049399f6f460bf879e705efc786",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/mdl/materialx/stdlib.mdl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/mdl/materialx/stdlib_1_6.mdl",
+      "checksum": "32717cdb3555c2cc899cd2c4aab96a0405952ab095b71f605b14a37e851975b1",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/mdl/materialx/stdlib_1_6.mdl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/mdl/materialx/stdlib_1_7.mdl",
+      "checksum": "7f37689a1fa1486ffae194a34416fd401c9d6a8d24cc0fc1b165a1f3a26343bc",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/mdl/materialx/stdlib_1_7.mdl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/mdl/materialx/stdlib_1_8.mdl",
+      "checksum": "f538746be481ece170306f50c385c7b6b903bf377914a779bb0ca497bda05dad",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/mdl/materialx/stdlib_1_8.mdl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/mdl/materialx/swizzle.mdl",
+      "checksum": "d4b9fbe34551f28ddc0ab56c9a3d09165b42b406a00245eb71d32ed47f9254b8",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/mdl/materialx/swizzle.mdl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/nprlib/genglsl/nprlib_genglsl_impl.mtlx",
+      "checksum": "ccd3688f967c5da1ffa140fd1c5d581e274b44c276972b318b4015e4193bbcd4",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/nprlib/genglsl/nprlib_genglsl_impl.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/nprlib/genmdl/nprlib_genmdl_impl.mtlx",
+      "checksum": "9eb7ad330e599c57a6eb3362aafb14e2cc489e7c7b04bbe09191f044b9814e86",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/nprlib/genmdl/nprlib_genmdl_impl.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/nprlib/genmsl/nprlib_genmsl_impl.mtlx",
+      "checksum": "d4773e9e3a854aeb2ca7f84826feb9989e049251e3313a9a5c49abf46d2ac538",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/nprlib/genmsl/nprlib_genmsl_impl.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/nprlib/genosl/nprlib_genosl_impl.mtlx",
+      "checksum": "207efc611432ea56fd7811bbb65ac761d746f6405ab782ece307c57af89a83e3",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/nprlib/genosl/nprlib_genosl_impl.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/nprlib/nprlib_defs.mtlx",
+      "checksum": "aa8f99ca6e10ef9bbd16d747e45568b8d99ba69c655878795bd1daf1408952ee",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/nprlib/nprlib_defs.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/nprlib/nprlib_ng.mtlx",
+      "checksum": "f2baf8b7c480ac66d643853a0a1f55487f45669e01e1f80f063a50e614f42d1f",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/nprlib/nprlib_ng.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/lib/mx_environment_fis.glsl",
+      "checksum": "09ce43d0e401d66515b807ec033b7e28efc8c5cf9a5e04a7b55508910753a572",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/lib/mx_environment_fis.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/lib/mx_environment_none.glsl",
+      "checksum": "f1a47f0022e4b1d971503cacc21e67f4b2b44dfd52d2cf5f3253824df67492fc",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/lib/mx_environment_none.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/lib/mx_environment_prefilter.glsl",
+      "checksum": "5e5cce722ec80fa9e0fa3db3df29c7d7b8b0e0a3d0516ad53536b0eff3cde706",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/lib/mx_environment_prefilter.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/lib/mx_generate_albedo_table.glsl",
+      "checksum": "127ca4716936fc813610908dc3eaf6db06895b52b700359c88d15b62e7f1422c",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/lib/mx_generate_albedo_table.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/lib/mx_generate_prefilter_env.glsl",
+      "checksum": "7833f3398deffce19b3922d23b9eb541c78038abf08d6781a6f2fee98b6463fc",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/lib/mx_generate_prefilter_env.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/lib/mx_microfacet.glsl",
+      "checksum": "93d9b55350c53559e171e51c8868b021ab40b279c978570c853828fb2103ad87",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/lib/mx_microfacet.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/lib/mx_microfacet_diffuse.glsl",
+      "checksum": "edb864ef4c51e528e3b2326bc29f007a070d1aa2e5f550914b95ae3944d661c2",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/lib/mx_microfacet_diffuse.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/lib/mx_microfacet_sheen.glsl",
+      "checksum": "f888b0a7d59e53353e6b12a59be4bac982a627ceb6f64263d81ca77ab978e218",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/lib/mx_microfacet_sheen.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/lib/mx_microfacet_specular.glsl",
+      "checksum": "545885363b7fc3bcaf7ef04ad851ded4e01e4fb022bb918bbcd68a2adf3ab148",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/lib/mx_microfacet_specular.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/lib/mx_shadow.glsl",
+      "checksum": "0eec1c9b287d17fe48819e2c7ec416b1fba037e15be0ef4cc68b5743a9f25b68",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/lib/mx_shadow.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/lib/mx_transmission_opacity.glsl",
+      "checksum": "f25106af8d82731b55dfeecaa4034e917be8f078ece4d75e193c8c186f631c51",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/lib/mx_transmission_opacity.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/lib/mx_transmission_refract.glsl",
+      "checksum": "3550bcdc9eb42e5972f6fdca19d9bf3791f2ac481298733ef64bb553714eda06",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/lib/mx_transmission_refract.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_add_edf.glsl",
+      "checksum": "0a669d04c09156ba32f55d22426f13c0603c886f312f5d2df17e37cec4df1f0f",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_add_edf.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_anisotropic_vdf.glsl",
+      "checksum": "e8f8cb2bc1b08e5adfd96ae5f7925640ff4136e00cccc5dd46d46a6bea042d55",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_anisotropic_vdf.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_artistic_ior.glsl",
+      "checksum": "005334646dea1c2820b1689a7888e385b1a95a0761c35110504415e179c1d6bd",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_artistic_ior.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_blackbody.glsl",
+      "checksum": "d85aa5e86f12e1f33aa1e368206844c211ad5741ce55684d6baf1948a8be16ca",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_blackbody.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_burley_diffuse_bsdf.glsl",
+      "checksum": "ae23dde1d774ed5622db0d891a44fba23e9892f76151201c65326c59276ed0dd",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_burley_diffuse_bsdf.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_conductor_bsdf.glsl",
+      "checksum": "7044917a4d7de18a3a88f812478f72c36bfe077659b9f8a59ec8782da46457b2",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_conductor_bsdf.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_dielectric_bsdf.glsl",
+      "checksum": "f2e0ea4c52d2c42cc2140005c00cd1fc1c037017c84fb12faffec2489d11e5d3",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_dielectric_bsdf.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_displacement_float.glsl",
+      "checksum": "eb50ced34ccf20a54ba3a5036f19ac9cd18f769fe93a4c75311c530018f06220",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_displacement_float.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_displacement_vector3.glsl",
+      "checksum": "4e56439ebb40415dba8617544be0506677a9ca7900b14aaad04d6a442f15f047",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_displacement_vector3.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_generalized_schlick_bsdf.glsl",
+      "checksum": "5a0bf6921ab88173ef831a38fc554903926297f34611d16709e9aa1160e311f9",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_generalized_schlick_bsdf.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_generalized_schlick_edf.glsl",
+      "checksum": "d4b3a56583e80a1681a64edbe4833e45cb4c0239d2ef886f148e2cdd7af35e46",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_generalized_schlick_edf.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_oren_nayar_diffuse_bsdf.glsl",
+      "checksum": "45f86d013d4e4a0495159f7148114f13a1069154514d446b31d0290d4acabe21",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_oren_nayar_diffuse_bsdf.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_roughness_anisotropy.glsl",
+      "checksum": "049499cde0ae379aca6898a3f0bd14a799574454750df96cfc3d443b2921857c",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_roughness_anisotropy.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_roughness_dual.glsl",
+      "checksum": "bbf01914d398ba7258acbe1570a3a75d98072db2deacfb202b3bb7eacd4a072d",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_roughness_dual.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_sheen_bsdf.glsl",
+      "checksum": "dbc4627c3ba8d662793ae1fbca7cceb709d6c500b3553fdaa6e74d92177a7f6e",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_sheen_bsdf.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_subsurface_bsdf.glsl",
+      "checksum": "c318ab83a9285dee1f7e2f69a73c8a72ee153b8c58f030057d9a3c140d4ba3c1",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_subsurface_bsdf.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_translucent_bsdf.glsl",
+      "checksum": "d8e4ea8629ba5f56705e5e775986f14d12376d22139b371682edb05139f64d5a",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_translucent_bsdf.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_uniform_edf.glsl",
+      "checksum": "960f6329fc84541828fab3e7c37b841f63ed4dcb6cf9de99cc40b1fe0a1e6fc2",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/mx_uniform_edf.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/pbrlib_genglsl_impl.mtlx",
+      "checksum": "76d5f44748b0251ac3682280833bec6545eb79f885fd9a93b4fdf9fadd5a282a",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genglsl/pbrlib_genglsl_impl.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genmdl/pbrlib_genmdl_impl.mtlx",
+      "checksum": "42b6036799edf5c54568a04b4182e884c6bb34f7e67e5c6cfada383cdfeb4880",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genmdl/pbrlib_genmdl_impl.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genmsl/pbrlib_genmsl_impl.mtlx",
+      "checksum": "63be089503197decb38ed1d3a9b7262978757bafc74411ea47d91ac12486cc47",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genmsl/pbrlib_genmsl_impl.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/legacy/mx_anisotropic_vdf.osl",
+      "checksum": "a0ba4721b7c44fff63c8276c6b46e08c1af1eaed999ca03928639f6f75fe870d",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/legacy/mx_anisotropic_vdf.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/legacy/mx_burley_diffuse_bsdf.osl",
+      "checksum": "7e533b5faa9fc99df0a76c99c902e076ab5a4fcd7d5757ba1b0fcc51796b4294",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/legacy/mx_burley_diffuse_bsdf.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/legacy/mx_conductor_bsdf.osl",
+      "checksum": "1a56f0842c69c7eac391fbab8312869f2a530ebbdc74015852a428ace8e7d8c7",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/legacy/mx_conductor_bsdf.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/legacy/mx_dielectric_bsdf.osl",
+      "checksum": "7cc55d1eab740d29cd46228cea12da0559d08c22d48e5f11e069569e6081e5d8",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/legacy/mx_dielectric_bsdf.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/legacy/mx_generalized_schlick_bsdf.osl",
+      "checksum": "0a4442681b6d9290683991788c5fe35d0b5eb46b0041f1437b384cdf61d94291",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/legacy/mx_generalized_schlick_bsdf.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/legacy/mx_oren_nayar_diffuse_bsdf.osl",
+      "checksum": "f9fcdc50615b80d4e45b2ff73e286a59e3366f13f9dc571ad0e9379769856654",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/legacy/mx_oren_nayar_diffuse_bsdf.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/legacy/mx_sheen_bsdf.osl",
+      "checksum": "165ddcac742a48ceeb5053f131f3aef9267a10c836777d4fd54f8864b9ea647b",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/legacy/mx_sheen_bsdf.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/legacy/mx_subsurface_bsdf.osl",
+      "checksum": "7b923f6992f7f6d84d0df38171be47c42d180a56a553b124fa34a5641ae41db3",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/legacy/mx_subsurface_bsdf.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/legacy/mx_surface.osl",
+      "checksum": "8561bf4bc7427372d14757a0fd442504f99db191854cc0363bad2e680f497828",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/legacy/mx_surface.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/legacy/mx_translucent_bsdf.osl",
+      "checksum": "26603b3afa7a6c792d9e4a7debbb8a2fee7acdc243abf188541099e1d173daea",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/legacy/mx_translucent_bsdf.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/lib/mx_microfacet.osl",
+      "checksum": "2e25dc5b68253747b798cce0424ad99d74c3f2f2465e99c8c25e864da3c83092",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/lib/mx_microfacet.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/lib/mx_microfacet_sheen.osl",
+      "checksum": "9eff803332090761510c569949100cad622ceadf218ff615ee9af228e6093e2f",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/lib/mx_microfacet_sheen.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/lib/mx_microfacet_specular.osl",
+      "checksum": "58b5294da0413b4b87d42fe8edb99b4d3ae1db8ec3224b99048d198199acbf32",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/lib/mx_microfacet_specular.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/mx_anisotropic_vdf.osl",
+      "checksum": "7bd42a9411c6e79079143cc57b0b575dd360a588fffef3c8774706f9a9ff792a",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/mx_anisotropic_vdf.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/mx_artistic_ior.osl",
+      "checksum": "d5816e249183d85a006dcb79f1f2418b341360de38b10b99f2112e39cd3624ad",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/mx_artistic_ior.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/mx_blackbody.osl",
+      "checksum": "ff888fea42f229e859b39e585f8f0bf6122287f52621c0d005fdc0bae1291b49",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/mx_blackbody.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/mx_dielectric_bsdf.osl",
+      "checksum": "862ea08eebcb51fe23c352e248955711afa5ce570c9daa5177d6ec05ca13683a",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/mx_dielectric_bsdf.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/mx_displacement_float.osl",
+      "checksum": "b19b338cfd10eb73b5ee447f38a06f99520c8c8b9239ed986f0f88fea52e6e8b",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/mx_displacement_float.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/mx_displacement_vector3.osl",
+      "checksum": "6968505d57e8e927d8ae91b11f38a8cc3b4f111c194bae21de2ca75c28f56c34",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/mx_displacement_vector3.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/mx_generalized_schlick_bsdf.osl",
+      "checksum": "a225a9f90e6445e3896f5380e3c01551d6f6fbec11398ca3692e6b19987750ee",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/mx_generalized_schlick_bsdf.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/mx_generalized_schlick_edf.osl",
+      "checksum": "f69efe79a14e6d033cdff0a38e27aa6d3f366ba9dd5bc72ce4b3f6ffe385eeb0",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/mx_generalized_schlick_edf.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/mx_roughness_anisotropy.osl",
+      "checksum": "a21449ed61f28193068828b6f1d960245008457665b37d212b1428ef37693424",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/mx_roughness_anisotropy.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/mx_roughness_dual.osl",
+      "checksum": "7d71aca327bc3c13c926c6c980e061c19daad5a47d8f49930b8d9099e74286c6",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/mx_roughness_dual.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/mx_subsurface_bsdf.osl",
+      "checksum": "d7e6d47c8d7df3a6e4509afc85ac46a97b2a21c93d008f9ca8b11cb52ae4822c",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/mx_subsurface_bsdf.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/mx_surface.osl",
+      "checksum": "6597b50986188db816ec35f2e7f9e26fe0b45815cfc99b2c88854e906d4e072c",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/mx_surface.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/pbrlib_genosl_impl.mtlx",
+      "checksum": "758bfde2b363dc47568319161bf0597950315d2e30246f5b4a764d8d5bc3a660",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/genosl/pbrlib_genosl_impl.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/pbrlib_defs.mtlx",
+      "checksum": "a2e9a6c38373c32e7968e66ed86f483416bac22d11aebd68e31c7df046bc1560",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/pbrlib_defs.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/pbrlib_ng.mtlx",
+      "checksum": "780aba4b97186a6641bc4f4d7b223bb7bdf0f4ca6b4193ae5535bb78964a2348",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/pbrlib/pbrlib_ng.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/README.md",
+      "checksum": "97331869d3564d2e18f1a622ecf519b6d6a65494c9d035f8749873056dc120a4",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/README.md"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/lib/mx_hsv.glsl",
+      "checksum": "c1f62ebfa585a290fb39a3d85e80254a772f8a78769c01bf9ed78c4305bfeb81",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/lib/mx_hsv.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/lib/mx_math.glsl",
+      "checksum": "0c392e23c22e57fb6ffe0322b8b6259022b41c97170361961e49b82f214bd9bf",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/lib/mx_math.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/lib/mx_noise.glsl",
+      "checksum": "46dc42a0dc999679fa75095bdd88cf10cdf0736f84655fbb8ff7318b3ce52a6e",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/lib/mx_noise.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/lib/mx_sampling.glsl",
+      "checksum": "2c706923564d7352008db48818d3159c2b33770412373a5b1391a9a8ad5a9e61",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/lib/mx_sampling.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/lib/mx_transform_uv.glsl",
+      "checksum": "bc82e49eb709ca85f2f525dcb525d5c3c8d9bdb1dbc0b3e697cf7cc243097bae",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/lib/mx_transform_uv.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/lib/mx_transform_uv_vflip.glsl",
+      "checksum": "130647f42115330ee31e5bd2d6c11b4340958cbaacc9c23f88636e9df7342330",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/lib/mx_transform_uv_vflip.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_aastep.glsl",
+      "checksum": "77068cdd38a0e1751bb1c7217a3105cc1f991674468f3e58ac42ec47cc01e666",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_aastep.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_burn_color3.glsl",
+      "checksum": "e5d0d1ed0e64f9508bfedd107b2e0a53f19cd7a0dfd51a7548390ef2edbafb9f",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_burn_color3.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_burn_color4.glsl",
+      "checksum": "01c40d09524e9af2071e33e67cf4f1ae700b825d51c025f87ffb45750ce5dbca",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_burn_color4.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_burn_float.glsl",
+      "checksum": "72639888cda849b1373d6eca4ba0eab9cb353ae8f18f8fb00471382d490b5b05",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_burn_float.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_cellnoise2d_float.glsl",
+      "checksum": "354144e9ed7d0189a6a7fb04b623f6acec7b60fb0a54d75fe0933305dff9d193",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_cellnoise2d_float.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_cellnoise3d_float.glsl",
+      "checksum": "d2809c488c2a622e48c075c29c67d5aca0d27c0cea6c8454e6622ddf20e06985",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_cellnoise3d_float.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_creatematrix_vector3_matrix33.glsl",
+      "checksum": "4380c77f80d0fdc7b671d30f3bdb6d0f1bb83ae0bccfe634d23c412854cfc128",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_creatematrix_vector3_matrix33.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_creatematrix_vector3_matrix44.glsl",
+      "checksum": "c0e2e00a8197a2004f13749fa3653478a31bb3b36fa0d2c4406f5d6a769fb5a5",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_creatematrix_vector3_matrix44.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_creatematrix_vector4_matrix44.glsl",
+      "checksum": "1107eeca47a41394df8c4b0d98c17f9095d20928a71ea3f520a203404f981ec8",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_creatematrix_vector4_matrix44.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_disjointover_color4.glsl",
+      "checksum": "fa97323a6a77160bd84aaff142a8efbb27000ccc0293c3059593811832b67bad",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_disjointover_color4.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_dodge_color3.glsl",
+      "checksum": "ce8221f12c17a23f98adf21386e77976392b7d285ecb31796c62268f6b23a526",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_dodge_color3.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_dodge_color4.glsl",
+      "checksum": "54be8ab34d4bc62c6327fa119befbb4ca33b14db55eadcf1ce421e5efeb61dbb",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_dodge_color4.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_dodge_float.glsl",
+      "checksum": "9a49c1c931847606823906d21c0e50fd956a9261acba2066c8bae32477270d5f",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_dodge_float.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_fractal3d_float.glsl",
+      "checksum": "90427acf0005f45ae35895268cd657c6accad7099c898de67a3cf43bc90ad387",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_fractal3d_float.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_fractal3d_vector2.glsl",
+      "checksum": "0d102f497397318d5c010cbe175e6f4cc524559aa5902864467b8019a8e8a8d2",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_fractal3d_vector2.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_fractal3d_vector3.glsl",
+      "checksum": "6f6ac7198799eac231b297e99cbe665b43ef1aadeec91ed3815eb171eb13c7af",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_fractal3d_vector3.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_fractal3d_vector4.glsl",
+      "checksum": "e5d5764df27fd9bd981361e56c35fc374048f7118f0f51655c4e911627102edc",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_fractal3d_vector4.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_hsvtorgb_color3.glsl",
+      "checksum": "dbfaf8c09529ff7c2191aa40e1b126cea98605d1157893df98f960930722774c",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_hsvtorgb_color3.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_hsvtorgb_color4.glsl",
+      "checksum": "9344da3c65865ef793b7346ff3a60b586abda16583308ea025383963e32a6f2f",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_hsvtorgb_color4.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_image_color3.glsl",
+      "checksum": "e9776aa0c088239e1faad7bf07630bc95c4d2ceae59ea767f739bf0410403d6f",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_image_color3.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_image_color4.glsl",
+      "checksum": "2bd604b3c9699aac9e14d9f7df1de382bc708cfe115a63e40f1f8ba3c822a97f",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_image_color4.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_image_float.glsl",
+      "checksum": "0a053652fe92314c0a5bf78eedffe52bd05cb5e03da8e355df44aa32ad0f37fa",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_image_float.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_image_vector2.glsl",
+      "checksum": "e2407b041076fd7ad92c95f6ef99ae00dd58483a4d5aa8746d0e017d8364ece4",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_image_vector2.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_image_vector3.glsl",
+      "checksum": "86fc8deb4846b186a686c806791d8aaf530c9c026e479b92265655932c0c035c",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_image_vector3.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_image_vector4.glsl",
+      "checksum": "759b011a4f1fa0b593c7003652ee175f83ec425a2c685d2566a4c4537a33fd8b",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_image_vector4.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_luminance_color3.glsl",
+      "checksum": "a745a7c318b4d2e42582326ccde90e93656e7e13e9f0d1100463762bd821ccc2",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_luminance_color3.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_luminance_color4.glsl",
+      "checksum": "70fc687f60d55060f7ff1bf8179380667ebab9bff3c395ce4b4469e07262cb21",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_luminance_color4.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_mix_surfaceshader.glsl",
+      "checksum": "5ddc88aed04b2ae833a1f6ec5502825d281447c7577b2b129aaa0ab841a6b68a",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_mix_surfaceshader.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_noise2d_float.glsl",
+      "checksum": "de4107f076c7382445395df37ebe0eba3b906209d3495abc13fe6b43d1ec04bc",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_noise2d_float.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_noise2d_vector2.glsl",
+      "checksum": "f01031f20b830091251895b2329fab07b5d82dfc4b1419268bae1f07e6b72b0f",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_noise2d_vector2.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_noise2d_vector3.glsl",
+      "checksum": "7a6dbab50a8a541db904ea9af25df6758462f99c18663af200f312874738ffe8",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_noise2d_vector3.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_noise2d_vector4.glsl",
+      "checksum": "81dcf9c7022ff9fee704c8859eecf0b11f685b4314e6bd505e1590586c611fc5",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_noise2d_vector4.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_noise3d_float.glsl",
+      "checksum": "6538960b560b082718744ed88ec1c4419cba704c2d18cd45d5008cd5a0b6fcca",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_noise3d_float.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_noise3d_vector2.glsl",
+      "checksum": "aa0a48e00bbebed9bdc7102bdada0ef3e516970ce08f7229314234a1f53204eb",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_noise3d_vector2.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_noise3d_vector3.glsl",
+      "checksum": "bbe629912aec0d998d767c9bacfc7ba748acb2ab0646488571d48af436763238",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_noise3d_vector3.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_noise3d_vector4.glsl",
+      "checksum": "a3aeb12e99feb6efc122a0ee19cd41bba4c2b4dcdb03db8fac57e052e2bb49da",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_noise3d_vector4.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_normalmap.glsl",
+      "checksum": "540bf349db6af64d83b6b42c226f59a955ccfb90fbf959535c8b34a080042a76",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_normalmap.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_premult_color4.glsl",
+      "checksum": "675916c08ad071762b5b0614c5bcf7840a8422eae317a0e7fdc24f67999b437f",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_premult_color4.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_ramplr_float.glsl",
+      "checksum": "7ec93154a2f92df60af5197cb84981ac03b82c702734bafc8ace06d65e9b69d3",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_ramplr_float.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_ramplr_vector2.glsl",
+      "checksum": "e357757746f57d4288ba10e3b466b2c8ed7f6656f149695248e5a171c106bbe5",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_ramplr_vector2.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_ramplr_vector3.glsl",
+      "checksum": "09b2656f3e3a7c8bb94d6fc9fcb31f18ea1af9d1af343d05593df0168cc01a9c",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_ramplr_vector3.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_ramplr_vector4.glsl",
+      "checksum": "6bd8c83608756744aa9ebf2161cd2084b173ec20beffa9e1d4d188b8faf6aa89",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_ramplr_vector4.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_ramptb_float.glsl",
+      "checksum": "f23da237591eed78f633d5eba10553f8d9dd08d2a1b07c9109792f1158f6eb93",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_ramptb_float.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_ramptb_vector2.glsl",
+      "checksum": "8aadc7c6c3c4b63e7499f51f84de77e1d9a7cd16f007c81f0e4e2134223f2cc0",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_ramptb_vector2.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_ramptb_vector3.glsl",
+      "checksum": "39b40cbc0c201a313f59359788a493b2ff2d505bf0397296a721e725939077ec",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_ramptb_vector3.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_ramptb_vector4.glsl",
+      "checksum": "38c5c377fc7dc337771c378a9211118ca44fc57465b20f75ab11526ba8982549",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_ramptb_vector4.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_rgbtohsv_color3.glsl",
+      "checksum": "61559a7eb963fb8f81f54c18354fad4aa05c82cc87a1f4de9a490f00c273078e",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_rgbtohsv_color3.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_rgbtohsv_color4.glsl",
+      "checksum": "f258435078bd4d7be7f35dd03ef46f95adb00c4f80babe9a360453c5e873d034",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_rgbtohsv_color4.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_rotate_vector2.glsl",
+      "checksum": "10a35ff47c1e116ca3c8f09a4eff002fe33194edc378950cee1054411a23d0b8",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_rotate_vector2.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_rotate_vector3.glsl",
+      "checksum": "49198f1a017e23db4e16198fc448246abe1ebd20eab743e4551b7886cc06b4be",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_rotate_vector3.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_smoothstep_float.glsl",
+      "checksum": "449e951d7068f427d3ae729feb31a94c3f6b0b8d50fcd2a7f106d8010098f6d2",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_smoothstep_float.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_smoothstep_vector2.glsl",
+      "checksum": "3a2e9fb7230dc6b2ad80d2c3572e8e47c519d218cb64c8df2fecea15206773f8",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_smoothstep_vector2.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_smoothstep_vector3.glsl",
+      "checksum": "f7bbe713cb5dfa14c449fd4549a2e898a2b1352d2ce7ed35977f4bce9d84e6dd",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_smoothstep_vector3.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_smoothstep_vector4.glsl",
+      "checksum": "cfd8a3c2bef4e7c23992fe7a0592360ad096f7e253ae4713266d3daaa8e6eaa4",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_smoothstep_vector4.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_splitlr_float.glsl",
+      "checksum": "597fd1d7b18c8ce6a2239fe295d5b44a73a6c8f722b860e5f125e7e8023d3619",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_splitlr_float.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_splitlr_vector2.glsl",
+      "checksum": "520a88b885157c5fbd869f7451b80a521b9330a491f170854696642de115a559",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_splitlr_vector2.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_splitlr_vector3.glsl",
+      "checksum": "1ab8f6f1b2c8ed51debfc3bb6d47b0c463487232e9dfe3428b716cc8d3979652",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_splitlr_vector3.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_splitlr_vector4.glsl",
+      "checksum": "69da606d2b64797ed564775dadb2f0f903e6cbc0898a30edf9f61bf18f9546c0",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_splitlr_vector4.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_splittb_float.glsl",
+      "checksum": "e5ea0fbbc0a8987831e4de64d2aa592908a3dc25e8d6f2b154eac7fe47312de0",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_splittb_float.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_splittb_vector2.glsl",
+      "checksum": "2734656145f09420b1e0f37131c5e30571d88c067c0455126842e9502602052f",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_splittb_vector2.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_splittb_vector3.glsl",
+      "checksum": "11d536a658947a24c466b255616e3bd0181cae7ae4ba209ea7439d88404e0a7f",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_splittb_vector3.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_splittb_vector4.glsl",
+      "checksum": "2f79ec921ed13616ee17496d46c1c1d347664f7843c55833abaab98e23f58de6",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_splittb_vector4.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_transformmatrix_vector2M3.glsl",
+      "checksum": "898e74f326e2c9d1f182074b5c74d87e16e66a9615308df35de430e433bb5b2e",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_transformmatrix_vector2M3.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_transformmatrix_vector3M4.glsl",
+      "checksum": "e6ee1714f0a7b1a3a8437a5c3d317be6fe7f24cf5b2347fc7d62ac1a9c2a245e",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_transformmatrix_vector3M4.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_unpremult_color4.glsl",
+      "checksum": "a44bc67ea42dd48318539018a66eb080be77f88bd4ee9111e5ae4f62f736cce7",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_unpremult_color4.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_worleynoise2d_float.glsl",
+      "checksum": "655d0348fa0d259d35e7edac72c4448eac1370bb0fc0e5594c4b893c08870e7f",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_worleynoise2d_float.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_worleynoise2d_vector2.glsl",
+      "checksum": "dd6e1f541a81a3bbcc57bbac6dcc10b7b3b0291955121088a6eab3a16b1c1cc0",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_worleynoise2d_vector2.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_worleynoise2d_vector3.glsl",
+      "checksum": "4df1842c3c284b299f40b4a4a40742f3abee41a74149054165b14f1a09b83d38",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_worleynoise2d_vector3.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_worleynoise3d_float.glsl",
+      "checksum": "5924b62d449cbbbc59a6379e565d4fecbba5023257ccf294fc2de32587be575b",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_worleynoise3d_float.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_worleynoise3d_vector2.glsl",
+      "checksum": "91e256aa88d22397f4c920fca09ab08df31584db3873d91676e4fc154a2c3ead",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_worleynoise3d_vector2.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_worleynoise3d_vector3.glsl",
+      "checksum": "4f451e7d5dd52eeed22af040544891edb1abe608937b353ecd024e192b01c8e1",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/mx_worleynoise3d_vector3.glsl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/stdlib_genglsl_impl.mtlx",
+      "checksum": "977b777b1346e0bdb45bff612a343695d15d57d13fc6e99a97a34578f61bf825",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genglsl/stdlib_genglsl_impl.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmdl/stdlib_genmdl_impl.mtlx",
+      "checksum": "20539c252f761b8d2b0730bbe0bc094e007441f1ca4f780384b20f9dda4e2eb3",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmdl/stdlib_genmdl_impl.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmsl/lib/mx_math.metal",
+      "checksum": "b813a16950f98701a43946b2dc29ace48337825790a17ca168d80c0663b7c1dc",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmsl/lib/mx_math.metal"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmsl/lib/mx_matscalaroperators.metal",
+      "checksum": "5c2c742595225c9552cb6fbe1b107e9faffded9afbedae76085b46f9d60f1543",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmsl/lib/mx_matscalaroperators.metal"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmsl/lib/mx_sampling.metal",
+      "checksum": "691f5a45a6bc449c35cdc2813a99baba345aa001fa2cce65f405ee64039f3c68",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmsl/lib/mx_sampling.metal"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmsl/lib/mx_texture.metal",
+      "checksum": "9c803dc966f46c7281e9a1f3ef307ba53038fd5add2c8e30b77630fbea5fb6a8",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmsl/lib/mx_texture.metal"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmsl/mx_burn_color3.metal",
+      "checksum": "c48f5ffb4331820085dd3ebe5bf65cefe56c300508ab20d56fadc3e61b3f61a5",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmsl/mx_burn_color3.metal"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmsl/mx_burn_color4.metal",
+      "checksum": "1ae9381bed6470831760c9f19f9217e3dd9912f37047691050a4fd1b15726da5",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmsl/mx_burn_color4.metal"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmsl/mx_burn_float.metal",
+      "checksum": "72639888cda849b1373d6eca4ba0eab9cb353ae8f18f8fb00471382d490b5b05",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmsl/mx_burn_float.metal"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmsl/mx_dodge_color3.metal",
+      "checksum": "339c2f1d6e244634b0c8310ee4895ffa9c5c4313455be61beb9c7259ed3641cd",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmsl/mx_dodge_color3.metal"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmsl/mx_dodge_color4.metal",
+      "checksum": "1496fc64e20d29aee40e9a132af20fead2e48e48c3cf0f6a347d5b6bcb50b8c4",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmsl/mx_dodge_color4.metal"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmsl/mx_dodge_float.metal",
+      "checksum": "9a49c1c931847606823906d21c0e50fd956a9261acba2066c8bae32477270d5f",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmsl/mx_dodge_float.metal"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmsl/mx_normalmap.metal",
+      "checksum": "cc2d91ec4dc94535538cbd0a6f1767ce768e90f254036ef7c3906d5c05a029f6",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmsl/mx_normalmap.metal"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmsl/mx_smoothstep_float.metal",
+      "checksum": "449e951d7068f427d3ae729feb31a94c3f6b0b8d50fcd2a7f106d8010098f6d2",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmsl/mx_smoothstep_float.metal"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmsl/mx_smoothstep_vector2.metal",
+      "checksum": "578e6bb2bdfc93300898b0ed4f6af4f1dca8055df4c1d3974a2173cbf7139f50",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmsl/mx_smoothstep_vector2.metal"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmsl/mx_smoothstep_vector3.metal",
+      "checksum": "6f9847689fe098b68a70d2220404f8eca2b0cd2d7e819129c8430a74056f78fa",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmsl/mx_smoothstep_vector3.metal"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmsl/mx_smoothstep_vector4.metal",
+      "checksum": "e690f1e0b46a2483c47f4a1a1ac68b34bfe721bf6e2032557bc35520f2ad1062",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmsl/mx_smoothstep_vector4.metal"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmsl/stdlib_genmsl_impl.mtlx",
+      "checksum": "6817575733f701fa48caca6b0dd39493406e8af3587b4706a482ae7deda23471",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genmsl/stdlib_genmsl_impl.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/include/color4.h",
+      "checksum": "4e5348d211c21233e947c678119e15918e0cdc034e9cf46f43ec2fbc3fd10a05",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/include/color4.h"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/include/matrix33.h",
+      "checksum": "3d321a43e7df30e76c2f5e557fbcea72c3f5307b06e48cfd420ff741d4772b0b",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/include/matrix33.h"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/include/mx_funcs.h",
+      "checksum": "81256368115da09fbc36d14518f6229e4dadc3eb7fc8fb565a47fc13db2ff38a",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/include/mx_funcs.h"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/include/vector2.h",
+      "checksum": "a7c6b877eec8e7aabf9931ba1d78b41d2ca6e6d21a5a185cf771e3fbff351fb9",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/include/vector2.h"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/include/vector4.h",
+      "checksum": "e282e9933a419e782ea766b03928853aafdf70d358ef5f7137118f77cb004c38",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/include/vector4.h"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/lib/mx_sampling.osl",
+      "checksum": "04c4515f99f91848cfc1d42c665276b8c62679fd1ee2a979053e973dd23da397",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/lib/mx_sampling.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/lib/mx_transform_uv.osl",
+      "checksum": "c44b07d653a1be776dcce90ebbc87ef20a8d586ff0c4993304b9698634031360",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/lib/mx_transform_uv.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/lib/mx_transform_uv_vflip.osl",
+      "checksum": "1097f3da36841e3c4472ac387e6eec340f152a223824cecedca01118fa46ee6b",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/lib/mx_transform_uv_vflip.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_ambientocclusion_float.osl",
+      "checksum": "4552508b9a96c0fc3935b735403aeaaf1407a2efcf9ecc149ca928dd7fdf50e3",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_ambientocclusion_float.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_burn_color3.osl",
+      "checksum": "321bc5015a3b693d8cba6997665fff90d566bcf96f935f2582f28ebe8575f096",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_burn_color3.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_burn_color4.osl",
+      "checksum": "455718c34950569bdd2ded99c00c15a4de3b10f2122ebc0cab86fff6abd51f7d",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_burn_color4.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_burn_float.osl",
+      "checksum": "c958af331ab25bb0f0e58dd5fc3217942bb3045a89b869a2c4a56d5623fddc11",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_burn_float.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_cellnoise2d_float.osl",
+      "checksum": "c0e7857b3cb6493f929457f44be6bec99f7c3d567f510dcf971cc4201e4ef180",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_cellnoise2d_float.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_cellnoise3d_float.osl",
+      "checksum": "500deba4df43c0a11ba46f78c334215f9a5f2b8d5e5965908aeddb8f10c52e1d",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_cellnoise3d_float.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_creatematrix.osl",
+      "checksum": "22eac18626e3fb0cd127c4ad8ca1a2c3d33a7deba3ea755f04d81e95d2c964cd",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_creatematrix.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_disjointover_color4.osl",
+      "checksum": "1641b810ef29996dfb80545c7d612efae5db5352aff4aac75eb84d7733bd5dae",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_disjointover_color4.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_dodge_color3.osl",
+      "checksum": "6b99f04491d8f215ba5546096ac368901af6448f0c0a3b0b6de57bc25cf6dee8",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_dodge_color3.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_dodge_color4.osl",
+      "checksum": "c868597652207d2f4bf26efeca0016c293e04e1240e1d115f04d5a1df66ae98b",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_dodge_color4.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_dodge_float.osl",
+      "checksum": "e864c1df4b7bfb1d9000f71c421bbf7ba2f1f5667a51cce42b6f0f96c1d176d2",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_dodge_float.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_fractal3d_float.osl",
+      "checksum": "072d7f6e1e369abe79cd4fa32acca1c579970c3f174360bb7a8168d2746e7a7c",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_fractal3d_float.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_fractal3d_vector2.osl",
+      "checksum": "c7e027e36d1262df85e1ad9aeae42cdcf3672d19dc3568228c89daa650f73809",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_fractal3d_vector2.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_fractal3d_vector3.osl",
+      "checksum": "ee9d4511bae91ab53a34324f1e5f628a70db7e9a2e92b81d8a729bed254e0795",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_fractal3d_vector3.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_fractal3d_vector4.osl",
+      "checksum": "5fae6fc366df92cb92d6728181c8888c4c5ed832cd46eb18b112ede5855db5f6",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_fractal3d_vector4.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_frame_float.osl",
+      "checksum": "cc7877e1276c858d29befd9a520c3276305d6952da344c03387871f52cc0934b",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_frame_float.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_geomcolor_color3.osl",
+      "checksum": "04067bdfd4174586acee66e2aa34b889978f48245db91e424467ad4a788c5e81",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_geomcolor_color3.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_geomcolor_color4.osl",
+      "checksum": "0606fdb0b8f5b907d624f8cc3cc3a0a4e4b417687bd40fb658a6a6bc010c5a3b",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_geomcolor_color4.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_geomcolor_float.osl",
+      "checksum": "fce31b1b40f5d1b00981a3812a41d40ee55302ab2c6942b461b93c7962505c55",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_geomcolor_float.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_geompropvalue_boolean.osl",
+      "checksum": "0a8186c772b94d5e31fb7684bbec2f3893da566c43560c5d767d120e2799c7ce",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_geompropvalue_boolean.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_geompropvalue_color3.osl",
+      "checksum": "f4e439b20d9d8d6182f150867c3e173ebbfe76764d74631e3f0506e81bde468c",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_geompropvalue_color3.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_geompropvalue_color4.osl",
+      "checksum": "7ee41b5655dfb38999685b8a9f014daa76226d51b31e35383fcbbdec648ed77a",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_geompropvalue_color4.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_geompropvalue_float.osl",
+      "checksum": "25195ff52b25d6aaeae064d40cd12fda89d1b15996aafd5eb2e9720a2c31d91d",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_geompropvalue_float.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_geompropvalue_integer.osl",
+      "checksum": "44f22a39577f1a302be3f7fffd2500c710c3f8d3f8483895f4dab23721f678c9",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_geompropvalue_integer.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_geompropvalue_string.osl",
+      "checksum": "c53da598e680903a38e0d73235287e5a0be0d6448292c7e49a5e1e45883687b4",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_geompropvalue_string.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_geompropvalue_vector2.osl",
+      "checksum": "f33659bb170d34ee23e33d1e73d31b4ea18e334479e9a0614638653c515a7c38",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_geompropvalue_vector2.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_geompropvalue_vector3.osl",
+      "checksum": "382606d06610c0b90787307690142c91b263f542ddd47feeebc1b8c62f0ebce5",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_geompropvalue_vector3.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_geompropvalue_vector4.osl",
+      "checksum": "dd5c281eb0c9489153f1df723b0d1f6d38f3856cd746d4d6f04ebeb04c583e96",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_geompropvalue_vector4.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_heighttonormal_vector3.osl",
+      "checksum": "5ef96d73e66b722e4b7763e1cc90027a572bdf960750cd7dbbbb2232f256cf50",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_heighttonormal_vector3.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_hsvtorgb_color3.osl",
+      "checksum": "3935e4d2b7d218ddc88f864e061b1050c1cd91018cc3d71e476fa51591f18cb3",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_hsvtorgb_color3.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_hsvtorgb_color4.osl",
+      "checksum": "05cfc2d23b5afb4e4c3f179a547a4bada4fe88e358937fb32afd404b032e59f2",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_hsvtorgb_color4.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_image_color3.osl",
+      "checksum": "5e07befd101aa4d4ceb9f98f1f7f8844e2b3f36a20a6e82d83dbbd20c2a2b5ca",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_image_color3.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_image_color4.osl",
+      "checksum": "9515f0db376749bf88bf65eb37f65cc12feda9ab7b03d8ec58877ebe0dc9b792",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_image_color4.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_image_float.osl",
+      "checksum": "4155b8ea12ef21af78e800570fc2ec855305f6d39014d25878eaabd3ee8d0a86",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_image_float.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_image_vector2.osl",
+      "checksum": "cb7a9c24fe9ecc7bc312e438e10b3c328d651d0eabf40efbdeb6be2c758049ee",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_image_vector2.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_image_vector3.osl",
+      "checksum": "8c2c4fc77aeb8db03e78987ef7012706d1936f037acfe968061e7f1071364b2c",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_image_vector3.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_image_vector4.osl",
+      "checksum": "da9f23462317b9dfa9dd06abefc7cd2c2245875910c8231115e32e04b6e642c0",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_image_vector4.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_luminance_color3.osl",
+      "checksum": "218ea1ec8d14adc49c4dcba432966c07d91dffe7a95d358e3a55a00efd44e796",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_luminance_color3.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_luminance_color4.osl",
+      "checksum": "ff7d082360ce2dfa80573a9b2283ba930eb9f7b11094cce0690ff9613f4b8e9f",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_luminance_color4.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_mix_surfaceshader.osl",
+      "checksum": "cef674af074cac0f07858c9ab01b34854b4b0f5f7d58f71f1de989de31911695",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_mix_surfaceshader.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_noise2d_float.osl",
+      "checksum": "4718f4ec44a31b2145bc6df95a8c70d8b26e08d65bdd56ac554223500abe1a22",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_noise2d_float.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_noise2d_vector2.osl",
+      "checksum": "6243f16506210f4846b40cdc3da7d62ab19fcd863345b350cc85ca3827206ee7",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_noise2d_vector2.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_noise2d_vector3.osl",
+      "checksum": "8f273ef7e7301776b60fbc9584aa19c268f78fa57ff7b913e4edc0461afaa208",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_noise2d_vector3.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_noise2d_vector4.osl",
+      "checksum": "e66f655c0100f47bc10b883c3cc12c36d8bd5e2f62c2068471485015dd813507",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_noise2d_vector4.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_noise3d_float.osl",
+      "checksum": "a30d705291fb5bc8a0df0551b7d0a3b10dbef819c27c53b6fbf4e33e6570ed2b",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_noise3d_float.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_noise3d_vector2.osl",
+      "checksum": "510ebe0af958d2cbdaef19f0bc1aa80621cc4bc1ba13b2705e00fec1d212fd7a",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_noise3d_vector2.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_noise3d_vector3.osl",
+      "checksum": "7451d4395d6d4ac81c25c264e3d2502e721498a2fe50b506b9f2e6605ba4efbc",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_noise3d_vector3.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_noise3d_vector4.osl",
+      "checksum": "4a7c4f4f1447cb0581b74fbeb8e2e6436ea4f5fadd5cff9ce61fc71108c60849",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_noise3d_vector4.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_normalmap.osl",
+      "checksum": "5322eaee9331e6b9d1e557069eab4f41716908a4c8c046f2b8380f35be69858e",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_normalmap.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_premult_color4.osl",
+      "checksum": "8062e948a285ef31aa92eeeeb6842ff1a41cd1c45afba144ddd190229db271d4",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_premult_color4.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_rgbtohsv_color3.osl",
+      "checksum": "f967da48c6bbf554ba3b5fa0e794c2c0ff6c4270bb6596288bf5af47ce49688c",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_rgbtohsv_color3.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_rgbtohsv_color4.osl",
+      "checksum": "afc69a55958209cb083a0b91b54baef2e566245d4fed1a4c8eaff3703b9fd680",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_rgbtohsv_color4.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_rotate_vector2.osl",
+      "checksum": "90647af6734f009be882ae45fa89cc1af0811996fdf4643e66ba03b6c40129b9",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_rotate_vector2.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_rotate_vector3.osl",
+      "checksum": "fce81cfe74a90c34c2e2346e8b24c27295e7fc4e12aaba7ad6d7ea1f3b50c199",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_rotate_vector3.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_surface_unlit.osl",
+      "checksum": "f50f8312c1d36352561a9e1fba7ec496b794ea41fa531e645442590cad180b27",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_surface_unlit.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_time_float.osl",
+      "checksum": "9536865aeba0ff40e93c104887d5c9637d4db89d538004ce0455d251a27280fa",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_time_float.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_transformmatrix_vector2M3.osl",
+      "checksum": "083d9d50e029160f111cb00e0b5a3df0442eba630cef44a356ace47177392375",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_transformmatrix_vector2M3.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_unpremult_color4.osl",
+      "checksum": "3d4511025cee8ffdd7984145cb1fcdbceaca785e996549da00c2f1842643a6df",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_unpremult_color4.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_worleynoise2d_float.osl",
+      "checksum": "78a244034acb13adcdecb67cafb30ed16f345bb5f0779fb26271dd974b4fdc0a",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_worleynoise2d_float.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_worleynoise2d_vector2.osl",
+      "checksum": "137fbc02d117a0d798dc58ade886fed0570c3594419e8f9f4105c6e0d62954a3",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_worleynoise2d_vector2.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_worleynoise2d_vector3.osl",
+      "checksum": "3e2f061715d489e5ba7f76bde0150074f90e273eee149e6a4358579f7b456d7a",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_worleynoise2d_vector3.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_worleynoise3d_float.osl",
+      "checksum": "8c04e02b062081e66c2fc02b680b405fc9306cfd5e5e349d6761a2e4a3e16c79",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_worleynoise3d_float.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_worleynoise3d_vector2.osl",
+      "checksum": "95cc65e3687651621fa987dd0e2540a7b41f56ada4b8a39741a75a4568912610",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_worleynoise3d_vector2.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_worleynoise3d_vector3.osl",
+      "checksum": "5f9601f89c5732c1830ff15ad5edf56b42a31d49b0c8c3420df858e91873b094",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/mx_worleynoise3d_vector3.osl"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/stdlib_genosl_impl.mtlx",
+      "checksum": "e43e8b384fd161a77cc2191a37e2f0daa9a3a7a9ec4ef883efd89ebc159afe5a",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/genosl/stdlib_genosl_impl.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/stdlib_defs.mtlx",
+      "checksum": "197a317a1d7fd59838af62330db90eafe72746472c84301cb2e5b1a616e64bea",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/stdlib_defs.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/stdlib_ng.mtlx",
+      "checksum": "ac8934577176e4ddfbada807ccf63d32a0bcb15a4a84d7b9fa42d2fc979a245d",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/stdlib/stdlib_ng.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/targets/essl.mtlx",
+      "checksum": "e17f57dd33fb6bf77d32b5077cc4353299ecb523cbc174244a9802bfb87ed537",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/targets/essl.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/targets/genglsl.mtlx",
+      "checksum": "bcc0717b946eed9a186479212492ce1e20c914ddde1645af2172b350eb93336d",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/targets/genglsl.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/targets/genmdl.mtlx",
+      "checksum": "f7e6a14b3f3e55c63832a321b323f6424529a537920d2c84cb8e6a2202c84507",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/targets/genmdl.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/targets/genmsl.mtlx",
+      "checksum": "f6d81016a832d5588a85f917a9930b585bfb916edf2fabd12d25351becb7d208",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/targets/genmsl.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MaterialX/libraries/targets/genosl.mtlx",
+      "checksum": "7e5b7a991d0d8ce2d21e76572bcb3241bf8c1e44614db0fb88f90874261e9dad",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MaterialX/libraries/targets/genosl.mtlx"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/MsQuic/v220/win64/msquic.dll",
+      "checksum": "b52ad46f1f06c2bec79e5f2ea8ae1b02be21c6173b011cbffe0fac0ee0117b85",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/MsQuic/v220/win64/msquic.dll"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/NVIDIA/GPUDirect/Win64/dvp.dll",
+      "checksum": "23296c62b4dff3dd8460f3d3ea301db1d0ac35031a30c11581a756eca1e2ab1d",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/NVIDIA/GPUDirect/Win64/dvp.dll"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/NVIDIA/NVaftermath/Win64/GFSDK_Aftermath_Lib.x64.dll",
+      "checksum": "1368db77821b4172db00afc410e8a45647193dc8e24fede9db5714a69a58b5c1",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/NVIDIA/NVaftermath/Win64/GFSDK_Aftermath_Lib.x64.dll"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/Ogg/Win64/VS2015/libogg_64.dll",
+      "checksum": "8351b1c052e985e27f3e30fdce5971770b25b58880cd5cdfebde488d93590252",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/Ogg/Win64/VS2015/libogg_64.dll"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/Vorbis/Win64/VS2015/libvorbisfile_64.dll",
+      "checksum": "2d97292f614d1f029063603e65de66ba651c3aa2a30fd418aefc402bec1d788b",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/Vorbis/Win64/VS2015/libvorbisfile_64.dll"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/Vorbis/Win64/VS2015/libvorbis_64.dll",
+      "checksum": "f14d789b969797f29ae56bc211da74bc7681cc979d45ac55eae2587839743180",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/Vorbis/Win64/VS2015/libvorbis_64.dll"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/Vulkan/Win64/VkLayer_api_dump.dll",
+      "checksum": "fe2f5602c17b635411f4f8b70d517339ab4163fc4d61a958aae080bec31438c3",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/Vulkan/Win64/VkLayer_api_dump.dll"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/Vulkan/Win64/VkLayer_api_dump.json",
+      "checksum": "281669fdf39baf7e49e0507387645997451187be2f7d444b0c169ef078004e46",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/Vulkan/Win64/VkLayer_api_dump.json",
+      "size": 12828
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/Vulkan/Win64/VkLayer_crash_diagnostic.dll",
+      "checksum": "94c495334767ff2c1ce90d96736b06821afe3af32a6d083fd2938e2dfe1a55aa",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/Vulkan/Win64/VkLayer_crash_diagnostic.dll"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/Vulkan/Win64/VkLayer_crash_diagnostic.json",
+      "checksum": "3601109840469aea0b9008512157e043c89500705cb346270fb019d7ed6f724e",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/Vulkan/Win64/VkLayer_crash_diagnostic.json"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/Vulkan/Win64/VkLayer_gfxreconstruct.dll",
+      "checksum": "325b8c2438b6870c39e05e9043e3cf950f9ef5801d5cbd1cc981ad4cb965b2b8",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/Vulkan/Win64/VkLayer_gfxreconstruct.dll"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/Vulkan/Win64/VkLayer_gfxreconstruct.json",
+      "checksum": "a6c78d253715f260a0fe7c8e1b0ce3e153aa8a802a2ba89b0dd46561e686b636",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/Vulkan/Win64/VkLayer_gfxreconstruct.json"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/Vulkan/Win64/VkLayer_khronos_profiles.dll",
+      "checksum": "dc6bfcdab36765d24f99ba6c05710d7ebe36a984f32d14281f1e2229621f3723",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/Vulkan/Win64/VkLayer_khronos_profiles.dll"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/Vulkan/Win64/VkLayer_khronos_profiles.json",
+      "checksum": "8c9d6e4bf6d38c2cf223b598aaf86a08242a1a07d62b24236cca3e64e0daf91c",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/Vulkan/Win64/VkLayer_khronos_profiles.json"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/Vulkan/Win64/VkLayer_khronos_shader_object.dll",
+      "checksum": "8ea18e67abf4be74e8a81e2fe59876d19c8002942ec7d88ea038e5d58a03b9eb",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/Vulkan/Win64/VkLayer_khronos_shader_object.dll"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/Vulkan/Win64/VkLayer_khronos_shader_object.json",
+      "checksum": "98b9a12a5723665abab2eadfcab700a5785172adad22e5ca1364ab466268185f",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/Vulkan/Win64/VkLayer_khronos_shader_object.json"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/Vulkan/Win64/VkLayer_khronos_synchronization2.dll",
+      "checksum": "6cca3a37fe9dc1f6c95848e9fc58894e865a7ebf123ea6983815f3dbb7ee4cd1",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/Vulkan/Win64/VkLayer_khronos_synchronization2.dll"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/Vulkan/Win64/VkLayer_khronos_synchronization2.json",
+      "checksum": "80a014d0b4337ea6ab05b8295fe6d1ba7f4cc0cf6bfe918873a0d30960973696",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/Vulkan/Win64/VkLayer_khronos_synchronization2.json"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/Vulkan/Win64/VkLayer_khronos_validation.dll",
+      "checksum": "3c08cd5a1827fd152b4475f4e51f2d1db573e144baa10e979866df23a21701c6",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/Vulkan/Win64/VkLayer_khronos_validation.dll"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/Vulkan/Win64/VkLayer_khronos_validation.json",
+      "checksum": "be1722a7a84efca54cd0bd1625f37016b556dd696586620f81ff5fa1c155a198",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/Vulkan/Win64/VkLayer_khronos_validation.json"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/Windows/WinPixEventRuntime/x64/WinPixEventRuntime.dll",
+      "checksum": "163210cc2981e1e724d15524815ed17e3a23836e37a6aba8c4c564c3bd5ddda2",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/Windows/WinPixEventRuntime/x64/WinPixEventRuntime.dll"
+    },
+    {
+      "path": "Engine/Binaries/ThirdParty/Windows/XAudio2_9/x64/xaudio2_9redist.dll",
+      "checksum": "d6260924816479b32c495731ef3d55d4186c5bc3c6cee6a1211aeebcbcbf88de",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Binaries/ThirdParty/Windows/XAudio2_9/x64/xaudio2_9redist.dll"
+    },
+    {
+      "path": "Engine/Config/StagedBuild_RolePlay_AI.ini",
+      "checksum": "f1945cd6c19e56b3c1c78943ef5ec18116907a4ca1efc40a57d48ab1db7adfc5",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Config/StagedBuild_RolePlay_AI.ini"
+    },
+    {
+      "path": "Engine/Content/Renderer/TessellationTable.bin",
+      "checksum": "edc4f3b628a139c5e185bbaeca661c95c1f427368d3b92892c5cff36c56dd941",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Content/Renderer/TessellationTable.bin"
+    },
+    {
+      "path": "Engine/Content/Slate/Cursor/invisible.cur",
+      "checksum": "fef3980fa567e9c45d5d8dcaa432a2c1a3f3bb17fe67d7ab198164f56c142aa1",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Content/Slate/Cursor/invisible.cur"
+    },
+    {
+      "path": "Engine/Content/SlateDebug/Fonts/LastResort.tps",
+      "checksum": "0f775fa99d05e21d43d2d06d55982b23dcdccdb512a9a5a07aff674f212c41b8",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Content/SlateDebug/Fonts/LastResort.tps"
+    },
+    {
+      "path": "Engine/Content/SlateDebug/Fonts/LastResort.ttf",
+      "checksum": "fff0f8de0b868b964950fe97c9b60f893e9bc85a4f90b3629c5693db058b97b9",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Content/SlateDebug/Fonts/LastResort.ttf"
+    },
+    {
+      "path": "Engine/Extras/GPUDumpViewer/GPUDumpViewer.html",
+      "checksum": "15966544a010b56930a7389b5e9cbeee7a9ae545d132906e983ac954a839df67",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Extras/GPUDumpViewer/GPUDumpViewer.html"
+    },
+    {
+      "path": "Engine/Extras/GPUDumpViewer/OpenGPUDumpViewer.bat",
+      "checksum": "e8f7ef9c88697041bd87902b76e52558979ca866c7450b1da108a94a027f441b",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Extras/GPUDumpViewer/OpenGPUDumpViewer.bat"
+    },
+    {
+      "path": "Engine/Extras/GPUDumpViewer/OpenGPUDumpViewer.sh",
+      "checksum": "1b222b5d5aad6dd9b5b9f0a1c72d38635149540f2c7a368600ec76c1d304390a",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Extras/GPUDumpViewer/OpenGPUDumpViewer.sh"
+    },
+    {
+      "path": "Engine/Extras/Redist/en-us/vc_redist.arm64.exe",
+      "checksum": "cec9838d1fc26336fc9455efa2dca7fe90f8031a1aa2bc9141b1b5ec5fb9d85f",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Extras/Redist/en-us/vc_redist.arm64.exe"
+    },
+    {
+      "path": "Engine/Extras/Redist/en-us/vc_redist.x64.exe",
+      "checksum": "04c75c1dce1ad11e851c5ef5babe286259ed92b42b8274ad03916f454f4174dc",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Extras/Redist/en-us/vc_redist.x64.exe"
+    },
+    {
+      "path": "Engine/Plugins/NNE/NNERuntimeORT/Binaries/ThirdParty/Onnxruntime/Win64/onnxruntime.dll",
+      "checksum": "c8dda75c930538a27283437b7890f5349bf86cdc8d6ffdafd1eb7a8ef4c8ae17",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Plugins/NNE/NNERuntimeORT/Binaries/ThirdParty/Onnxruntime/Win64/onnxruntime.dll"
+    },
+    {
+      "path": "Engine/Plugins/Runtime/OpenCV/Binaries/ThirdParty/Win64/opencv_world455.dll",
+      "checksum": "b7b1cf17657ecaf0f083d07673cf2897e0b25a8f20b929b3307fb3b38a87b210",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Engine/Plugins/Runtime/OpenCV/Binaries/ThirdParty/Win64/opencv_world455.dll"
+    },
+    {
+      "path": "Manifest_DebugFiles_Win64.txt",
+      "checksum": "14e3fa46c96843c9cc419afda5cf86d7cbad26ce2f37d28c89da990ecb494c1d",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Manifest_DebugFiles_Win64.txt"
+    },
+    {
+      "path": "Manifest_NonUFSFiles_Win64.txt",
+      "checksum": "c5be169ee1e72039667e08ce81a3f2bca7781bbcde006423986e8dc057113ab8",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Manifest_NonUFSFiles_Win64.txt"
+    },
+    {
+      "path": "Manifest_UFSFiles_Win64.txt",
+      "checksum": "5ca11069b6dd135018d209c6657fbf149e83c2c63cb132231a263caca69cdda3",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/Manifest_UFSFiles_Win64.txt"
+    },
+    {
+      "path": "RolePlay_AI/Binaries/Win64/boost_atomic-mt-x64.dll",
+      "checksum": "9712019325d228e1d6e1d07540921756c96f807ac254bf4333804c481538d5a3",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Binaries/Win64/boost_atomic-mt-x64.dll"
+    },
+    {
+      "path": "RolePlay_AI/Binaries/Win64/boost_chrono-mt-x64.dll",
+      "checksum": "b0b25f0e391758bd374ce6617a22ab419163b314b8f94bc8f8659353017bdbc9",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Binaries/Win64/boost_chrono-mt-x64.dll"
+    },
+    {
+      "path": "RolePlay_AI/Binaries/Win64/boost_filesystem-mt-x64.dll",
+      "checksum": "ee1359b5d56f2d18fd427df2928091c928f9f8946d053dcd1d009132748d3014",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Binaries/Win64/boost_filesystem-mt-x64.dll"
+    },
+    {
+      "path": "RolePlay_AI/Binaries/Win64/boost_iostreams-mt-x64.dll",
+      "checksum": "f896155b341ee2ea2fe9cf6c1720d4710a0589c5e76fe17c97af4c23f656ffc6",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Binaries/Win64/boost_iostreams-mt-x64.dll"
+    },
+    {
+      "path": "RolePlay_AI/Binaries/Win64/boost_program_options-mt-x64.dll",
+      "checksum": "74af8534d9fc8107f7c8f2ce113cbdfebbced07420f54ec89a4d3d960efd5eba",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Binaries/Win64/boost_program_options-mt-x64.dll"
+    },
+    {
+      "path": "RolePlay_AI/Binaries/Win64/boost_python311-mt-x64.dll",
+      "checksum": "9a3b52d0a0efbf5e9e950cd9e874a4175144b538f461d0fc78e011279c339d6d",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Binaries/Win64/boost_python311-mt-x64.dll"
+    },
+    {
+      "path": "RolePlay_AI/Binaries/Win64/boost_regex-mt-x64.dll",
+      "checksum": "0727410351e5c8ca44593c3beb07b5de43aadab893f2afe065265137df63c01e",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Binaries/Win64/boost_regex-mt-x64.dll"
+    },
+    {
+      "path": "RolePlay_AI/Binaries/Win64/boost_system-mt-x64.dll",
+      "checksum": "de27fffc7b5de46472997964dd413af951cbad98dbedf6365d3970e663449e90",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Binaries/Win64/boost_system-mt-x64.dll"
+    },
+    {
+      "path": "RolePlay_AI/Binaries/Win64/boost_thread-mt-x64.dll",
+      "checksum": "5494aa53be1516be15c9d286d6fcb4456d640c06153da938af2de57046c90369",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Binaries/Win64/boost_thread-mt-x64.dll"
+    },
+    {
+      "path": "RolePlay_AI/Binaries/Win64/D3D12/x64/D3D12Core.dll",
+      "checksum": "244c72d69a06fe082aa59844b841f7605fb272e2394bc1fc998bdfc8d7921f6f",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Binaries/Win64/D3D12/x64/D3D12Core.dll"
+    },
+    {
+      "path": "RolePlay_AI/Binaries/Win64/D3D12/x64/d3d12SDKLayers.dll",
+      "checksum": "27436b5288f557fb5bcbb1cc4b5b84a14dc17af2edb0ed2550ddb098f6f65485",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Binaries/Win64/D3D12/x64/d3d12SDKLayers.dll"
+    },
+    {
+      "path": "RolePlay_AI/Binaries/Win64/DML/x64/DirectML.dll",
+      "checksum": "18918565cfefff21fb14362b21d32f52a1108a3a1cda564ce104f496e9a06588",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Binaries/Win64/DML/x64/DirectML.dll"
+    },
+    {
+      "path": "RolePlay_AI/Binaries/Win64/NvmlWrapper.dll",
+      "checksum": "44ca945714ffbf7547c3e80732f0c5039faf4ddc2efa24eedc8e083f6e303eaa",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Binaries/Win64/NvmlWrapper.dll"
+    },
+    {
+      "path": "RolePlay_AI/Binaries/Win64/RolePlay_AI.exe",
+      "checksum": "acf98789332f2512a90a0790cfe6fb87162e6303dea6029651252b9f543e0d4b",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Binaries/Win64/RolePlay_AI.exe"
+    },
+    {
+      "path": "RolePlay_AI/Binaries/Win64/RolePlay_AI.pdb",
+      "checksum": "8c9e0f47f14825310b70086fe707f02420c021fe221498bbd726617cf7858d7c",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Binaries/Win64/RolePlay_AI.pdb"
+    },
+    {
+      "path": "RolePlay_AI/Binaries/Win64/tbb12.dll",
+      "checksum": "5fdf9e1d91ce4b03cb6742d551538010ce995b430f4c28b2a1d664fabb46ad89",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Binaries/Win64/tbb12.dll"
+    },
+    {
+      "path": "RolePlay_AI/Binaries/Win64/tbbmalloc.dll",
+      "checksum": "0bd90f4831d625613ca5f5279cce892413e6542590f8a8d95b7c46ac04e10a2a",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Binaries/Win64/tbbmalloc.dll"
+    },
+    {
+      "path": "RolePlay_AI/Content/Movies/VRC_Intro.mp4",
+      "checksum": "12c981b759c6743b5a0e0d60534dd57c293e01a6d0c2ff9658c30ba078cbe292",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Content/Movies/VRC_Intro.mp4"
+    },
+    {
+      "path": "RolePlay_AI/Content/Paks/pakchunk0-Windows.pak",
+      "checksum": "c2164704373d13c43b16a955cea1e4a6ef4ed1c00980a9eee44d235d0ec1f39e",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Content/Paks/pakchunk0-Windows.pak"
+    },
+    {
+      "path": "RolePlay_AI/Content/Paks/pakchunk10001-Windows.pak",
+      "checksum": "ecd23951b519cdc74988d20c81ad0c82109505737f85d1f6bdac6eaf5ba8e3ca",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Content/Paks/pakchunk10001-Windows.pak"
+    },
+    {
+      "path": "RolePlay_AI/Content/Paks/pakchunk10002-Windows.pak",
+      "checksum": "0f51cea5f132085bed1cd0e298b14bbaf82b792ea1d45b8df434d64f685ba504",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Content/Paks/pakchunk10002-Windows.pak"
+    },
+    {
+      "path": "RolePlay_AI/Content/Paks/pakchunk110001-Windows.pak",
+      "checksum": "e43f342cb81b1f74211a7cc6f1f159dee0c7ec11a056c80a2e6197350b0a06ee",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Content/Paks/pakchunk110001-Windows.pak"
+    },
+    {
+      "path": "RolePlay_AI/Content/Paks/pakchunk121001-Windows.pak",
+      "checksum": "5fada815b8b4955cf23ac628c49f3b50077dac0d586ee960d79116e8954762f7",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Content/Paks/pakchunk121001-Windows.pak"
+    },
+    {
+      "path": "RolePlay_AI/Content/Paks/pakchunk121001optional-Windows.pak",
+      "checksum": "a8d4cbc26bb3942f3d8163f9eadc7ce11388668fb17de515c929a938b9383ba4",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Content/Paks/pakchunk121001optional-Windows.pak"
+    },
+    {
+      "path": "RolePlay_AI/Content/Paks/pakchunk122001-Windows.pak",
+      "checksum": "e5820fd6d36b3471abc962091e872cba4fb750bd59ea8266d2c4ddfc0dc153c4",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Content/Paks/pakchunk122001-Windows.pak"
+    },
+    {
+      "path": "RolePlay_AI/Content/Paks/pakchunk123001-Windows.pak",
+      "checksum": "34a63a2a8dc68f4423847fb3c9cd2f25712d1890a022d4705ca38b33eea6cbe7",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Content/Paks/pakchunk123001-Windows.pak"
+    },
+    {
+      "path": "RolePlay_AI/Content/Paks/pakchunk123001optional-Windows.pak",
+      "checksum": "7174e46c556f90db415f97f601071a66efb002426b3a1a22f8d7c77decd0242a",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Content/Paks/pakchunk123001optional-Windows.pak"
+    },
+    {
+      "path": "RolePlay_AI/Content/Paks/pakchunk124001-Windows.pak",
+      "checksum": "edede19e640791c0fbf3b2e4e05099f73f8a4602024a36e6c5f10e305b7d5d12",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Content/Paks/pakchunk124001-Windows.pak"
+    },
+    {
+      "path": "RolePlay_AI/Content/Paks/pakchunk125001-Windows.pak",
+      "checksum": "a8feeb31216f64cd6c194bb70e3a62b0adf052b1c7f40849164b773c2e14416c",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Content/Paks/pakchunk125001-Windows.pak"
+    },
+    {
+      "path": "RolePlay_AI/Content/Paks/pakchunk125001optional-Windows.pak",
+      "checksum": "0b3ba41ea5ed461b108517fd21780191f9985ca05ff650a529c6f6c718f7dc41",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Content/Paks/pakchunk125001optional-Windows.pak"
+    },
+    {
+      "path": "RolePlay_AI/Content/Paks/pakchunk140001-Windows.pak",
+      "checksum": "471b5fa5927a469d6e88edacc63193f7267c8d8a7f7152d59c3ba0ebfc3dc3d0",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Content/Paks/pakchunk140001-Windows.pak"
+    },
+    {
+      "path": "RolePlay_AI/Content/Paks/pakchunk150001-Windows.pak",
+      "checksum": "2ec9f4a9bb8c0e3c658771bc60d6a81f4b275942a44a74c1d386abf22970ed81",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Content/Paks/pakchunk150001-Windows.pak"
+    },
+    {
+      "path": "RolePlay_AI/Content/Paks/pakchunk160001-Windows.pak",
+      "checksum": "f5ab89629e3ab3bc1cdd3dadeb702cc682c0a59ace78f901ac2411609c4b8eea",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Content/Paks/pakchunk160001-Windows.pak"
+    },
+    {
+      "path": "RolePlay_AI/Content/Paks/pakchunk160001optional-Windows.pak",
+      "checksum": "003a3fcb0f9c1df390d85c43f9fb97d4b5353c994fb3e1ec5f1175a9d7e2d067",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Content/Paks/pakchunk160001optional-Windows.pak"
+    },
+    {
+      "path": "RolePlay_AI/Content/Paks/pakchunk180001-Windows.pak",
+      "checksum": "f8725da926264d095918e493fc5c0ef8bc82b2e6db0cf70f7f543c260f39668a",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Content/Paks/pakchunk180001-Windows.pak"
+    },
+    {
+      "path": "RolePlay_AI/Content/Paks/pakchunk20001-Windows.pak",
+      "checksum": "b4612dffe8f3a71f851c3f2f68917d30d0d30c2d2ae8ac47ae628a310036d041",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Content/Paks/pakchunk20001-Windows.pak"
+    },
+    {
+      "path": "RolePlay_AI/Content/Paks/pakchunk21001-Windows.pak",
+      "checksum": "91394e3b4b5c9f8dc55004d635bcd53f235ae7206a4f88b62226fdeb39620f92",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Content/Paks/pakchunk21001-Windows.pak"
+    },
+    {
+      "path": "RolePlay_AI/Content/Paks/pakchunk22001-Windows.pak",
+      "checksum": "d4a9d6505793820b4633d224c7a74981a300a8433e17a4f1a869a7108f0b3931",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Content/Paks/pakchunk22001-Windows.pak"
+    },
+    {
+      "path": "RolePlay_AI/Content/Paks/pakchunk23001-Windows.pak",
+      "checksum": "58ba2ce907783918f14c2348fd4186550d68fb24ceb90af76e036816f81791a1",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Content/Paks/pakchunk23001-Windows.pak"
+    },
+    {
+      "path": "RolePlay_AI/Content/Paks/pakchunk240001-Windows.pak",
+      "checksum": "45c382ae3339d5df149b04357508a6929baee984e405f0642e5c066287d12b68",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Content/Paks/pakchunk240001-Windows.pak"
+    },
+    {
+      "path": "RolePlay_AI/Content/Paks/pakchunk24001-Windows.pak",
+      "checksum": "44f8454e4796a2487bb5858684145495ac7d70d08cc367beee0f8d9b35099c97",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Content/Paks/pakchunk24001-Windows.pak"
+    },
+    {
+      "path": "RolePlay_AI/Content/Paks/pakchunk30001-Windows.pak",
+      "checksum": "497f02a7f2bd045c83a679e4b32f6bc3f114722ac4817f002d402d4fd9d43fa8",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Content/Paks/pakchunk30001-Windows.pak"
+    },
+    {
+      "path": "RolePlay_AI/Content/Paks/pakchunk40001-Windows.pak",
+      "checksum": "bfb5954cf6c3bef2f6b1f3a5cd2d0b28de418b3faa089d8e0e4778168e01f506",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Content/Paks/pakchunk40001-Windows.pak"
+    },
+    {
+      "path": "RolePlay_AI/Content/Paks/pakchunk51001-Windows.pak",
+      "checksum": "4c4afe44ccd2e6136292cc697a68ad00f2eda4183ac4e8fe107da392f2d88549",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Content/Paks/pakchunk51001-Windows.pak"
+    },
+    {
+      "path": "RolePlay_AI/Content/Paks/pakchunk52001-Windows.pak",
+      "checksum": "e4ffbcec7c0a9ee7c24475f4c1d849d2a5fb26918ec83165b585f1f2c527daac",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Content/Paks/pakchunk52001-Windows.pak"
+    },
+    {
+      "path": "RolePlay_AI/Content/Paks/pakchunk60001-Windows.pak",
+      "checksum": "985a1349e7337c63b3114a97f3251de50387afb0dab9de1b581c07a2988d07a4",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Content/Paks/pakchunk60001-Windows.pak"
+    },
+    {
+      "path": "RolePlay_AI/Content/Paks/pakchunk70001-Windows.pak",
+      "checksum": "2c79a1e1117c6ca28f9d3d69f62612961fe51b47ced11bfb023b001618f7a60b",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Content/Paks/pakchunk70001-Windows.pak"
+    },
+    {
+      "path": "RolePlay_AI/Plugins/DLSS/Binaries/ThirdParty/Win64/Development/nvngx_dlss.dll",
+      "checksum": "6a1b1bfd111009ede953ba28268ee00c56223b0f9ceb707aa1ee7e17569febd6",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Plugins/DLSS/Binaries/ThirdParty/Win64/Development/nvngx_dlss.dll"
+    },
+    {
+      "path": "RolePlay_AI/Plugins/DLSS/Binaries/ThirdParty/Win64/Development/nvngx_dlssd.dll",
+      "checksum": "8f20bd7f8d94f7c192752309b05c92ea339cef2d1ef291af1a902b96cb3a0f72",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Plugins/DLSS/Binaries/ThirdParty/Win64/Development/nvngx_dlssd.dll"
+    },
+    {
+      "path": "RolePlay_AI/Plugins/DLSS/Binaries/ThirdParty/Win64/nvngx_dlss.dll",
+      "checksum": "e88a27b9629c1cd3a51bf25c605def1798c44d038267c520830e23d5959c985b",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Plugins/DLSS/Binaries/ThirdParty/Win64/nvngx_dlss.dll"
+    },
+    {
+      "path": "RolePlay_AI/Plugins/DLSS/Binaries/ThirdParty/Win64/nvngx_dlssd.dll",
+      "checksum": "6795a75b878daf319ff55e29b1609492bf93d4da7879a8927f6de88604aefcdf",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Plugins/DLSS/Binaries/ThirdParty/Win64/nvngx_dlssd.dll"
+    },
+    {
+      "path": "RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/Development/nvngx_deepdvc.dll",
+      "checksum": "ff9b8f373a7ec108f1f51e14571038b879ec29e251043ee969200ec21318c9a7",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/Development/nvngx_deepdvc.dll"
+    },
+    {
+      "path": "RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/Development/nvngx_dlssg.dll",
+      "checksum": "bb02d78bc091ab047e5aac859e740d8eaa62feb2ff425bc868647eddd2dcd989",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/Development/nvngx_dlssg.dll"
+    },
+    {
+      "path": "RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/Development/sl.common.dll",
+      "checksum": "603b8b1ffc86ea04545b760bb04fe9238aa0968b2e45db2c997da43db048cf55",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/Development/sl.common.dll"
+    },
+    {
+      "path": "RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/Development/sl.deepdvc.dll",
+      "checksum": "901265da067a3a88a08a93ab1dd579021fc50ee599eae0669ea351f4baabcbc1",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/Development/sl.deepdvc.dll"
+    },
+    {
+      "path": "RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/Development/sl.dlss_g.dll",
+      "checksum": "6709bb8bf061d703605ff43cf9cc4b89f20d24211071ddfe746716ce15c0e74a",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/Development/sl.dlss_g.dll"
+    },
+    {
+      "path": "RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/Development/sl.imgui.dll",
+      "checksum": "36b08a57d393f3f5f7b8282e0b90b528df83283a11eb34e9b10f9e749af6338e",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/Development/sl.imgui.dll"
+    },
+    {
+      "path": "RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/Development/sl.imgui.pdb",
+      "checksum": "b4d18b827ec42df55e37595675c8fcd51e743e3536b720bfd1b39e723ac7e66d",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/Development/sl.imgui.pdb"
+    },
+    {
+      "path": "RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/Development/sl.interposer.dll",
+      "checksum": "e9dcdab5d2bbc82142780092615a738414aefaa575e8022df970d44584c6a07c",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/Development/sl.interposer.dll"
+    },
+    {
+      "path": "RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/Development/sl.pcl.dll",
+      "checksum": "ee1745f5d15cd7ea0f1b2dbca88306b0604082aea2c302f3a5e226bca8c2336f",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/Development/sl.pcl.dll"
+    },
+    {
+      "path": "RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/Development/sl.reflex.dll",
+      "checksum": "73386095be7b51819534830aa4d950835cf0d03e180aa89c4afd493755922efe",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/Development/sl.reflex.dll"
+    },
+    {
+      "path": "RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/nvngx_deepdvc.dll",
+      "checksum": "712a25fc6a58f46a688fc6173f0c5d49ca661a703fb513aabdec2966483f413b",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/nvngx_deepdvc.dll"
+    },
+    {
+      "path": "RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/nvngx_dlssg.dll",
+      "checksum": "fa7b99551ef8e089d2573d936ebc560855d2868323a791859d5f2cf94235a6ed",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/nvngx_dlssg.dll"
+    },
+    {
+      "path": "RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/sl.common.dll",
+      "checksum": "b015702b768e4fa94ab16a4c745902513d60a438f5e0350ddd6899d542365483",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/sl.common.dll"
+    },
+    {
+      "path": "RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/sl.deepdvc.dll",
+      "checksum": "89469c1ff15f1994529663533d7b390160466211ee82788b5731252e8a929725",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/sl.deepdvc.dll"
+    },
+    {
+      "path": "RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/sl.dlss_g.dll",
+      "checksum": "0f7f2465602e26a50b733ac121452dfc48f2943e43424bf3e8a2d567992dfd11",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/sl.dlss_g.dll"
+    },
+    {
+      "path": "RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/sl.interposer.dll",
+      "checksum": "48f79bdd8eb35d6de0e54a70799a3340913990ef5e0e3a837a4f724008d5685b",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/sl.interposer.dll"
+    },
+    {
+      "path": "RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/sl.pcl.dll",
+      "checksum": "b3d3e4f5571b5a67bd83d1d20793fa0e5c3088aa41e961faba2e316d8339b987",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/sl.pcl.dll"
+    },
+    {
+      "path": "RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/sl.reflex.dll",
+      "checksum": "366172fc3e3e98a82080521a5b4825c2d2ff664273631e86792fe47fc0c32078",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Plugins/StreamlineCore/Binaries/ThirdParty/Win64/sl.reflex.dll"
+    },
+    {
+      "path": "RolePlay_AI/Samples/PixelStreaming/WebServers/get_ps_servers.bat",
+      "checksum": "d79a28df0c56ff11cc9426cdd23d5f908409018c0ea592e50d47e48909ce6ab2",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Samples/PixelStreaming/WebServers/get_ps_servers.bat"
+    },
+    {
+      "path": "RolePlay_AI/Samples/PixelStreaming/WebServers/get_ps_servers.sh",
+      "checksum": "3c06319d25e5c5289cf1a23984afe3e082e24c01f12acb627b54e33255bfe313",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI/Samples/PixelStreaming/WebServers/get_ps_servers.sh"
+    },
+    {
+      "path": "RolePlay_AI.exe",
+      "checksum": "40bc7280fb5c17f4616e257522c1c2092ce1419bc103d0e467c9844cb2d73940",
+      "url": "https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/RolePlay_AI.exe"
+    }
+  ]
+}

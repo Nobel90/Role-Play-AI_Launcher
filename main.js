@@ -33,6 +33,9 @@ function createWindow() {
     const win = new BrowserWindow({
         width: 1280,
         height: 720,
+        minWidth: 1280,
+        minHeight: 720,
+        aspectRatio: 16/9,
         resizable: true,
         frame: true,
         title: 'Role-Play-AI Launcher',
