@@ -22,12 +22,8 @@
     "productName": "Role-Play-AI-Launcher",
     "win": {
       "target": "nsis",
-      "icon": "assets/icon-white_s.ico",
-      "signtoolOptions": {
-        "signingHashAlgorithms": ["sha256"]
-      }
+      "icon": "assets/icon-white_s.ico"
     },
-    "afterSign": "sign.js",
     "artifactName": "${productName}-Setup-${version}.${ext}",
     "nsis": {
       "oneClick": false,
