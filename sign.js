@@ -429,13 +429,25 @@ exports.afterPack = async function(context) {
   if (fs.existsSync(mainExePath)) {
     console.log(`\n[Priority] Signing main executable first: Role-Play-AI-Launcher.exe`);
     try {
-      if (certificateSha1) {
-        signFileWithToken(mainExePath, certificateSha1, timestampServer);
+      // Try signing with /as flag to append signature (in case file was already modified)
+      const signToolPath = findSignTool();
+      if (signToolPath && certificateSha1) {
+        // First try normal signing
+        try {
+          signFileWithToken(mainExePath, certificateSha1, timestampServer);
+        } catch (normalError) {
+          // If normal signing fails, try with /as flag to append signature
+          console.log(`Normal signing failed, trying with /as flag...`);
+          const command = `"${signToolPath}" sign /as /sha1 "${certificateSha1}" /fd sha256 /tr "${timestampServer}" /td sha256 "${mainExePath}"`;
+          execSync(command, { stdio: 'inherit' });
+          console.log(`✓ Successfully signed main executable with /as flag`);
+        }
       } else if (certificateFile) {
         signFileWithCertificate(mainExePath, certificateFile, certificatePassword, timestampServer);
       }
     } catch (error) {
       console.error(`❌ Failed to sign main executable: ${error.message}`);
+      console.error(`This may be because electron-builder modified the file. The file will need to be signed manually after build.`);
     }
   }
 
