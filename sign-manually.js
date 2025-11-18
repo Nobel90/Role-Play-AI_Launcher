@@ -74,8 +74,18 @@ for (const filePath of filesToSign) {
 const winUnpackedDir = path.join(distDir, 'win-unpacked');
 if (fs.existsSync(winUnpackedDir)) {
   console.log('Signing DLLs in win-unpacked directory...\n');
-  const dllCount = signModule.signAllFiles(winUnpackedDir, certificateSha1, timestampServer);
-  signedCount += dllCount;
+  signModule.signAllFiles(winUnpackedDir, certificateSha1, timestampServer).then(dllCount => {
+    signedCount += dllCount;
+    console.log(`\n=== Manual Signing Complete ===`);
+    console.log(`Total files signed: ${signedCount}`);
+  }).catch(err => {
+    console.error('Error signing DLLs:', err);
+    console.log(`\n=== Manual Signing Complete ===`);
+    console.log(`Total files signed: ${signedCount}`);
+  });
+} else {
+  console.log(`\n=== Manual Signing Complete ===`);
+  console.log(`Total files signed: ${signedCount}`);
 }
 
 console.log(`\n=== Manual Signing Complete ===`);
