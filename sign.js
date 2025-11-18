@@ -1,11 +1,25 @@
 /**
  * Code Signing Script for Electron Builder
  * Supports USB token signing (Sectigo) via Windows Certificate Store
+ * Signs all executable files: .exe, .dll, .sys, .ocx, .msi, etc.
  */
 
 const { execSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
+
+// File extensions that should be signed
+const SIGNABLE_EXTENSIONS = ['.exe', '.dll', '.sys', '.ocx', '.msi', '.cab', '.cat'];
+
+/**
+ * Check if a file should be signed based on its extension
+ * @param {string} filePath - Path to the file
+ * @returns {boolean} True if file should be signed
+ */
+function shouldSignFile(filePath) {
+  const ext = path.extname(filePath).toLowerCase();
+  return SIGNABLE_EXTENSIONS.includes(ext);
+}
 
 /**
  * Sign a file using signtool.exe with USB token (certificate thumbprint)
@@ -122,8 +136,46 @@ function findSignTool() {
 }
 
 /**
+ * Sign all executable files in a directory recursively
+ * @param {string} dirPath - Directory path to sign files in
+ * @param {string} certificateSha1 - SHA1 thumbprint of the certificate
+ * @param {string} timestampServer - Timestamp server URL
+ * @returns {number} Number of files signed
+ */
+function signDirectoryRecursive(dirPath, certificateSha1, timestampServer) {
+  if (!fs.existsSync(dirPath)) {
+    return 0;
+  }
+
+  const files = fs.readdirSync(dirPath);
+  let signedCount = 0;
+
+  for (const file of files) {
+    const filePath = path.join(dirPath, file);
+    
+    try {
+      const stat = fs.statSync(filePath);
+
+      if (stat.isDirectory()) {
+        // Recursively sign files in subdirectories
+        signedCount += signDirectoryRecursive(filePath, certificateSha1, timestampServer);
+      } else if (shouldSignFile(filePath)) {
+        if (signFileWithToken(filePath, certificateSha1, timestampServer)) {
+          signedCount++;
+        }
+      }
+    } catch (error) {
+      // Skip files that can't be accessed
+      continue;
+    }
+  }
+
+  return signedCount;
+}
+
+/**
  * Electron Builder afterSign hook
- * This is called by electron-builder after it processes files
+ * This is called by electron-builder after it processes each file
  * The context structure: { path, electronPlatformName, arch, packager }
  */
 exports.default = async function(context) {
@@ -137,16 +189,14 @@ exports.default = async function(context) {
   const certificatePassword = process.env.WIN_CERTIFICATE_PASSWORD || '';
   const timestampServer = process.env.WIN_TIMESTAMP_SERVER || 'http://timestamp.digicert.com';
 
-  // Only sign .exe files
-  if (filePath && filePath.toLowerCase().endsWith('.exe')) {
+  // Sign all signable file types (exe, dll, sys, ocx, msi, etc.)
+  if (filePath && shouldSignFile(filePath)) {
     // Priority 1: USB Token signing (Sectigo)
     if (certificateSha1) {
-      console.log('Using USB token signing (certificate thumbprint)');
       signFileWithToken(filePath, certificateSha1, timestampServer);
     }
     // Priority 2: Certificate file signing (fallback)
     else if (certificateFile) {
-      console.log('Using certificate file signing');
       signFileWithCertificate(filePath, certificateFile, certificatePassword, timestampServer);
     }
     // No signing method configured
@@ -156,4 +206,17 @@ exports.default = async function(context) {
       console.warn('For certificate file signing, set WIN_CERTIFICATE_FILE environment variable.');
     }
   }
+};
+
+/**
+ * After all artifacts are built, sign all files in the unpacked directory
+ * This can be called as a post-build step if needed
+ * @param {string} unpackedDir - Path to the unpacked directory
+ * @param {string} certificateSha1 - SHA1 thumbprint of the certificate
+ * @param {string} timestampServer - Timestamp server URL
+ */
+exports.signAllFiles = async function(unpackedDir, certificateSha1, timestampServer) {
+  console.log('Signing all executable files in:', unpackedDir);
+  const signedCount = signDirectoryRecursive(unpackedDir, certificateSha1, timestampServer);
+  console.log(`✓ Signed ${signedCount} files`);
 };

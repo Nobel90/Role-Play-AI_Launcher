@@ -1,6 +1,6 @@
 {
   "name": "role-play-ai-launcher",
-  "version": "1.0.5",
+  "version": "1.0.4",
   "description": "Role-Play-AI Launcher",
   "main": "main.js",
   "scripts": {
@@ -20,9 +20,14 @@
     },
     "appId": "com.role-play-ai.launcher",
     "productName": "Role-Play-AI-Launcher",
+    "afterSign": "sign.js",
     "win": {
       "target": "nsis",
-      "icon": "assets/icon-white_s.ico"
+      "icon": "assets/icon-white_s.ico",
+      "signingHashAlgorithms": ["sha256"],
+      "signtoolOptions": {
+        "signingHashAlgorithms": ["sha256"]
+      }
     },
     "artifactName": "${productName}-Setup-${version}.${ext}",
     "nsis": {
