@@ -107,10 +107,8 @@ function signFileWithCertificate(filePath, certificateFile, certificatePassword,
  */
 function findSignTool() {
   const possiblePaths = [
-    // Windows SDK locations
-    'C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.22621.0\\x64\\signtool.exe',
+    // Windows SDK locations - try to find latest version dynamically
     'C:\\Program Files (x86)\\Windows Kits\\10\\bin\\x64\\signtool.exe',
-    'C:\\Program Files\\Windows Kits\\10\\bin\\10.0.22621.0\\x64\\signtool.exe',
     'C:\\Program Files\\Windows Kits\\10\\bin\\x64\\signtool.exe',
     // Visual Studio locations
     'C:\\Program Files (x86)\\Microsoft SDKs\\Windows\\v10.0A\\bin\\NETFX 4.8 Tools\\signtool.exe',
@@ -118,12 +116,50 @@ function findSignTool() {
     'signtool.exe'
   ];
 
+  // First, try to find signtool.exe in Windows Kits with versioned folders
+  try {
+    const kitsPath86 = 'C:\\Program Files (x86)\\Windows Kits\\10\\bin';
+    const kitsPath64 = 'C:\\Program Files\\Windows Kits\\10\\bin';
+    
+    for (const basePath of [kitsPath86, kitsPath64]) {
+      if (fs.existsSync(basePath)) {
+        // Look for versioned folders (e.g., 10.0.22621.0)
+        const versionDirs = fs.readdirSync(basePath).filter(dir => {
+          const fullPath = path.join(basePath, dir);
+          return fs.statSync(fullPath).isDirectory() && /^\d+\.\d+\.\d+\.\d+$/.test(dir);
+        }).sort().reverse(); // Sort descending to get latest version first
+        
+        for (const versionDir of versionDirs) {
+          const x64Path = path.join(basePath, versionDir, 'x64', 'signtool.exe');
+          if (fs.existsSync(x64Path)) {
+            return x64Path;
+          }
+        }
+        
+        // Try non-versioned x64 path
+        const x64Path = path.join(basePath, 'x64', 'signtool.exe');
+        if (fs.existsSync(x64Path)) {
+          return x64Path;
+        }
+      }
+    }
+  } catch (error) {
+    // Continue to other methods
+  }
+
+  // Try static paths
   for (const toolPath of possiblePaths) {
     try {
       if (toolPath === 'signtool.exe') {
-        // Try to find in PATH
-        execSync('where signtool.exe', { stdio: 'ignore' });
-        return toolPath;
+        // Try to find in PATH using where command
+        try {
+          const result = execSync('where signtool.exe', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+          if (result && result.trim()) {
+            return result.trim().split('\n')[0]; // Return first match
+          }
+        } catch (error) {
+          // Not in PATH, continue
+        }
       } else if (fs.existsSync(toolPath)) {
         return toolPath;
       }
