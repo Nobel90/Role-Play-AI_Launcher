@@ -426,24 +426,30 @@ exports.afterPack = async function(context) {
     const signedCount = signDirectoryRecursive(appOutDir, certificateSha1, timestampServer);
     console.log(`✓ Signed ${signedCount} files in win-unpacked\n`);
   } else if (certificateFile) {
-    // For certificate file, we need to sign each file individually
-    const files = fs.readdirSync(appOutDir);
-    let signedCount = 0;
-    for (const file of files) {
-      const filePath = path.join(appOutDir, file);
-      try {
-        const stat = fs.statSync(filePath);
-        if (stat.isDirectory()) {
-          signedCount += signDirectoryRecursive(filePath, certificateSha1, timestampServer);
-        } else if (shouldSignFile(filePath)) {
-          if (signFileWithCertificate(filePath, certificateFile, certificatePassword, timestampServer)) {
-            signedCount++;
+    // For certificate file, we need to sign recursively
+    // Create a wrapper function that uses certificate file instead of thumbprint
+    const signWithCertFile = (dirPath) => {
+      if (!fs.existsSync(dirPath)) return 0;
+      const files = fs.readdirSync(dirPath);
+      let count = 0;
+      for (const file of files) {
+        const filePath = path.join(dirPath, file);
+        try {
+          const stat = fs.statSync(filePath);
+          if (stat.isDirectory()) {
+            count += signWithCertFile(filePath);
+          } else if (shouldSignFile(filePath)) {
+            if (signFileWithCertificate(filePath, certificateFile, certificatePassword, timestampServer)) {
+              count++;
+            }
           }
+        } catch (error) {
+          continue;
         }
-      } catch (error) {
-        continue;
       }
-    }
+      return count;
+    };
+    const signedCount = signWithCertFile(appOutDir);
     console.log(`✓ Signed ${signedCount} files in win-unpacked\n`);
   }
 
