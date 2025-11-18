@@ -395,6 +395,62 @@ exports.afterAllArtifactBuild = async function(context) {
 };
 
 /**
+ * After pack hook - Sign all files in win-unpacked before installer is created
+ * This ensures installed files are signed
+ * @param {object} context - Build context with appOutDir
+ */
+exports.afterPack = async function(context) {
+  console.log('\n=== After Pack Signing (Signing files in win-unpacked) ===');
+  
+  const certificateSha1 = process.env.WIN_CERTIFICATE_SHA1;
+  const certificateFile = process.env.WIN_CERTIFICATE_FILE;
+  const certificatePassword = process.env.WIN_CERTIFICATE_PASSWORD || '';
+  const timestampServer = process.env.WIN_TIMESTAMP_SERVER || 'http://timestamp.digicert.com';
+
+  if (!certificateSha1 && !certificateFile) {
+    console.warn('⚠ No certificate configured. Skipping afterPack signing.');
+    return;
+  }
+
+  // Get the unpacked directory path
+  const appOutDir = context.appOutDir || context.outDir;
+  if (!appOutDir || !fs.existsSync(appOutDir)) {
+    console.warn('⚠ appOutDir not found in context. Skipping afterPack signing.');
+    return;
+  }
+
+  console.log(`Signing all files in: ${appOutDir}`);
+  console.log(`Certificate SHA1: ${certificateSha1 ? certificateSha1.substring(0, 8) + '...' : 'NOT SET'}`);
+
+  if (certificateSha1) {
+    const signedCount = signDirectoryRecursive(appOutDir, certificateSha1, timestampServer);
+    console.log(`✓ Signed ${signedCount} files in win-unpacked\n`);
+  } else if (certificateFile) {
+    // For certificate file, we need to sign each file individually
+    const files = fs.readdirSync(appOutDir);
+    let signedCount = 0;
+    for (const file of files) {
+      const filePath = path.join(appOutDir, file);
+      try {
+        const stat = fs.statSync(filePath);
+        if (stat.isDirectory()) {
+          signedCount += signDirectoryRecursive(filePath, certificateSha1, timestampServer);
+        } else if (shouldSignFile(filePath)) {
+          if (signFileWithCertificate(filePath, certificateFile, certificatePassword, timestampServer)) {
+            signedCount++;
+          }
+        }
+      } catch (error) {
+        continue;
+      }
+    }
+    console.log(`✓ Signed ${signedCount} files in win-unpacked\n`);
+  }
+
+  console.log('=== After Pack Signing Complete ===\n');
+};
+
+/**
  * After all artifacts are built, sign all files in the unpacked directory
  * This can be called as a post-build step if needed
  * @param {string} unpackedDir - Path to the unpacked directory
@@ -405,4 +461,5 @@ exports.signAllFiles = async function(unpackedDir, certificateSha1, timestampSer
   console.log('Signing all executable files in:', unpackedDir);
   const signedCount = signDirectoryRecursive(unpackedDir, certificateSha1, timestampServer);
   console.log(`✓ Signed ${signedCount} files`);
+  return signedCount;
 };

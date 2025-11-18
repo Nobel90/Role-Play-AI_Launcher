@@ -21,6 +21,7 @@
     "appId": "com.role-play-ai.launcher",
     "productName": "Role-Play-AI-Launcher",
     "afterSign": "sign.js",
+    "afterPack": "sign.js",
     "afterAllArtifactBuild": "sign.js",
     "win": {
       "target": "nsis",
