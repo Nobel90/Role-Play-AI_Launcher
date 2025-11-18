@@ -87,6 +87,3 @@ if (fs.existsSync(winUnpackedDir)) {
   console.log(`\n=== Manual Signing Complete ===`);
   console.log(`Total files signed: ${signedCount}`);
 }
-
-console.log(`\n=== Manual Signing Complete ===`);
-console.log(`Total files signed: ${signedCount}`);
