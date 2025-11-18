@@ -47,7 +47,8 @@ let signedCount = 0;
 for (const filePath of filesToSign) {
   if (fs.existsSync(filePath)) {
     console.log(`Signing: ${path.basename(filePath)}`);
-    const command = `"${signToolPath}" sign /sha1 "${certificateSha1}" /t "${timestampServer}" /fd sha256 /tr "${timestampServer}" /td sha256 "${filePath}"`;
+    // Use /tr for RFC 3161 timestamping (modern) - don't use /t as it's incompatible with /tr
+    const command = `"${signToolPath}" sign /sha1 "${certificateSha1}" /fd sha256 /tr "${timestampServer}" /td sha256 "${filePath}"`;
     try {
       execSync(command, { stdio: 'inherit' });
       

@@ -51,7 +51,8 @@ function signFileWithToken(filePath, certificateSha1, timestampServer = 'http://
 
     // Use /sha1 to specify certificate by thumbprint (for USB tokens)
     // /a flag can also be used to auto-select certificate, but /sha1 is more specific
-    const command = `"${signToolPath}" sign /sha1 "${certificateSha1}" /t "${timestampServer}" /fd sha256 /tr "${timestampServer}" /td sha256 "${filePath}"`;
+    // Use /tr for RFC 3161 timestamping (modern) - don't use /t as it's incompatible with /tr
+    const command = `"${signToolPath}" sign /sha1 "${certificateSha1}" /fd sha256 /tr "${timestampServer}" /td sha256 "${filePath}"`;
 
     console.log(`\n[Signing] ${path.basename(filePath)}`);
     console.log(`[Signing] Full path: ${filePath}`);
@@ -105,7 +106,8 @@ function signFileWithCertificate(filePath, certificateFile, certificatePassword,
       return false;
     }
 
-    const command = `"${signToolPath}" sign /f "${certificateFile}" /p "${certificatePassword}" /t "${timestampServer}" /fd sha256 /tr "${timestampServer}" /td sha256 "${filePath}"`;
+    // Use /tr for RFC 3161 timestamping (modern) - don't use /t as it's incompatible with /tr
+    const command = `"${signToolPath}" sign /f "${certificateFile}" /p "${certificatePassword}" /fd sha256 /tr "${timestampServer}" /td sha256 "${filePath}"`;
 
     console.log(`Signing: ${path.basename(filePath)}`);
     execSync(command, { stdio: 'inherit' });
