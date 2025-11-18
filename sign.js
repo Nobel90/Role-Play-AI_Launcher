@@ -53,13 +53,29 @@ function signFileWithToken(filePath, certificateSha1, timestampServer = 'http://
     // /a flag can also be used to auto-select certificate, but /sha1 is more specific
     const command = `"${signToolPath}" sign /sha1 "${certificateSha1}" /t "${timestampServer}" /fd sha256 /tr "${timestampServer}" /td sha256 "${filePath}"`;
 
-    console.log(`Signing: ${path.basename(filePath)}`);
-    console.log(`Using certificate thumbprint: ${certificateSha1.substring(0, 8)}...`);
+    console.log(`\n[Signing] ${path.basename(filePath)}`);
+    console.log(`[Signing] Full path: ${filePath}`);
+    console.log(`[Signing] Using certificate thumbprint: ${certificateSha1.substring(0, 8)}...`);
+    console.log(`[Signing] Command: ${command.replace(certificateSha1, certificateSha1.substring(0, 8) + '...')}`);
+    
     execSync(command, { stdio: 'inherit' });
-    console.log(`✓ Successfully signed: ${path.basename(filePath)}`);
+    
+    // Verify the signature
+    try {
+      const verifyCommand = `"${signToolPath}" verify /pa "${filePath}"`;
+      execSync(verifyCommand, { stdio: 'pipe' });
+      console.log(`✓ Successfully signed and verified: ${path.basename(filePath)}\n`);
+    } catch (verifyError) {
+      console.warn(`⚠ Signed but verification failed: ${path.basename(filePath)}`);
+      console.warn(`Verification error: ${verifyError.message}`);
+    }
+    
     return true;
   } catch (error) {
-    console.error(`Error signing ${filePath}:`, error.message);
+    console.error(`\n❌ Error signing ${filePath}:`);
+    console.error(`Error message: ${error.message}`);
+    if (error.stdout) console.error(`stdout: ${error.stdout}`);
+    if (error.stderr) console.error(`stderr: ${error.stderr}`);
     return false;
   }
 }
@@ -219,6 +235,21 @@ exports.default = async function(context) {
   // The context.path contains the path to the file that was just processed
   const filePath = context.path;
   
+  // Get certificate details from environment variables
+  const certificateSha1 = process.env.WIN_CERTIFICATE_SHA1;
+  const certificateFile = process.env.WIN_CERTIFICATE_FILE;
+  const certificatePassword = process.env.WIN_CERTIFICATE_PASSWORD || '';
+  const timestampServer = process.env.WIN_TIMESTAMP_SERVER || 'http://timestamp.digicert.com';
+
+  // Debug logging
+  if (filePath) {
+    console.log(`\n[afterSign Hook] Processing: ${path.basename(filePath)}`);
+    console.log(`[afterSign Hook] Full path: ${filePath}`);
+  } else {
+    console.log(`\n[afterSign Hook] No file path provided in context`);
+    console.log(`[afterSign Hook] Context:`, JSON.stringify(context, null, 2));
+  }
+
   // Skip signing if no file path provided
   if (!filePath) {
     return;
@@ -227,30 +258,28 @@ exports.default = async function(context) {
   // Skip signing files in NSIS cache directory (these are temporary build files)
   if (filePath.includes('electron-builder\\Cache\\nsis') || 
       filePath.includes('electron-builder/Cache/nsis')) {
+    console.log(`[afterSign Hook] Skipping NSIS cache file: ${path.basename(filePath)}`);
     return;
   }
 
   // Skip signing elevate.exe during build - it's used by NSIS and signing it can cause crashes
   // It will be signed after the build completes
   if (filePath.includes('elevate.exe')) {
-    console.log('Skipping elevate.exe signing during build (will be signed after build)');
+    console.log('[afterSign Hook] Skipping elevate.exe signing during build (will be signed after build)');
     return;
   }
 
   // Skip signing if it's a temporary NSIS file during build
   if (filePath.includes('__uninstaller-nsis-') && !filePath.endsWith('.exe')) {
+    console.log(`[afterSign Hook] Skipping temporary NSIS file: ${path.basename(filePath)}`);
     return;
   }
 
-  // Get certificate details from environment variables
-  const certificateSha1 = process.env.WIN_CERTIFICATE_SHA1;
-  const certificateFile = process.env.WIN_CERTIFICATE_FILE;
-  const certificatePassword = process.env.WIN_CERTIFICATE_PASSWORD || '';
-  const timestampServer = process.env.WIN_TIMESTAMP_SERVER || 'http://timestamp.digicert.com';
-
-  // Only sign if certificate is configured
+  // Check if certificate is configured
   if (!certificateSha1 && !certificateFile) {
-    return; // Silently skip if no certificate configured
+    console.warn(`[afterSign Hook] ⚠ No certificate configured. Set WIN_CERTIFICATE_SHA1 or WIN_CERTIFICATE_FILE environment variable.`);
+    console.warn(`[afterSign Hook] Skipping signing for: ${path.basename(filePath)}`);
+    return;
   }
 
   // Sign all signable file types (exe, dll, sys, ocx, msi, etc.)
@@ -258,17 +287,79 @@ exports.default = async function(context) {
     try {
       // Priority 1: USB Token signing (Sectigo)
       if (certificateSha1) {
+        console.log(`[afterSign Hook] Attempting to sign with USB token...`);
         signFileWithToken(filePath, certificateSha1, timestampServer);
       }
       // Priority 2: Certificate file signing (fallback)
       else if (certificateFile) {
+        console.log(`[afterSign Hook] Attempting to sign with certificate file...`);
         signFileWithCertificate(filePath, certificateFile, certificatePassword, timestampServer);
       }
     } catch (error) {
       // Log error but don't fail the build
-      console.warn(`Warning: Failed to sign ${path.basename(filePath)}: ${error.message}`);
+      console.error(`[afterSign Hook] ❌ Error signing ${path.basename(filePath)}: ${error.message}`);
+      console.error(`[afterSign Hook] Stack: ${error.stack}`);
+    }
+  } else {
+    console.log(`[afterSign Hook] File type not signable: ${path.basename(filePath)} (extension: ${path.extname(filePath)})`);
+  }
+};
+
+/**
+ * After all artifacts are built, sign the final installer and uninstaller
+ * This is called by electron-builder after all artifacts are created
+ * @param {object} context - Build context with artifactPaths array
+ */
+exports.afterAllArtifactBuild = async function(context) {
+  console.log('\n=== Post-Build Signing ===');
+  
+  const certificateSha1 = process.env.WIN_CERTIFICATE_SHA1;
+  const certificateFile = process.env.WIN_CERTIFICATE_FILE;
+  const certificatePassword = process.env.WIN_CERTIFICATE_PASSWORD || '';
+  const timestampServer = process.env.WIN_TIMESTAMP_SERVER || 'http://timestamp.digicert.com';
+
+  if (!certificateSha1 && !certificateFile) {
+    console.warn('⚠ No certificate configured. Skipping post-build signing.');
+    console.warn('Set WIN_CERTIFICATE_SHA1 or WIN_CERTIFICATE_FILE environment variable.');
+    return;
+  }
+
+  // Get artifact paths from context
+  const artifactPaths = context.artifactPaths || [];
+  console.log(`Found ${artifactPaths.length} artifact(s) to sign`);
+
+  for (const artifactPath of artifactPaths) {
+    if (shouldSignFile(artifactPath)) {
+      console.log(`\n[Post-Build] Signing artifact: ${path.basename(artifactPath)}`);
+      try {
+        if (certificateSha1) {
+          signFileWithToken(artifactPath, certificateSha1, timestampServer);
+        } else if (certificateFile) {
+          signFileWithCertificate(artifactPath, certificateFile, certificatePassword, timestampServer);
+        }
+      } catch (error) {
+        console.error(`[Post-Build] ❌ Failed to sign ${path.basename(artifactPath)}: ${error.message}`);
+      }
     }
   }
+
+  // Also sign the uninstaller if it exists
+  const distDir = path.dirname(artifactPaths[0] || 'dist');
+  const uninstallerPath = path.join(distDir, '__uninstaller-nsis-role-play-ai-launcher.exe');
+  if (fs.existsSync(uninstallerPath)) {
+    console.log(`\n[Post-Build] Signing uninstaller: ${path.basename(uninstallerPath)}`);
+    try {
+      if (certificateSha1) {
+        signFileWithToken(uninstallerPath, certificateSha1, timestampServer);
+      } else if (certificateFile) {
+        signFileWithCertificate(uninstallerPath, certificateFile, certificatePassword, timestampServer);
+      }
+    } catch (error) {
+      console.error(`[Post-Build] ❌ Failed to sign uninstaller: ${error.message}`);
+    }
+  }
+
+  console.log('\n=== Post-Build Signing Complete ===\n');
 };
 
 /**
