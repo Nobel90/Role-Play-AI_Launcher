@@ -247,7 +247,11 @@ exports.default = async function(context) {
     console.log(`[afterSign Hook] Full path: ${filePath}`);
   } else {
     console.log(`\n[afterSign Hook] No file path provided in context`);
-    console.log(`[afterSign Hook] Context:`, JSON.stringify(context, null, 2));
+    // Don't stringify context as it may contain circular references
+    console.log(`[afterSign Hook] Context keys:`, Object.keys(context || {}));
+    if (context && context.path) {
+      console.log(`[afterSign Hook] Context.path:`, context.path);
+    }
   }
 
   // Skip signing if no file path provided
