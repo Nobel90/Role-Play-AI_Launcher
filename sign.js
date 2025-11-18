@@ -271,12 +271,9 @@ exports.default = async function(context) {
     return;
   }
 
-  // Skip signing elevate.exe during build - it's used by NSIS and signing it can cause crashes
-  // It will be signed after the build completes
-  if (filePath.includes('elevate.exe')) {
-    console.log('[afterSign Hook] Skipping elevate.exe signing during build (will be signed after build)');
-    return;
-  }
+  // Don't skip elevate.exe - we need to sign it so it's signed when installed
+  // The NSIS crash issue was resolved by skipping it only during NSIS build phase
+  // But we should sign it during the packaging phase
 
   // Skip signing if it's a temporary NSIS file during build
   if (filePath.includes('__uninstaller-nsis-') && !filePath.endsWith('.exe')) {
