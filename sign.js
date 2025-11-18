@@ -219,27 +219,54 @@ exports.default = async function(context) {
   // The context.path contains the path to the file that was just processed
   const filePath = context.path;
   
+  // Skip signing if no file path provided
+  if (!filePath) {
+    return;
+  }
+
+  // Skip signing files in NSIS cache directory (these are temporary build files)
+  if (filePath.includes('electron-builder\\Cache\\nsis') || 
+      filePath.includes('electron-builder/Cache/nsis')) {
+    return;
+  }
+
+  // Skip signing elevate.exe during build - it's used by NSIS and signing it can cause crashes
+  // It will be signed after the build completes
+  if (filePath.includes('elevate.exe')) {
+    console.log('Skipping elevate.exe signing during build (will be signed after build)');
+    return;
+  }
+
+  // Skip signing if it's a temporary NSIS file during build
+  if (filePath.includes('__uninstaller-nsis-') && !filePath.endsWith('.exe')) {
+    return;
+  }
+
   // Get certificate details from environment variables
   const certificateSha1 = process.env.WIN_CERTIFICATE_SHA1;
   const certificateFile = process.env.WIN_CERTIFICATE_FILE;
   const certificatePassword = process.env.WIN_CERTIFICATE_PASSWORD || '';
   const timestampServer = process.env.WIN_TIMESTAMP_SERVER || 'http://timestamp.digicert.com';
 
+  // Only sign if certificate is configured
+  if (!certificateSha1 && !certificateFile) {
+    return; // Silently skip if no certificate configured
+  }
+
   // Sign all signable file types (exe, dll, sys, ocx, msi, etc.)
-  if (filePath && shouldSignFile(filePath)) {
-    // Priority 1: USB Token signing (Sectigo)
-    if (certificateSha1) {
-      signFileWithToken(filePath, certificateSha1, timestampServer);
-    }
-    // Priority 2: Certificate file signing (fallback)
-    else if (certificateFile) {
-      signFileWithCertificate(filePath, certificateFile, certificatePassword, timestampServer);
-    }
-    // No signing method configured
-    else {
-      console.warn(`No signing method configured for ${filePath}.`);
-      console.warn('For USB token signing, set WIN_CERTIFICATE_SHA1 environment variable.');
-      console.warn('For certificate file signing, set WIN_CERTIFICATE_FILE environment variable.');
+  if (shouldSignFile(filePath)) {
+    try {
+      // Priority 1: USB Token signing (Sectigo)
+      if (certificateSha1) {
+        signFileWithToken(filePath, certificateSha1, timestampServer);
+      }
+      // Priority 2: Certificate file signing (fallback)
+      else if (certificateFile) {
+        signFileWithCertificate(filePath, certificateFile, certificatePassword, timestampServer);
+      }
+    } catch (error) {
+      // Log error but don't fail the build
+      console.warn(`Warning: Failed to sign ${path.basename(filePath)}: ${error.message}`);
     }
   }
 };
