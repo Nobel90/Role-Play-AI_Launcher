@@ -397,6 +397,7 @@ exports.afterAllArtifactBuild = async function(context) {
 /**
  * After pack hook - Sign all files in win-unpacked before installer is created
  * This ensures installed files are signed
+ * IMPORTANT: Sign the main executable BEFORE electron-builder updates asar integrity
  * @param {object} context - Build context with appOutDir
  */
 exports.afterPack = async function(context) {
@@ -422,6 +423,23 @@ exports.afterPack = async function(context) {
   console.log(`Signing all files in: ${appOutDir}`);
   console.log(`Certificate SHA1: ${certificateSha1 ? certificateSha1.substring(0, 8) + '...' : 'NOT SET'}`);
 
+  // Sign the main executable FIRST, before other files
+  // This is critical because electron-builder may modify it later
+  const mainExePath = path.join(appOutDir, 'Role-Play-AI-Launcher.exe');
+  if (fs.existsSync(mainExePath)) {
+    console.log(`\n[Priority] Signing main executable first: Role-Play-AI-Launcher.exe`);
+    try {
+      if (certificateSha1) {
+        signFileWithToken(mainExePath, certificateSha1, timestampServer);
+      } else if (certificateFile) {
+        signFileWithCertificate(mainExePath, certificateFile, certificatePassword, timestampServer);
+      }
+    } catch (error) {
+      console.error(`❌ Failed to sign main executable: ${error.message}`);
+    }
+  }
+
+  // Now sign all other files
   if (certificateSha1) {
     const signedCount = signDirectoryRecursive(appOutDir, certificateSha1, timestampServer);
     console.log(`✓ Signed ${signedCount} files in win-unpacked\n`);
@@ -434,6 +452,8 @@ exports.afterPack = async function(context) {
       let count = 0;
       for (const file of files) {
         const filePath = path.join(dirPath, file);
+        // Skip main exe as we already signed it
+        if (filePath === mainExePath) continue;
         try {
           const stat = fs.statSync(filePath);
           if (stat.isDirectory()) {
