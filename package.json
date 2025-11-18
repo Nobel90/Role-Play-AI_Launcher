@@ -27,7 +27,7 @@
         "signingHashAlgorithms": ["sha256"]
       }
     },
-    "sign": "sign.js",
+    "afterSign": "sign.js",
     "artifactName": "${productName}-Setup-${version}.${ext}",
     "nsis": {
       "oneClick": false,

@@ -122,15 +122,14 @@ function findSignTool() {
 }
 
 /**
- * Electron Builder signing function
- * This is called by electron-builder during the build process
- * 
- * Priority:
- * 1. USB Token signing (WIN_CERTIFICATE_SHA1) - for Sectigo USB tokens
- * 2. Certificate file signing (WIN_CERTIFICATE_FILE) - fallback
+ * Electron Builder afterSign hook
+ * This is called by electron-builder after it processes files
+ * The context contains information about what was built
  */
-exports.default = async function(configuration) {
-  const { path: filePath } = configuration;
+exports.default = async function(context) {
+  // Get the file path from context
+  // For afterSign, we need to sign all executable files
+  const { artifactPaths, packager } = context;
   
   // Get certificate details from environment variables
   const certificateSha1 = process.env.WIN_CERTIFICATE_SHA1;
@@ -138,23 +137,26 @@ exports.default = async function(configuration) {
   const certificatePassword = process.env.WIN_CERTIFICATE_PASSWORD || '';
   const timestampServer = process.env.WIN_TIMESTAMP_SERVER || 'http://timestamp.digicert.com';
 
-  // Priority 1: USB Token signing (Sectigo)
-  if (certificateSha1) {
-    console.log('Using USB token signing (certificate thumbprint)');
-    signFileWithToken(filePath, certificateSha1, timestampServer);
-    return;
+  // Sign all artifact files (executables, installers, etc.)
+  for (const filePath of artifactPaths) {
+    // Only sign .exe files
+    if (filePath.toLowerCase().endsWith('.exe')) {
+      // Priority 1: USB Token signing (Sectigo)
+      if (certificateSha1) {
+        console.log('Using USB token signing (certificate thumbprint)');
+        signFileWithToken(filePath, certificateSha1, timestampServer);
+      }
+      // Priority 2: Certificate file signing (fallback)
+      else if (certificateFile) {
+        console.log('Using certificate file signing');
+        signFileWithCertificate(filePath, certificateFile, certificatePassword, timestampServer);
+      }
+      // No signing method configured
+      else {
+        console.warn(`No signing method configured for ${filePath}.`);
+        console.warn('For USB token signing, set WIN_CERTIFICATE_SHA1 environment variable.');
+        console.warn('For certificate file signing, set WIN_CERTIFICATE_FILE environment variable.');
+      }
+    }
   }
-
-  // Priority 2: Certificate file signing (fallback)
-  if (certificateFile) {
-    console.log('Using certificate file signing');
-    signFileWithCertificate(filePath, certificateFile, certificatePassword, timestampServer);
-    return;
-  }
-
-  // No signing method configured
-  console.warn('No signing method configured.');
-  console.warn('For USB token signing, set WIN_CERTIFICATE_SHA1 environment variable with the certificate thumbprint.');
-  console.warn('For certificate file signing, set WIN_CERTIFICATE_FILE environment variable.');
-  console.warn('Skipping code signing.');
 };
