@@ -23,10 +23,11 @@
     "win": {
       "target": "nsis",
       "icon": "assets/icon-white_s.ico",
-      "sign": "sign.js",
-      "signingHashAlgorithms": ["sha256"],
-      "signDlls": true
+      "signtoolOptions": {
+        "signingHashAlgorithms": ["sha256"]
+      }
     },
+    "sign": "sign.js",
     "artifactName": "${productName}-Setup-${version}.${ext}",
     "nsis": {
       "oneClick": false,
