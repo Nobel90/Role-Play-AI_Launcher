@@ -432,9 +432,52 @@ function initLauncher() {
     async function init() {
         if (!window.electronAPI) { console.error("Fatal Error: window.electronAPI is not defined."); return; }
         
-        const launcherVersionEl = document.getElementById('launcher-version');
+        const launcherVersionTextEl = document.getElementById('launcher-version-text');
+        const updateIndicatorEl = document.getElementById('update-indicator');
+        const updateStatusTextEl = document.getElementById('update-status-text');
         const appVersion = await window.electronAPI.getAppVersion();
-        launcherVersionEl.innerText = `Launcher Version: v${appVersion}`;
+        launcherVersionTextEl.innerText = `Launcher Version: v${appVersion}`;
+        
+        // Set up auto-updater status listener
+        window.electronAPI.onAutoUpdaterStatus((statusData) => {
+            const { status, progress, error } = statusData;
+            
+            switch (status) {
+                case 'checking':
+                    updateIndicatorEl.classList.remove('hidden');
+                    updateStatusTextEl.innerText = 'Checking for updates...';
+                    break;
+                case 'update-available':
+                    updateIndicatorEl.classList.remove('hidden');
+                    updateStatusTextEl.innerText = 'Update available, downloading...';
+                    break;
+                case 'download-progress':
+                    updateIndicatorEl.classList.remove('hidden');
+                    const percent = Math.round(progress.percent);
+                    updateStatusTextEl.innerText = `Downloading update: ${percent}%`;
+                    break;
+                case 'update-downloaded':
+                    updateIndicatorEl.classList.remove('hidden');
+                    updateStatusTextEl.innerText = 'Update ready! Restart to apply.';
+                    // Change spinner to checkmark or keep it
+                    break;
+                case 'update-not-available':
+                    updateIndicatorEl.classList.add('hidden');
+                    break;
+                case 'error':
+                    updateIndicatorEl.classList.remove('hidden');
+                    updateStatusTextEl.innerText = 'Update error';
+                    updateStatusTextEl.classList.add('text-red-400');
+                    updateStatusTextEl.classList.remove('text-blue-400');
+                    // Hide after 5 seconds
+                    setTimeout(() => {
+                        updateIndicatorEl.classList.add('hidden');
+                        updateStatusTextEl.classList.remove('text-red-400');
+                        updateStatusTextEl.classList.add('text-blue-400');
+                    }, 5000);
+                    break;
+            }
+        });
 
         const loadedLibrary = await window.electronAPI.loadGameData();
         if (loadedLibrary) {

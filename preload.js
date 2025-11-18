@@ -28,5 +28,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     
     // --- Other Event Listeners ---
     onUninstallComplete: (callback) => ipcRenderer.on('uninstall-complete', () => callback()),
-    onMoveProgress: (callback) => ipcRenderer.on('move-progress', (event, value) => callback(value))
+    onMoveProgress: (callback) => ipcRenderer.on('move-progress', (event, value) => callback(value)),
+    
+    // --- Auto-Updater Status Events ---
+    onAutoUpdaterStatus: (callback) => ipcRenderer.on('auto-updater-status', (event, status) => callback(status))
 });

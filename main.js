@@ -11,6 +11,7 @@ const axios = require('axios');
 const { session } = require('electron');
 
 let downloadManager = null;
+let mainWindow = null;
 
 const dataPath = path.join(app.getPath('userData'), 'launcher-data.json');
 
@@ -48,6 +49,7 @@ function createWindow() {
         }
     });
     win.loadFile('index.html');
+    mainWindow = win;
     downloadManager = new DownloadManager(win);
 
     log.transports.file.level = "info";
@@ -64,25 +66,51 @@ app.whenReady().then(() => {
 
 autoUpdater.on('checking-for-update', () => {
     console.log('Checking for update...');
+    if (mainWindow) {
+        mainWindow.webContents.send('auto-updater-status', { status: 'checking' });
+    }
 });
 autoUpdater.on('update-available', (info) => {
     console.log('Update available.');
+    if (mainWindow) {
+        mainWindow.webContents.send('auto-updater-status', { status: 'update-available', info });
+    }
 });
 autoUpdater.on('update-not-available', (info) => {
     console.log('Update not available.');
+    if (mainWindow) {
+        mainWindow.webContents.send('auto-updater-status', { status: 'update-not-available' });
+    }
 });
 autoUpdater.on('error', (err) => {
     console.log('Error in auto-updater. ' + err);
+    if (mainWindow) {
+        mainWindow.webContents.send('auto-updater-status', { status: 'error', error: err.message });
+    }
 });
 autoUpdater.on('download-progress', (progressObj) => {
     let log_message = "Download speed: " + progressObj.bytesPerSecond;
     log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
     log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
     console.log(log_message);
+    if (mainWindow) {
+        mainWindow.webContents.send('auto-updater-status', { 
+            status: 'download-progress', 
+            progress: {
+                percent: progressObj.percent,
+                transferred: progressObj.transferred,
+                total: progressObj.total,
+                bytesPerSecond: progressObj.bytesPerSecond
+            }
+        });
+    }
 });
 autoUpdater.on('update-downloaded', (info) => {
     console.log('Update downloaded');
-    dialog.showMessageBox({
+    if (mainWindow) {
+        mainWindow.webContents.send('auto-updater-status', { status: 'update-downloaded', info });
+    }
+    dialog.showMessageBox(mainWindow, {
         type: 'info',
         title: 'Update Ready',
         message: 'A new version has been downloaded. Restart the application to apply the updates.',

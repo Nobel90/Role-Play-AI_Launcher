@@ -1,6 +1,6 @@
 {
   "name": "role-play-ai-launcher",
-  "version": "1.0.5",
+  "version": "1.0.4",
   "description": "Role-Play-AI Launcher",
   "main": "main.js",
   "scripts": {
