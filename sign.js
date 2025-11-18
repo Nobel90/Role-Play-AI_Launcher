@@ -187,6 +187,9 @@ function findSignTool() {
   return null;
 }
 
+// Export findSignTool for use in other scripts
+exports.findSignTool = findSignTool;
+
 /**
  * Sign all executable files in a directory recursively
  * @param {string} dirPath - Directory path to sign files in
@@ -316,11 +319,15 @@ exports.default = async function(context) {
  */
 exports.afterAllArtifactBuild = async function(context) {
   console.log('\n=== Post-Build Signing ===');
+  console.log('Context:', context ? Object.keys(context) : 'null');
   
   const certificateSha1 = process.env.WIN_CERTIFICATE_SHA1;
   const certificateFile = process.env.WIN_CERTIFICATE_FILE;
   const certificatePassword = process.env.WIN_CERTIFICATE_PASSWORD || '';
   const timestampServer = process.env.WIN_TIMESTAMP_SERVER || 'http://timestamp.digicert.com';
+
+  console.log(`Certificate SHA1: ${certificateSha1 ? certificateSha1.substring(0, 8) + '...' : 'NOT SET'}`);
+  console.log(`Certificate File: ${certificateFile || 'NOT SET'}`);
 
   if (!certificateSha1 && !certificateFile) {
     console.warn('⚠ No certificate configured. Skipping post-build signing.');
@@ -328,12 +335,34 @@ exports.afterAllArtifactBuild = async function(context) {
     return;
   }
 
-  // Get artifact paths from context
-  const artifactPaths = context.artifactPaths || [];
+  // Get artifact paths from context - try different possible properties
+  let artifactPaths = [];
+  if (context) {
+    artifactPaths = context.artifactPaths || context.paths || context.artifacts || [];
+    if (context.path) {
+      artifactPaths.push(context.path);
+    }
+  }
+
   console.log(`Found ${artifactPaths.length} artifact(s) to sign`);
 
+  // If no artifacts found, try to find them in dist directory
+  if (artifactPaths.length === 0) {
+    console.log('No artifacts in context, searching dist directory...');
+    const distDir = path.join(__dirname, 'dist');
+    if (fs.existsSync(distDir)) {
+      const files = fs.readdirSync(distDir);
+      for (const file of files) {
+        const filePath = path.join(distDir, file);
+        if (shouldSignFile(filePath) && fs.statSync(filePath).isFile()) {
+          artifactPaths.push(filePath);
+        }
+      }
+    }
+  }
+
   for (const artifactPath of artifactPaths) {
-    if (shouldSignFile(artifactPath)) {
+    if (shouldSignFile(artifactPath) && fs.existsSync(artifactPath)) {
       console.log(`\n[Post-Build] Signing artifact: ${path.basename(artifactPath)}`);
       try {
         if (certificateSha1) {
@@ -348,7 +377,7 @@ exports.afterAllArtifactBuild = async function(context) {
   }
 
   // Also sign the uninstaller if it exists
-  const distDir = path.dirname(artifactPaths[0] || 'dist');
+  const distDir = path.join(__dirname, 'dist');
   const uninstallerPath = path.join(distDir, '__uninstaller-nsis-role-play-ai-launcher.exe');
   if (fs.existsSync(uninstallerPath)) {
     console.log(`\n[Post-Build] Signing uninstaller: ${path.basename(uninstallerPath)}`);
