@@ -1,6 +1,6 @@
 {
   "name": "role-play-ai-launcher",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Role-Play-AI Launcher",
   "main": "main.js",
   "scripts": {
@@ -9,7 +9,7 @@
     "dist": "electron-builder"
   },
   "keywords": [],
-  "author": "VRC",
+  "author": "VR Centre Pty Ltd",
   "license": "ISC",
   "build": {
     "publish": {
@@ -22,7 +22,10 @@
     "productName": "Role-Play-AI-Launcher",
     "win": {
       "target": "nsis",
-      "icon": "assets/icon-white_s.ico"
+      "icon": "assets/icon-white_s.ico",
+      "sign": "sign.js",
+      "signingHashAlgorithms": ["sha256"],
+      "signDlls": true
     },
     "artifactName": "${productName}-Setup-${version}.${ext}",
     "nsis": {
