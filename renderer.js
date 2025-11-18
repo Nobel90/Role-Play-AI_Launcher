@@ -438,43 +438,63 @@ function initLauncher() {
         const appVersion = await window.electronAPI.getAppVersion();
         launcherVersionTextEl.innerText = `Launcher Version: v${appVersion}`;
         
+        let updateDownloaded = false; // Track if update was successfully downloaded
+        
         // Set up auto-updater status listener
         window.electronAPI.onAutoUpdaterStatus((statusData) => {
             const { status, progress, error } = statusData;
             
             switch (status) {
                 case 'checking':
+                    updateDownloaded = false; // Reset flag
                     updateIndicatorEl.classList.remove('hidden');
                     updateStatusTextEl.innerText = 'Checking for updates...';
+                    updateStatusTextEl.classList.remove('text-red-400');
+                    updateStatusTextEl.classList.add('text-blue-400');
                     break;
                 case 'update-available':
+                    updateDownloaded = false; // Reset flag
                     updateIndicatorEl.classList.remove('hidden');
                     updateStatusTextEl.innerText = 'Update available, downloading...';
+                    updateStatusTextEl.classList.remove('text-red-400');
+                    updateStatusTextEl.classList.add('text-blue-400');
                     break;
                 case 'download-progress':
                     updateIndicatorEl.classList.remove('hidden');
                     const percent = Math.round(progress.percent);
                     updateStatusTextEl.innerText = `Downloading update: ${percent}%`;
+                    updateStatusTextEl.classList.remove('text-red-400');
+                    updateStatusTextEl.classList.add('text-blue-400');
                     break;
                 case 'update-downloaded':
+                    updateDownloaded = true; // Mark as downloaded
                     updateIndicatorEl.classList.remove('hidden');
                     updateStatusTextEl.innerText = 'Update ready! Restart to apply.';
-                    // Change spinner to checkmark or keep it
+                    updateStatusTextEl.classList.remove('text-red-400');
+                    updateStatusTextEl.classList.add('text-blue-400');
                     break;
                 case 'update-not-available':
+                    updateDownloaded = false; // Reset flag
                     updateIndicatorEl.classList.add('hidden');
                     break;
                 case 'error':
-                    updateIndicatorEl.classList.remove('hidden');
-                    updateStatusTextEl.innerText = 'Update error';
-                    updateStatusTextEl.classList.add('text-red-400');
-                    updateStatusTextEl.classList.remove('text-blue-400');
-                    // Hide after 5 seconds
-                    setTimeout(() => {
-                        updateIndicatorEl.classList.add('hidden');
-                        updateStatusTextEl.classList.remove('text-red-400');
-                        updateStatusTextEl.classList.add('text-blue-400');
-                    }, 5000);
+                    // Don't show error if update was already successfully downloaded
+                    // Errors after download are usually related to installation and are expected
+                    if (!updateDownloaded) {
+                        updateIndicatorEl.classList.remove('hidden');
+                        updateStatusTextEl.innerText = error || 'Update error';
+                        updateStatusTextEl.classList.add('text-red-400');
+                        updateStatusTextEl.classList.remove('text-blue-400');
+                        // Hide after 5 seconds
+                        setTimeout(() => {
+                            updateIndicatorEl.classList.add('hidden');
+                            updateStatusTextEl.classList.remove('text-red-400');
+                            updateStatusTextEl.classList.add('text-blue-400');
+                        }, 5000);
+                    } else {
+                        // Update was already downloaded, just log the error silently
+                        console.log('Error occurred after update was downloaded (likely during installation):', error);
+                    }
                     break;
             }
         });

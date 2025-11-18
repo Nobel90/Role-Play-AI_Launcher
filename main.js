@@ -12,6 +12,7 @@ const { session } = require('electron');
 
 let downloadManager = null;
 let mainWindow = null;
+let updateDownloaded = false; // Track if update was successfully downloaded
 
 const dataPath = path.join(app.getPath('userData'), 'launcher-data.json');
 
@@ -72,20 +73,34 @@ autoUpdater.on('checking-for-update', () => {
 });
 autoUpdater.on('update-available', (info) => {
     console.log('Update available.');
+    log.info('Update available:', info);
+    updateDownloaded = false; // Reset flag when new update is available
     if (mainWindow) {
         mainWindow.webContents.send('auto-updater-status', { status: 'update-available', info });
     }
 });
 autoUpdater.on('update-not-available', (info) => {
     console.log('Update not available.');
+    log.info('Update not available. Current version is up to date.');
+    updateDownloaded = false; // Reset flag
     if (mainWindow) {
         mainWindow.webContents.send('auto-updater-status', { status: 'update-not-available' });
     }
 });
 autoUpdater.on('error', (err) => {
     console.log('Error in auto-updater. ' + err);
-    if (mainWindow) {
-        mainWindow.webContents.send('auto-updater-status', { status: 'error', error: err.message });
+    log.error('Auto-updater error:', err);
+    
+    // Don't show error if update was already successfully downloaded
+    // Some errors can occur after successful download (e.g., during installation)
+    if (!updateDownloaded && mainWindow) {
+        mainWindow.webContents.send('auto-updater-status', { 
+            status: 'error', 
+            error: err.message || 'Unknown error occurred during update check'
+        });
+    } else if (updateDownloaded) {
+        // Log but don't show to user if update was already downloaded
+        log.info('Error occurred after update was downloaded (likely during installation):', err.message);
     }
 });
 autoUpdater.on('download-progress', (progressObj) => {
@@ -107,19 +122,40 @@ autoUpdater.on('download-progress', (progressObj) => {
 });
 autoUpdater.on('update-downloaded', (info) => {
     console.log('Update downloaded');
+    log.info('Update downloaded successfully:', info);
+    updateDownloaded = true; // Mark that update was successfully downloaded
+    
     if (mainWindow) {
         mainWindow.webContents.send('auto-updater-status', { status: 'update-downloaded', info });
+        
+        // Show dialog with error handling
+        dialog.showMessageBox(mainWindow, {
+            type: 'info',
+            title: 'Update Ready',
+            message: 'A new version has been downloaded. Restart the application to apply the updates.',
+            buttons: ['Restart', 'Later']
+        }).then((buttonIndex) => {
+            if (buttonIndex.response === 0) {
+                try {
+                    log.info('User chose to restart. Calling quitAndInstall()...');
+                    autoUpdater.quitAndInstall(false, true); // false = isSilent, true = isForceRunAfter
+                } catch (error) {
+                    log.error('Error calling quitAndInstall:', error);
+                    if (mainWindow) {
+                        mainWindow.webContents.send('auto-updater-status', { 
+                            status: 'error', 
+                            error: 'Failed to restart application. Please restart manually.'
+                        });
+                    }
+                }
+            } else {
+                log.info('User chose to restart later.');
+            }
+        }).catch((error) => {
+            log.error('Error showing update dialog:', error);
+            // Still send the update-downloaded status even if dialog fails
+        });
     }
-    dialog.showMessageBox(mainWindow, {
-        type: 'info',
-        title: 'Update Ready',
-        message: 'A new version has been downloaded. Restart the application to apply the updates.',
-        buttons: ['Restart', 'Later']
-    }).then((buttonIndex) => {
-        if (buttonIndex.response === 0) {
-            autoUpdater.quitAndInstall();
-        }
-    });
 });
 
 ipcMain.handle('get-app-version', () => {
