@@ -238,7 +238,7 @@ function initLauncher() {
         }, 500);
         gameTitleEl.innerText = game.name;
         gameTaglineEl.innerText = game.tagline;
-        gameVersionEl.innerText = `Version ${game.version || 'N/A'}`;
+        gameVersionEl.innerText = 'Version ' + (game.version || 'N/A');
         updateButtonAndStatus(game);
         document.querySelectorAll('.game-logo').forEach(logo => {
             logo.classList.toggle('game-logo-active', logo.dataset.gameId === gameId);
@@ -685,6 +685,23 @@ function initLauncher() {
                 renderGame(currentGameId);
             }
         });
+
+    window.electronAPI.onGameLaunched(() => {
+        const game = gameLibrary[currentGameId];
+        game.status = 'running';
+        actionButtonEl.innerText = 'Running...';
+        actionButtonEl.disabled = true;
+        actionButtonEl.classList.add('bg-green-800', 'cursor-not-allowed');
+        actionButtonEl.classList.remove('bg-green-600', 'hover:bg-green-500', 'hover:shadow-lg', 'hover:shadow-green-500/50');
+    });
+
+    window.electronAPI.onGameClosed(() => {
+        const game = gameLibrary[currentGameId];
+        if (game.status === 'running') {
+             game.status = 'installed';
+        }
+        renderGame(currentGameId);
+    });
 
         window.electronAPI.onDownloadStateUpdate((state) => {
             const game = gameLibrary[currentGameId];

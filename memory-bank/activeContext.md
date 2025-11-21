@@ -3,20 +3,18 @@
 The project has been successfully rebranded from VRC Launcher to Role-Play-AI Launcher and is now ready for development.
 
 ## Recent Changes
-- **Complete Rebranding**: Successfully replaced all VRC references with Role-Play-AI throughout the codebase
-- **Package Updates**: Updated `package.json` with new product name, app ID, and repository references
-- **UI Updates**: Updated window titles, login screens, and all user-facing text
-- **Manifest Updates**: Renamed and updated manifest files from VRClassroom to RolePlayAI
-- **Repository Migration**: Changed git remote to point to `https://github.com/Nobel90/Role-Play-AI_Launcher.git`
-- **Application Testing**: Verified the application runs correctly with all new branding
+- **Version 1.0.6 Build**: Successfully built and signed version 1.0.6 of the launcher.
+    - **Fixes Included**: `version.json` download error, UI double version text, "Running..." button state.
+    - **Signing**: Signed with Sectigo USB token.
+    - **Auto-Update**: `latest.yml` was automatically patched (though the log showed a warning about finding the entry, the file structure is likely correct).
+- **Game Version**: Updated target game version to `1.0.0.3` in `version.json` and `generate-manifest-with-sizes.js`.
+- **Manifest Generation**: Updated script to exclude `version.json` from manifests.
 
 ## Current Status
-- All rebranding tasks completed successfully
-- Application is running and functional
-- Ready for further development or deployment
+- **Build System**: Functional and signing correctly.
+- **Application**: v1.0.6 is built and ready for distribution.
+- **Ready for**: Deployment.
 
 ## Next Steps
-- The project is ready for the next phase of development
-- All changes are ready to be committed and pushed to the new repository
-
-
+- Distribute `Role-Play-AI-Launcher-Setup-1.0.6.exe` and `latest.yml`.
+- Verify the update process on a client machine.

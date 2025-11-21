@@ -13,6 +13,7 @@ const { session } = require('electron');
 let downloadManager = null;
 let mainWindow = null;
 let updateDownloaded = false; // Track if update was successfully downloaded
+let gameProcess = null; // Track the game process
 
 const dataPath = path.join(app.getPath('userData'), 'launcher-data.json');
 
@@ -237,8 +238,9 @@ class DownloadManager {
             const isManifest = fileName.toLowerCase() === 'manifest_nonufsfiles_win64.txt';
             const isLauncher = fileName.toLowerCase() === 'roleplayai_launcher.exe';
             const isVrClassroomTxt = fileName.toLowerCase() === 'roleplayai.txt';
+            const isVersionJson = fileName.toLowerCase() === 'version.json';
 
-            if (isSavedFolder || isManifest || isLauncher || isVrClassroomTxt) {
+            if (isSavedFolder || isManifest || isLauncher || isVrClassroomTxt || isVersionJson) {
                 console.log(`Filtering out non-essential file: ${file.path}`);
                 return false;
             }
@@ -619,7 +621,35 @@ ipcMain.on('launch-game', (event, { installPath, executable }) => {
     const executablePath = path.join(installPath, executable);
     if (fsSync.existsSync(executablePath)) {
         const { spawn } = require('child_process');
-        spawn(executablePath, [], { detached: true, cwd: installPath });
+        // Use detached: true to allow the game to continue running if launcher closes
+        // But do NOT unref() if we want to monitor the process while the launcher is open
+        const child = spawn(executablePath, [], { 
+            detached: true, 
+            cwd: installPath,
+            stdio: 'ignore' 
+        });
+        
+        if (child.pid) {
+            console.log(`Game launched with PID: ${child.pid}`);
+            gameProcess = child;
+            event.sender.send('game-launched');
+            
+            child.on('exit', (code) => {
+                console.log(`Game exited with code ${code}`);
+                gameProcess = null;
+                if (mainWindow && !mainWindow.isDestroyed()) {
+                    mainWindow.webContents.send('game-closed');
+                }
+            });
+            
+            child.on('error', (err) => {
+                console.error('Failed to start game process:', err);
+                gameProcess = null;
+                if (mainWindow && !mainWindow.isDestroyed()) {
+                    mainWindow.webContents.send('game-closed');
+                }
+            });
+        }
     } else {
         console.error(`Launch failed: Executable not found at: ${executablePath}`);
     }
@@ -794,14 +824,13 @@ ipcMain.handle('check-for-updates', async (event, { gameId, installPath, manifes
             const isManifest = fileName.toLowerCase() === 'manifest_nonufsfiles_win64.txt';
             const isLauncher = fileName.toLowerCase() === 'roleplayai_launcher.exe';
             const isVrClassroomTxt = fileName.toLowerCase() === 'roleplayai.txt';
+            const isVersionJson = fileName.toLowerCase() === 'version.json';
 
-            if (isSavedFolder || isManifest || isLauncher || isVrClassroomTxt) {
+            if (isSavedFolder || isManifest || isLauncher || isVrClassroomTxt || isVersionJson) {
                 console.log(`Skipping non-essential file during check: ${fileInfo.path}`);
                 continue;
             }
             // --- End of filtering logic ---
-
-            if (path.basename(fileInfo.path) === 'version.json') continue;
 
             const localFilePath = path.join(installPath, fileInfo.path);
             try {

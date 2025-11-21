@@ -33,9 +33,12 @@ if (!signToolPath) {
 }
 console.log(`Using signtool: ${signToolPath}\n`);
 
+const packageJson = require('./package.json');
+const version = packageJson.version;
+
 // Files to sign
 const filesToSign = [
-  path.join(distDir, 'Role-Play-AI-Launcher-Setup-1.0.4.exe'),
+  path.join(distDir, `Role-Play-AI-Launcher-Setup-${version}.exe`),
   path.join(distDir, '__uninstaller-nsis-role-play-ai-launcher.exe'),
   path.join(distDir, 'win-unpacked', 'Role-Play-AI-Launcher.exe'),
   path.join(distDir, 'win-unpacked', 'resources', 'elevate.exe')

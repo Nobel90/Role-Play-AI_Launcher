@@ -5,7 +5,7 @@ const https = require('https');
 
 // Configuration
 const baseDir = 'D:\\VR Centre\\Perforce\\RolePlay_AI\\Package\\Chunks\\v2\\Windows';
-const manifestVersion = '1.0.0.2';
+const manifestVersion = '1.0.0.3';
 const baseUrl = `https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/${manifestVersion}`;
 
 // Helper function to calculate file checksum
@@ -49,7 +49,8 @@ async function generateManifestWithSizes() {
         'check-local-files-v2.js',
         'upload-v2.bat',
         'update-manifest-with-server-checksums.js',
-        'analyze-mismatched-file-types.js'
+        'analyze-mismatched-file-types.js',
+        'version.json'
     ];
     
     // Directories to exclude

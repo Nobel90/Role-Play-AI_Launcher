@@ -27,4 +27,9 @@ This is an Electron application that serves as a launcher and updater for anothe
 - **State Management**: The `DownloadManager` maintains a state machine for the download process (`idle`, `downloading`, `paused`, etc.) and sends updates to the UI.
 - **Error Handling**: Includes retries for downloads and provides error messages to the user.
 
-
+## Build and Signing Flow
+1.  **Build**: `electron-builder` compiles the application.
+2.  **After Pack**: `sign.js` (`afterPack`) signs the main executable and recursively signs all DLLs in `win-unpacked`.
+3.  **Installer Creation**: `electron-builder` creates the NSIS installer.
+4.  **Post-Build**: `sign.js` (`afterAllArtifactBuild`) signs the final NSIS installer.
+5.  **Manifest Update**: `sign.js` recalculates SHA512 checksum and size of the signed installer and updates `latest.yml` to ensure auto-update compatibility.

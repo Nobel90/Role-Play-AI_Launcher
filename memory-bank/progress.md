@@ -7,17 +7,18 @@
 - It can launch the application.
 - It supports pausing, resuming, and canceling downloads.
 - It can move the installation directory.
-- It can uninstall the game (by moving it to the trash).
+- It can uninstall the game.
 - The launcher itself is auto-updatable.
+- **Code Signing**: Full support for USB token signing.
+- **Build System**: Automated build, sign, and manifest patching.
+- **UI**: "Running..." button state and correct version display.
 
 ## What's Left to Build
 - Further UI improvements.
 - More robust error handling and user feedback.
-- Potentially more configuration options for the user.
-- Testing on different environments.
 
 ## Current Status
-The project is functional but could be improved in terms of user experience and robustness.
+Version 1.0.6 is successfully built and signed. It addresses critical update bugs and improves UI feedback.
 
 ## Known Issues
-- The previous version had a UI issue where buttons were not displaying due to an incomplete login system. This has been reset.
+- **Game Update**: A large number of files (394) might be flagged for update if the server manifest sizes don't exactly match the user's local files. This is expected behavior for size-based verification but relies on accurate manifest generation.
