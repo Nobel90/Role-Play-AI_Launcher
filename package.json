@@ -6,7 +6,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron .",
-    "dist": "electron-builder"
+    "dist": "electron-builder",
+    "test-server": "node test-server.js",
+    "test-server-status": "node test-server-status.js",
+    "generate-test-manifest": "node generate-test-manifest.js",
+    "generate-chunk-manifest": "node generate-chunk-manifest.js"
   },
   "keywords": [],
   "author": "VR Centre Pty Ltd",

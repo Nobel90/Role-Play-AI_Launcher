@@ -1,5 +1,32 @@
 # Dependencies
-/node_modules
+node_modules/
 
 # Build output
-/dist
+dist/
+
+# Test server files and chunks (generated, don't commit)
+test-server-files/chunks/
+test-server-files/*.json
+!test-server-files/.gitkeep
+
+# Generated manifests (keep scripts, ignore generated files)
+*.json
+!package.json
+!package-lock.json
+
+# Game files and binaries (Unreal Engine packages)
+*.pak
+*.exe
+*.dll
+*.pdb
+*.bin
+*.dylib
+*.so
+
+# VS Code
+.vscode/
+
+# System files
+.DS_Store
+Thumbs.db
+*.log

@@ -159,8 +159,12 @@ function initLauncher() {
             backgroundUrl: 'assets/BG.png',
             installPath: null,
             executable: 'RolePlay_AI.exe',
-            manifestUrl: 'https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/roleplayai_manifest.json',
-            versionUrl: 'https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/version.json',
+            // PRODUCTION URLs (default)
+            //manifestUrl: 'https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/roleplayai_manifest.json',
+            //versionUrl: 'https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/version.json',
+            // TEST SERVER URLs (uncomment to use local test server)
+             manifestUrl: 'http://localhost:8080/roleplayai_manifest.json',
+             versionUrl: 'http://localhost:8080/version.json',
             filesToUpdate: [],
             isPaused: false,
         },
@@ -342,30 +346,38 @@ function initLauncher() {
                 }
                 break;
             case 'needs_update':
-                 // Fetch file sizes before starting the download
                  gameStatusTextEl.innerText = 'Preparing to download...';
                  actionButtonEl.disabled = true;
 
-                 const promises = game.filesToUpdate.map((file, index) => {
-                     return window.electronAPI.getFileSize(file.url).then(size => {
-                         file.size = size;
-                         // Update progress text on the fly
-                         gameStatusTextEl.innerText = `Preparing to download... (Checked ${index + 1}/${game.filesToUpdate.length} files)`;
+                 // For file-based manifests, fetch file sizes
+                 if (game.manifestType !== 'chunk-based') {
+                     const promises = game.filesToUpdate.map((file, index) => {
+                         return window.electronAPI.getFileSize(file.url).then(size => {
+                             file.size = size;
+                             gameStatusTextEl.innerText = `Preparing to download... (Checked ${index + 1}/${game.filesToUpdate.length} files)`;
+                         });
                      });
-                 });
+                     await Promise.all(promises);
+                 }
                  
-                 await Promise.all(promises);
                  await window.electronAPI.saveGameData(gameLibrary);
 
+                 // Pass manifest for chunk-based, files for file-based
+                 const downloadPayload = {
+                     gameId: currentGameId,
+                     installPath: game.installPath,
+                     latestVersion: game.version,
+                 };
+
+                 if (game.manifestType === 'chunk-based' && game.manifest) {
+                     downloadPayload.manifest = game.manifest;
+                 } else {
+                     downloadPayload.files = game.filesToUpdate;
+                 }
 
                  window.electronAPI.handleDownloadAction({
                      type: 'START',
-                     payload: {
-                        gameId: currentGameId,
-                        installPath: game.installPath,
-                        files: game.filesToUpdate,
-                        latestVersion: game.version,
-                     }
+                     payload: downloadPayload
                  });
                 break;
             case 'installed':
@@ -412,15 +424,26 @@ function initLauncher() {
             }
         } else if (result.isUpdateAvailable) {
             game.status = 'needs_update';
-            game.filesToUpdate = result.filesToUpdate;
+            game.filesToUpdate = result.filesToUpdate || [];
+            game.manifest = result.manifest; // Store full manifest for chunk-based downloads
+            game.manifestType = result.manifestType || 'file-based';
             game.version = result.latestVersion;
             
             // Show appropriate message based on whether executable is missing
             if (result.executableMissing) {
-                gameStatusTextEl.innerText = result.message || 'Main executable missing. Click INSTALL to download missing files.';
+                gameStatusTextEl.innerText = result.message || `Main executable missing. Will download ${game.filesToUpdate.length} files including the executable.`;
             } else {
-                gameStatusTextEl.innerText = result.message || `Update available. ${result.filesToUpdate.length} files to download.`;
+                if (game.manifestType === 'chunk-based') {
+                    // Calculate total chunks for chunk-based
+                    const totalChunks = game.filesToUpdate.reduce((sum, file) => sum + (file.chunks ? file.chunks.length : 0), 0);
+                    gameStatusTextEl.innerText = result.message || `Update available. ${game.filesToUpdate.length} files, ${totalChunks} chunks to download.`;
+                } else {
+                    gameStatusTextEl.innerText = result.message || `Update available. ${game.filesToUpdate.length} files to download.`;
+                }
             }
+            
+            // Log for debugging
+            console.log(`Update check complete: ${game.filesToUpdate.length} files to update`);
         } else {
             game.status = 'installed';
             game.version = result.latestVersion;
@@ -674,6 +697,8 @@ function initLauncher() {
                 game.installPath = selectedPath;
                 game.version = result.latestVersion;
                 game.filesToUpdate = result.filesToUpdate;
+                game.manifest = result.manifest;
+                game.manifestType = result.manifestType || 'file-based';
 
                 if (result.isUpdateAvailable) {
                     game.status = 'needs_update';
@@ -711,12 +736,32 @@ function initLauncher() {
             switch (state.status) {
                 case 'downloading':
                     progressBarEl.style.width = `${state.progress.toFixed(2)}%`;
-                    if (state.totalBytes > 0) {
-                        progressTextEl.innerText = `Downloading: ${state.currentFileName} (${formatBytes(state.downloadedBytes)} / ${formatBytes(state.totalBytes)})`;
+                    
+                    // Display different messages based on operation type
+                    if (state.currentOperation === 'reconstructing') {
+                        progressTextEl.innerText = `Reconstructing: ${state.currentFileName || 'files'}...`;
+                        gameStatusTextEl.innerText = `Reconstructing files... (${state.filesDownloaded}/${state.totalFiles})`;
                     } else {
-                        progressTextEl.innerText = `Downloading: ${state.currentFileName}`;
+                        // Chunk-based or file-based downloading
+                        if (state.totalChunks && state.chunksDownloaded !== undefined) {
+                            // Chunk-based download
+                            if (state.totalBytes > 0) {
+                                progressTextEl.innerText = `Downloading chunks: ${state.chunksDownloaded}/${state.totalChunks} (${formatBytes(state.downloadedBytes)} / ${formatBytes(state.totalBytes)})`;
+                            } else {
+                                progressTextEl.innerText = `Downloading chunks: ${state.chunksDownloaded}/${state.totalChunks}`;
+                            }
+                            gameStatusTextEl.innerText = `Downloading chunks... (${state.chunksDownloaded}/${state.totalChunks} chunks)`;
+                        } else {
+                            // File-based download
+                            if (state.totalBytes > 0) {
+                                progressTextEl.innerText = `Downloading: ${state.currentFileName} (${formatBytes(state.downloadedBytes)} / ${formatBytes(state.totalBytes)})`;
+                            } else {
+                                progressTextEl.innerText = `Downloading: ${state.currentFileName}`;
+                            }
+                            gameStatusTextEl.innerText = `Downloading update... (${state.filesDownloaded}/${state.totalFiles} files)`;
+                        }
                     }
-                    gameStatusTextEl.innerText = `Downloading update... (${state.filesDownloaded}/${state.totalFiles})`;
+                    
                     downloadSpeedEl.innerText = `Speed: ${formatBytes(state.downloadSpeed)}/s`;
                     pauseResumeButtonEl.innerText = 'Pause';
                     break;
@@ -794,12 +839,19 @@ function initLauncher() {
                     game.status = 'needs_update';
                     game.version = versionResult.latestVersion;
                     game.filesToUpdate = versionResult.filesToUpdate;
+                    game.manifest = versionResult.manifest;
+                    game.manifestType = versionResult.manifestType || 'file-based';
                     
                     // Show appropriate message based on whether executable is missing
                     if (versionResult.executableMissing) {
                         gameStatusTextEl.innerText = versionResult.message || 'Main executable missing. Click INSTALL to download missing files.';
                     } else {
-                        gameStatusTextEl.innerText = versionResult.message || `Update available. ${versionResult.filesToUpdate.length} files to download.`;
+                        if (game.manifestType === 'chunk-based') {
+                            const totalChunks = versionResult.filesToUpdate.reduce((sum, file) => sum + (file.chunks ? file.chunks.length : 0), 0);
+                            gameStatusTextEl.innerText = versionResult.message || `Update available. ${versionResult.filesToUpdate.length} files, ${totalChunks} chunks to download.`;
+                        } else {
+                            gameStatusTextEl.innerText = versionResult.message || `Update available. ${versionResult.filesToUpdate.length} files to download.`;
+                        }
                     }
                 } else {
                     game.status = 'installed';
