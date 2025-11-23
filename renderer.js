@@ -550,6 +550,10 @@ function initLauncher() {
 
                  if (game.manifestType === 'chunk-based' && game.manifest) {
                      downloadPayload.manifest = game.manifest;
+                     // For chunk-based, also pass filesToUpdate so only those files' chunks are downloaded
+                     if (game.filesToUpdate && game.filesToUpdate.length > 0) {
+                         downloadPayload.filesToUpdate = game.filesToUpdate;
+                     }
                  } else {
                      downloadPayload.files = game.filesToUpdate;
                  }

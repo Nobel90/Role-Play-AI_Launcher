@@ -281,17 +281,55 @@ class ChunkManager {
     /**
      * Reconstruct a file from chunks (OPTIMIZED)
      * chunks: Array of { hash, size, offset } or { hash, data }
+     * @param {boolean} cleanCache - If true, delete chunks from cache after use (default: true)
+     * @param {Map<string, number>} globalRefCount - Optional global reference count map for cross-file tracking
      * 
      * Optimizations:
      * - Removed hash verification (chunks already verified when downloaded) - MAJOR SPEEDUP
      * - Batch chunk reads (parallel I/O) - 50 chunks at a time
      * - Sequential writes using write stream for better I/O performance
+     * - Consume and destroy: Delete chunks after use to minimize disk usage
+     * - Cross-file tracking: Supports global reference counting for chunks shared across files
      */
-    async reconstructFile(chunks, outputPath, onProgress = null) {
+    async reconstructFile(chunks, outputPath, onProgress = null, cleanCache = true, globalRefCount = null) {
         // Sort chunks by offset to ensure correct order
         const sortedChunks = [...chunks].sort((a, b) => (a.offset || 0) - (b.offset || 0));
         
         const totalSize = sortedChunks.reduce((sum, chunk) => sum + chunk.size, 0);
+        
+        // Use global reference count if provided, otherwise build local one
+        const chunkRefCount = globalRefCount || new Map();
+        if (cleanCache && !globalRefCount) {
+            // Build local reference count map for this file only
+            for (const chunk of sortedChunks) {
+                if (!chunk.data) { // Only count chunks that need to be read from disk
+                    const count = chunkRefCount.get(chunk.hash) || 0;
+                    chunkRefCount.set(chunk.hash, count + 1);
+                }
+            }
+        }
+        
+        // Helper function to delete chunk if it's no longer needed
+        const deleteChunkIfLastUse = async (chunkHash) => {
+            if (!cleanCache || !chunkHash) return;
+            
+            const count = chunkRefCount.get(chunkHash);
+            if (count !== undefined) {
+                const newCount = count - 1;
+                chunkRefCount.set(chunkHash, newCount);
+                
+                // Only delete if this was the last reference
+                if (newCount === 0) {
+                    try {
+                        const chunkPath = this.getChunkPath(chunkHash);
+                        await fs.unlink(chunkPath);
+                    } catch (error) {
+                        // Ignore errors (chunk might already be deleted or not exist)
+                        // Don't fail reconstruction if cleanup fails
+                    }
+                }
+            }
+        };
         
         // Use write stream for better performance with large files
         const writeStream = fsSync.createWriteStream(outputPath);
@@ -312,7 +350,7 @@ class ChunkManager {
                         // Read all chunks in batch in parallel (no hash verification - already verified)
                         const chunkDataPromises = batch.map(async (chunk) => {
                             if (chunk.data) {
-                                return chunk.data;
+                                return { data: chunk.data, hash: null }; // In-memory chunk, no hash to track
                             } else {
                                 const data = await this.getChunk(chunk.hash);
                                 if (!data) {
@@ -320,19 +358,26 @@ class ChunkManager {
                                 }
                                 // Hash verification removed - chunks already verified when downloaded
                                 // This saves ~337,000 SHA256 calculations!
-                                return data;
+                                return { data: data, hash: chunk.hash };
                             }
                         });
                         
                         const chunkDataArray = await Promise.all(chunkDataPromises);
                         
-                        // Write chunks sequentially to stream
-                        for (const chunkData of chunkDataArray) {
+                        // Write chunks sequentially to stream and delete after use
+                        for (let i = 0; i < chunkDataArray.length; i++) {
+                            const { data: chunkData, hash: chunkHash } = chunkDataArray[i];
+                            
                             if (!writeStream.write(chunkData)) {
                                 // Wait for drain if buffer is full
                                 await new Promise(resolve => writeStream.once('drain', resolve));
                             }
                             totalWritten += chunkData.length;
+                            
+                            // Delete chunk from cache after successful write (if cleanCache enabled)
+                            if (cleanCache && chunkHash) {
+                                await deleteChunkIfLastUse(chunkHash);
+                            }
                         }
                         
                         currentIndex = batchEnd;
@@ -404,11 +449,116 @@ class ChunkManager {
     }
     
     /**
-     * Clean up old chunks (optional - for cache management)
+     * Clean up old chunks that are not in the current manifest
+     * @param {Set<string>} keepHashes - Set of chunk hashes to keep (from current manifest)
+     * @returns {Object} Cleanup statistics
      */
     async cleanupOldChunks(keepHashes) {
-        // Implementation for cleaning up unused chunks
-        // This is optional and can be implemented later
+        if (!keepHashes || keepHashes.size === 0) {
+            console.log('No chunks to keep specified, skipping cleanup');
+            return { deleted: 0, freedBytes: 0, errors: 0 };
+        }
+
+        console.log(`Starting chunk cleanup. Keeping ${keepHashes.size} chunks from current manifest...`);
+        
+        let deletedCount = 0;
+        let freedBytes = 0;
+        let errorCount = 0;
+        const startTime = Date.now();
+
+        try {
+            // Check if cache directory exists
+            try {
+                await fs.access(this.chunkCacheDir);
+            } catch {
+                console.log('Chunk cache directory does not exist, nothing to clean');
+                return { deleted: 0, freedBytes: 0, errors: 0 };
+            }
+
+            // Read all subdirectories (hash prefixes: 00, 01, ..., ff)
+            const prefixDirs = await fs.readdir(this.chunkCacheDir);
+            
+            // Process each prefix directory
+            for (const prefixDir of prefixDirs) {
+                // Skip non-directory entries and invalid prefixes
+                if (prefixDir.length !== 2) continue;
+                
+                const prefixPath = path.join(this.chunkCacheDir, prefixDir);
+                let stats;
+                try {
+                    stats = await fs.stat(prefixPath);
+                    if (!stats.isDirectory()) continue;
+                } catch {
+                    continue; // Skip if can't stat
+                }
+
+                // Read all chunk files in this prefix directory
+                let chunkFiles;
+                try {
+                    chunkFiles = await fs.readdir(prefixPath);
+                } catch {
+                    continue; // Skip if can't read directory
+                }
+
+                // Process each chunk file
+                for (const chunkFile of chunkFiles) {
+                    // The filename is the chunk hash
+                    const chunkHash = chunkFile;
+                    
+                    // Check if this chunk should be kept
+                    if (keepHashes.has(chunkHash)) {
+                        continue; // Keep this chunk
+                    }
+
+                    // Delete the chunk file
+                    const chunkPath = path.join(prefixPath, chunkHash);
+                    try {
+                        const chunkStats = await fs.stat(chunkPath);
+                        if (chunkStats.isFile()) {
+                            await fs.unlink(chunkPath);
+                            deletedCount++;
+                            freedBytes += chunkStats.size;
+                        }
+                    } catch (error) {
+                        errorCount++;
+                        console.warn(`Failed to delete chunk ${chunkHash}:`, error.message);
+                    }
+                }
+
+                // Try to remove empty prefix directory
+                try {
+                    const remainingFiles = await fs.readdir(prefixPath);
+                    if (remainingFiles.length === 0) {
+                        await fs.rmdir(prefixPath);
+                    }
+                } catch {
+                    // Ignore errors removing empty directories
+                }
+            }
+
+            const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+            const freedMB = (freedBytes / (1024 * 1024)).toFixed(2);
+            
+            console.log(`Chunk cleanup complete: Deleted ${deletedCount} chunks, freed ${freedMB} MB in ${duration}s`);
+            if (errorCount > 0) {
+                console.warn(`Cleanup had ${errorCount} errors`);
+            }
+
+            return {
+                deleted: deletedCount,
+                freedBytes: freedBytes,
+                errors: errorCount,
+                duration: duration
+            };
+        } catch (error) {
+            console.error('Error during chunk cleanup:', error);
+            return {
+                deleted: deletedCount,
+                freedBytes: freedBytes,
+                errors: errorCount + 1,
+                error: error.message
+            };
+        }
     }
 }
 

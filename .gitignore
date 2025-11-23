@@ -28,3 +28,6 @@ test-server-files/
 .DS_Store
 Thumbs.db
 *.log
+
+# Unused/temporary files (old implementations)
+unused-temp-files/

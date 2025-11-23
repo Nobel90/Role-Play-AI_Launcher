@@ -313,7 +313,7 @@ class DownloadManager {
         this.win.webContents.send('download-state-update', this.state);
     }
 
-    async start(gameId, installPath, manifestData, latestVersion) {
+    async start(gameId, installPath, manifestData, latestVersion, filesToUpdate = null) {
         if (this.state.status === 'downloading') return;
 
         // Check if manifestData is an array (legacy file-based) or an object (manifest)
@@ -330,27 +330,39 @@ class DownloadManager {
             this.isChunkBased = type === 'chunk-based';
 
             if (this.isChunkBased) {
-                await this.startChunkBased(gameId, installPath, manifest, latestVersion);
+                await this.startChunkBased(gameId, installPath, manifest, latestVersion, filesToUpdate);
             } else {
-                await this.startFileBased(gameId, installPath, manifest.files || [], latestVersion);
+                // For file-based, use filesToUpdate if provided, otherwise use all files
+                const files = filesToUpdate || manifest.files || [];
+                await this.startFileBased(gameId, installPath, files, latestVersion);
             }
         } catch (error) {
             console.error('Error parsing manifest:', error);
             // Fallback: try to use as file array if it has a files property
             if (manifestData.files && Array.isArray(manifestData.files)) {
                 console.log('Falling back to file array from manifest object');
-                await this.startFileBased(gameId, installPath, manifestData.files, latestVersion);
+                const files = filesToUpdate || manifestData.files;
+                await this.startFileBased(gameId, installPath, files, latestVersion);
             } else {
                 throw new Error(`Invalid manifest data: ${error.message}`);
             }
         }
     }
 
-    async startChunkBased(gameId, installPath, manifest, latestVersion) {
+    async startChunkBased(gameId, installPath, manifest, latestVersion, filesToUpdate = null) {
         console.log(`Starting chunk-based download for version ${manifest.version}`);
 
+        // Use filesToUpdate if provided (only files that need updating), otherwise use all files from manifest
+        let filesToProcess = filesToUpdate || manifest.files;
+        
+        if (!filesToUpdate) {
+            console.log(`Processing all ${filesToProcess.length} files from manifest`);
+        } else {
+            console.log(`Processing only ${filesToUpdate.length} files that need updating (out of ${manifest.files.length} total files)`);
+        }
+
         // Filter out non-essential files
-        const filteredFiles = manifest.files.filter(file => {
+        const filteredFiles = filesToProcess.filter(file => {
             const fileName = path.basename(file.filename);
             const pathString = file.filename.toLowerCase();
 
@@ -464,6 +476,24 @@ class DownloadManager {
         if (this.state.status === 'downloading') {
             const versionFilePath = path.join(installPath, 'version.json');
             await fs.writeFile(versionFilePath, JSON.stringify({ version: latestVersion }, null, 2));
+            
+            // Clean up old chunks not in current manifest (after reconstruction is complete)
+            try {
+                console.log('Starting automatic chunk cache cleanup...');
+                const keepHashes = new Set(allChunks.map(chunk => chunk.hash));
+                const cleanupResult = await this.chunkManager.cleanupOldChunks(keepHashes);
+                
+                if (cleanupResult.deleted > 0) {
+                    const freedMB = (cleanupResult.freedBytes / (1024 * 1024)).toFixed(2);
+                    console.log(`✅ Cache cleanup: Removed ${cleanupResult.deleted} unused chunks, freed ${freedMB} MB`);
+                } else {
+                    console.log('✅ Cache cleanup: No unused chunks found');
+                }
+            } catch (cleanupError) {
+                console.warn('Cache cleanup failed (non-critical):', cleanupError.message);
+                // Don't fail the update if cleanup fails
+            }
+            
             this.setState({ status: 'success', progress: 100, downloadSpeed: 0 });
         }
     }
@@ -698,6 +728,23 @@ class DownloadManager {
     }
 
     async reconstructFiles(files, installPath) {
+        // Build global reference count map across all files for cross-file chunk tracking
+        const globalRefCount = new Map();
+        const cleanCache = true; // Enable consume and destroy
+        
+        // Collect all chunks from all files and build global reference count
+        for (const file of files) {
+            for (const chunk of file.chunks) {
+                if (!chunk.data) { // Only count chunks that need to be read from disk
+                    const count = globalRefCount.get(chunk.hash) || 0;
+                    globalRefCount.set(chunk.hash, count + 1);
+                }
+            }
+        }
+        
+        console.log(`Building global chunk reference map: ${globalRefCount.size} unique chunks across ${files.length} files`);
+        
+        // Reconstruct each file using the global reference count
         for (let i = 0; i < files.length; i++) {
             if (this.state.status === 'cancelling') break;
             if (this.state.status === 'paused') {
@@ -727,7 +774,9 @@ class DownloadManager {
                         this.setState({
                             progress: fileProgress + reconstructionProgress
                         });
-                    }
+                    },
+                    cleanCache, // Delete chunks after use to minimize disk usage
+                    globalRefCount // Pass global reference count for cross-file tracking
                 );
 
                 // Verify reconstructed file size
@@ -740,6 +789,28 @@ class DownloadManager {
             } catch (error) {
                 console.error(`Error reconstructing ${file.filename}:`, error);
                 throw error;
+            }
+        }
+
+        // Final cleanup pass: Verify all chunks were properly cleaned up
+        // (The globalRefCount should have all counts at 0 after all files are reconstructed)
+        if (cleanCache) {
+            try {
+                let remainingChunks = 0;
+                for (const [chunkHash, count] of globalRefCount.entries()) {
+                    if (count > 0) {
+                        // Chunk still has references but shouldn't (should have been decremented to 0)
+                        // This shouldn't happen in normal operation, but log it for debugging
+                        remainingChunks++;
+                    }
+                }
+                if (remainingChunks > 0) {
+                    console.warn(`Warning: ${remainingChunks} chunks still have non-zero reference counts after reconstruction`);
+                } else {
+                    console.log(`✅ All chunks properly cleaned up (${globalRefCount.size} chunks processed)`);
+                }
+            } catch (error) {
+                console.warn('Final cleanup verification failed (non-critical):', error.message);
             }
         }
 
@@ -847,7 +918,9 @@ ipcMain.on('handle-download-action', (event, action) => {
         case 'START':
             // Support both old format (files) and new format (manifest)
             const manifestData = action.payload.manifest || action.payload.files;
-            downloadManager.start(action.payload.gameId, action.payload.installPath, manifestData, action.payload.latestVersion);
+            // Pass filesToUpdate if provided (for chunk-based downloads, only download chunks for files that need updating)
+            const filesToUpdate = action.payload.filesToUpdate || null;
+            downloadManager.start(action.payload.gameId, action.payload.installPath, manifestData, action.payload.latestVersion, filesToUpdate);
             break;
         case 'PAUSE':
             downloadManager.pause();
@@ -1477,40 +1550,95 @@ async function checkChunkBasedUpdates(serverManifest, installPath, serverVersion
                         // Get local file size for comparison
                         const localStats = await fs.stat(localFilePath);
                         
-                        // Chunk the local file (this is the slow part)
-                        const localChunks = await chunkManager.chunkLocalFile(localFilePath);
-                        const localHashes = new Set(localChunks.map(c => c.hash));
+                        // Check file size first (quick check)
+                        if (localStats.size !== serverFile.totalSize) {
+                            console.log(`❌ ${serverFile.filename} -> Size mismatch (local: ${localStats.size}, server: ${serverFile.totalSize})`);
+                            filesToUpdate.push(serverFile);
+                            checkedFiles++;
+                            continue;
+                        }
                         
-                        // Compare with server chunks
-                        const serverHashes = new Set(serverFile.chunks.map(c => c.hash));
-                        const missingChunks = serverFile.chunks.filter(c => !localHashes.has(c.hash));
-                        const extraChunks = localChunks.filter(c => !serverHashes.has(c.hash));
+                        // Verify chunks at exact manifest offsets (not re-chunking!)
+                        let fd = null;
+                        const missingChunks = [];
+                        const mismatchedChunks = [];
+                        
+                        try {
+                            fd = await fs.open(localFilePath, 'r');
+                            
+                            // Verify each chunk at its exact offset and size from manifest
+                            for (const serverChunk of serverFile.chunks) {
+                                try {
+                                    // Read chunk at exact offset and size from manifest
+                                    const buffer = Buffer.alloc(serverChunk.size);
+                                    const result = await fd.read(buffer, 0, serverChunk.size, serverChunk.offset);
+                                    
+                                    if (result.bytesRead !== serverChunk.size) {
+                                        missingChunks.push({
+                                            ...serverChunk,
+                                            reason: 'read_incomplete',
+                                            bytesRead: result.bytesRead
+                                        });
+                                        continue;
+                                    }
+                                    
+                                    // Hash the chunk and compare with manifest hash
+                                    const calculatedHash = crypto.createHash('sha256').update(buffer).digest('hex');
+                                    
+                                    if (calculatedHash !== serverChunk.hash) {
+                                        mismatchedChunks.push({
+                                            ...serverChunk,
+                                            calculatedHash: calculatedHash.substring(0, 16) + '...'
+                                        });
+                                    }
+                                } catch (chunkError) {
+                                    // Error reading chunk
+                                    missingChunks.push({
+                                        ...serverChunk,
+                                        reason: 'read_error',
+                                        error: chunkError.message
+                                    });
+                                }
+                            }
+                        } catch (readError) {
+                            // File can't be opened or read
+                            console.log(`⚠️ ${serverFile.filename} -> Read error: ${readError.message}`);
+                            filesToUpdate.push(serverFile);
+                            checkedFiles++;
+                            continue;
+                        } finally {
+                            // Always close the file descriptor
+                            if (fd !== null) {
+                                try {
+                                    await fd.close();
+                                } catch (closeError) {
+                                    // Ignore close errors
+                                }
+                            }
+                        }
+                        
+                        // Check if file needs update
+                        const needsUpdate = missingChunks.length > 0 || mismatchedChunks.length > 0;
                         
                         // Debug logging
                         console.log(`\n📊 ${serverFile.filename}:`);
                         console.log(`   Local file size: ${localStats.size}, Server file size: ${serverFile.totalSize}`);
-                        console.log(`   Local chunks: ${localChunks.length}, Server chunks: ${serverFile.chunks.length}`);
-                        console.log(`   Missing chunks: ${missingChunks.length}, Extra chunks: ${extraChunks.length}`);
-                        
-                        // Check if file needs update
-                        const needsUpdate = missingChunks.length > 0 || 
-                                          localChunks.length !== serverFile.chunks.length || 
-                                          extraChunks.length > 0 ||
-                                          localStats.size !== serverFile.totalSize;
+                        console.log(`   Server chunks: ${serverFile.chunks.length}`);
+                        console.log(`   Missing chunks: ${missingChunks.length}, Mismatched chunks: ${mismatchedChunks.length}`);
                         
                         if (needsUpdate) {
                             console.log(`❌ ${serverFile.filename} -> Needs update`);
-                            console.log(`   Reasons: Missing chunks: ${missingChunks.length}, Extra chunks: ${extraChunks.length}, Length mismatch: ${localChunks.length !== serverFile.chunks.length}, Size mismatch: ${localStats.size !== serverFile.totalSize}`);
                             if (missingChunks.length > 0) {
+                                console.log(`   Missing chunks: ${missingChunks.length}`);
                                 console.log(`   First 3 missing chunk hashes: ${missingChunks.slice(0, 3).map(c => c.hash.substring(0, 16)).join(', ')}...`);
+                            }
+                            if (mismatchedChunks.length > 0) {
+                                console.log(`   Mismatched chunks: ${mismatchedChunks.length}`);
+                                console.log(`   First 3 mismatched chunk hashes: ${mismatchedChunks.slice(0, 3).map(c => c.hash.substring(0, 16)).join(', ')}...`);
                             }
                             filesToUpdate.push(serverFile);
                         } else {
-                            console.log(`✅ ${serverFile.filename} -> All chunks match`);
-                            // Double-check: if sizes match but we expect differences, log a warning
-                            if (localStats.size === serverFile.totalSize && localChunks.length === serverFile.chunks.length) {
-                                console.log(`   ⚠️ WARNING: File sizes and chunk counts match, but content might differ.`);
-                            }
+                            console.log(`✅ ${serverFile.filename} -> All chunks verified`);
                         }
                     } catch (e) {
                         console.log(`⚠️ ${serverFile.filename} -> File not found locally (${localFilePath}). Adding to update list.`);
