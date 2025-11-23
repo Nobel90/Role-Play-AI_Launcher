@@ -147,6 +147,28 @@ function showLogin() {
 
 // --- LAUNCHER LOGIC (Moved from index.html) ---
 
+// R2 Configuration for Production Downloads
+// Public R2 URL for the bucket (configured for public read access)
+// Note: The public URL already points to the bucket, so we don't include bucket name in the path
+const R2_CONFIG = {
+    baseUrl: 'https://pub-f87e49b41fad4c0fad84e94d65ed13cc.r2.dev',
+    buildType: 'production',
+    get manifestUrl() {
+        // Public R2 URL format: baseUrl/[object-key]
+        // Object key is: production/roleplayai_manifest.json
+        return `${this.baseUrl}/${this.buildType}/roleplayai_manifest.json`;
+    },
+    constructChunkUrl(relativePath) {
+        // Handle both relative paths and full URLs
+        if (relativePath.startsWith('http')) {
+            return relativePath; // Already a full URL
+        }
+        // Prepend base URL for relative paths (bucket name not needed in public URL)
+        // relativePath is already: production/[version]/chunks/[hash-prefix]/[chunk-hash]
+        return `${this.baseUrl}/${relativePath}`;
+    }
+};
+
 function initLauncher() {
     // All of your original launcher code goes here.
     let gameLibrary = {
@@ -159,12 +181,14 @@ function initLauncher() {
             backgroundUrl: 'assets/BG.png',
             installPath: null,
             executable: 'RolePlay_AI.exe',
-            // PRODUCTION URLs (default)
+            // R2 Configuration for Production
+            manifestUrl: R2_CONFIG.manifestUrl,
+            // OLD PRODUCTION URLs (commented out - using R2 now)
             //manifestUrl: 'https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/roleplayai_manifest.json',
             //versionUrl: 'https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/version.json',
             // TEST SERVER URLs (uncomment to use local test server)
-             manifestUrl: 'http://localhost:8080/roleplayai_manifest.json',
-             versionUrl: 'http://localhost:8080/version.json',
+            //manifestUrl: 'http://localhost:8080/roleplayai_manifest.json',
+            //versionUrl: 'http://localhost:8080/version.json',
             filesToUpdate: [],
             isPaused: false,
         },
@@ -1108,7 +1132,7 @@ function initLauncher() {
                 gameLibrary[gameId].version = '0.0.0';
                 gameLibrary[gameId].filesToUpdate = [];
                 // Ensure correct URLs and executable name are set
-                gameLibrary[gameId].manifestUrl = 'https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/roleplayai_manifest.json';
+                gameLibrary[gameId].manifestUrl = R2_CONFIG.manifestUrl;
                 gameLibrary[gameId].versionUrl = 'https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/version.json';
                 gameLibrary[gameId].executable = 'RolePlay_AI.exe';
             }

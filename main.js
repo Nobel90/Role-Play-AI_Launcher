@@ -30,6 +30,23 @@ let activeDownload = {
 };
 const browserHeaders = { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' };
 
+// R2 Configuration for Production Downloads
+// Public R2 URL for the bucket (configured for public read access)
+// Note: The public URL already points to the bucket, so we don't include bucket name in the path
+const R2_CONFIG = {
+    baseUrl: 'https://pub-f87e49b41fad4c0fad84e94d65ed13cc.r2.dev',
+    buildType: 'production',
+    constructChunkUrl(relativePath) {
+        // Handle both relative paths and full URLs
+        if (relativePath.startsWith('http')) {
+            return relativePath; // Already a full URL (backward compatibility)
+        }
+        // Prepend base URL for relative paths (bucket name not needed in public URL)
+        // relativePath is already: production/[version]/chunks/[hash-prefix]/[chunk-hash]
+        return `${this.baseUrl}/${relativePath}`;
+    }
+};
+
 // Helper function to check if file is text-based (for debug purposes)
 function isTextFile(filename) {
     const textExtensions = ['.txt', '.json', '.xml', '.html', '.css', '.js', '.glsl', '.hlsl', '.mtlx', '.ini', '.cfg', '.bat', '.sh'];
@@ -597,7 +614,10 @@ class DownloadManager {
                 }
 
                 try {
-                    const response = await axios.get(chunk.url, { 
+                    // Construct full R2 URL if chunk.url is a relative path
+                    const chunkUrl = R2_CONFIG.constructChunkUrl(chunk.url);
+                    
+                    const response = await axios.get(chunkUrl, { 
                         responseType: 'arraybuffer',
                         headers: browserHeaders,
                         onDownloadProgress: (progressEvent) => {
