@@ -17,6 +17,8 @@ let mainWindow = null;
 let updateDownloaded = false; // Track if update was successfully downloaded
 let gameProcess = null; // Track the game process
 let chunkManager = null; // Chunk manager instance
+let verificationCancelled = false; // Flag to cancel verification
+let currentVerificationSender = null; // Track the sender for current verification
 
 const dataPath = path.join(app.getPath('userData'), 'launcher-data.json');
 
@@ -32,6 +34,62 @@ const browserHeaders = { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64
 function isTextFile(filename) {
     const textExtensions = ['.txt', '.json', '.xml', '.html', '.css', '.js', '.glsl', '.hlsl', '.mtlx', '.ini', '.cfg', '.bat', '.sh'];
     return textExtensions.some(ext => filename.toLowerCase().endsWith(ext));
+}
+
+// Helper function to normalize path separators (keep structure intact)
+// This only normalizes backslashes to forward slashes for consistency
+function normalizePathSeparators(filePath) {
+    if (!filePath) return filePath;
+    return filePath.replace(/\\/g, '/');
+}
+
+// Helper function to detect the correct game installation path
+// Handles both scenarios:
+// 1. User selects root folder that contains the game (where RolePlay_AI.exe is)
+// 2. User selects a parent folder that contains the game root
+async function detectGameInstallPath(selectedPath) {
+    const executable = 'RolePlay_AI.exe';
+    
+    // Check if executable exists directly in selected path (root level)
+    const executableInRoot = path.join(selectedPath, executable);
+    try {
+        await fs.access(executableInRoot);
+        console.log(`Game executable found in root: ${selectedPath}`);
+        return selectedPath; // This is the game root directory
+    } catch (error) {
+        // Executable not in root, continue checking
+    }
+    
+    // Check if executable exists in RolePlay_AI subfolder (Binaries/Win64)
+    const rolePlayAIBinariesPath = path.join(selectedPath, 'RolePlay_AI', 'Binaries', 'Win64', executable);
+    try {
+        await fs.access(rolePlayAIBinariesPath);
+        console.log(`Game executable found in RolePlay_AI/Binaries/Win64: ${selectedPath}`);
+        return selectedPath; // Return parent directory (game root)
+    } catch (error) {
+        // Not found here either
+    }
+    
+    // Check if selected path is inside RolePlay_AI folder - go up to find root
+    let currentPath = selectedPath;
+    for (let i = 0; i < 3; i++) { // Check up to 3 levels up
+        const executableCheck = path.join(currentPath, executable);
+        try {
+            await fs.access(executableCheck);
+            console.log(`Game executable found by going up: ${currentPath}`);
+            return currentPath;
+        } catch (error) {
+            // Not found, go up one level
+            const parentPath = path.dirname(currentPath);
+            if (parentPath === currentPath) break; // Reached filesystem root
+            currentPath = parentPath;
+        }
+    }
+    
+    // For new installations, return the selected path as-is
+    // The manifest paths will determine the exact structure
+    console.log(`Using selected path for new installation: ${selectedPath}`);
+    return selectedPath;
 }
 
 
@@ -365,8 +423,21 @@ class DownloadManager {
         }
 
         // Reconstruct files from chunks
+        // Defer reconstruction to allow UI to render first (fixes UI hanging)
         this.setState({ currentOperation: 'reconstructing' });
-        await this.reconstructFiles(filteredFiles, installPath);
+        
+        // Use setImmediate to defer reconstruction until UI is ready
+        await new Promise((resolve) => {
+            setImmediate(async () => {
+                try {
+                    await this.reconstructFiles(filteredFiles, installPath);
+                    resolve();
+                } catch (error) {
+                    console.error('Reconstruction error:', error);
+                    throw error;
+                }
+            });
+        });
 
         if (this.speedInterval) {
             clearInterval(this.speedInterval);
@@ -446,6 +517,7 @@ class DownloadManager {
                 }
 
                 try {
+                    // Use manifest path as-is to preserve exact structure
                     const destinationPath = path.join(installPath, file.path);
                     await this.downloadFile(file.url, destinationPath);
                     
@@ -615,6 +687,7 @@ class DownloadManager {
             }
 
             const file = files[i];
+            // Use manifest path as-is to preserve exact structure
             const destinationPath = path.join(installPath, file.filename);
             const destinationDir = path.dirname(destinationPath);
             await fs.mkdir(destinationDir, { recursive: true });
@@ -811,18 +884,29 @@ ipcMain.handle('select-install-dir', async (event) => {
         return null;
     }
 
-    let selectedPath = filePaths[0];
+    const selectedPath = filePaths[0];
     
-    // Enforce installation in a "RolePlayAI" folder
-    if (path.basename(selectedPath).toLowerCase() !== 'roleplayai') {
-        selectedPath = path.join(selectedPath, 'RolePlayAI');
-    }
+    // Use smart path detection to handle both scenarios:
+    // 1. User selects root folder containing RolePlayAI subfolder
+    // 2. User directly selects RolePlayAI folder
+    const detectedPath = await detectGameInstallPath(selectedPath);
 
-    // The handler now returns the potentially modified path
-    return selectedPath;
+    // The handler now returns the detected/calculated path
+    return detectedPath;
 });
 
-ipcMain.handle('move-install-path', async (event, { currentPath, manifestUrl }) => {
+ipcMain.handle('move-install-path', async (event, currentPath) => {
+    // Handle both old format (object) and new format (string)
+    if (typeof currentPath === 'object' && currentPath !== null) {
+        currentPath = currentPath.currentPath || currentPath.path;
+    }
+    
+    if (!currentPath || typeof currentPath !== 'string') {
+        console.error('move-install-path: Invalid currentPath provided:', currentPath);
+        dialog.showErrorBox('Move Error', 'Invalid installation path. Please try again.');
+        return null;
+    }
+
     const win = BrowserWindow.fromWebContents(event.sender);
     const { canceled, filePaths } = await dialog.showOpenDialog(win, {
         properties: ['openDirectory', 'createDirectory'],
@@ -1029,6 +1113,151 @@ ipcMain.handle('check-for-version', async (event, { installPath, versionUrl }) =
     }
 });
 
+// Fast version-only check (no chunk matching)
+ipcMain.handle('check-version-only', async (event, { gameId, installPath, manifestUrl, versionUrl }) => {
+    try {
+        // Get server version
+        let serverVersion = 'N/A';
+        try {
+            if (versionUrl) {
+                const versionResponse = await axios.get(versionUrl, { headers: browserHeaders });
+                serverVersion = versionResponse.data.version;
+            } else {
+                // Fallback: get version from manifest
+                const manifestResponse = await axios.get(manifestUrl, { headers: browserHeaders });
+                const { manifest: serverManifest } = parseManifest(manifestResponse.data);
+                serverVersion = serverManifest.version || 'N/A';
+            }
+        } catch (error) {
+            console.error('Failed to get server version:', error.message);
+            return { error: 'Could not check server version.' };
+        }
+
+        // Get local version
+        let localVersion = '0.0.0';
+        if (installPath && fsSync.existsSync(installPath)) {
+            try {
+                const versionFilePath = path.join(installPath, 'version.json');
+                const versionData = await fs.readFile(versionFilePath, 'utf-8');
+                const versionJson = JSON.parse(versionData);
+                localVersion = versionJson.version || '0.0.0';
+            } catch (error) {
+                // No local version file - treat as uninstalled
+                localVersion = '0.0.0';
+            }
+        }
+
+        const versionMismatch = serverVersion !== localVersion;
+
+        console.log(`--- Fast Version Check for ${gameId} ---`);
+        console.log(`Local: ${localVersion}, Server: ${serverVersion}, Mismatch: ${versionMismatch}`);
+
+        return {
+            versionMismatch: versionMismatch,
+            localVersion: localVersion,
+            serverVersion: serverVersion,
+            needsSync: versionMismatch && installPath && fsSync.existsSync(installPath)
+        };
+    } catch (error) {
+        console.error('Version-only check failed:', error.message);
+        return { error: 'Could not check version.' };
+    }
+});
+
+// Sync files handler - triggers full chunk matching
+ipcMain.handle('sync-files', async (event, { gameId, installPath, manifestUrl }) => {
+    try {
+        const response = await axios.get(manifestUrl, { headers: browserHeaders });
+        const serverManifestData = response.data;
+        const { type, manifest: serverManifest } = parseManifest(serverManifestData);
+        const serverVersion = serverManifest.version || 'N/A';
+        
+        console.log(`--- Starting File Sync for ${gameId} v${serverVersion} (${type}) ---`);
+
+        if (!installPath || !fsSync.existsSync(installPath)) {
+            return {
+                error: 'Installation path not found. Please install the game first.',
+                needsInstall: true
+            };
+        }
+
+        // Check if main executable exists
+        const executable = 'RolePlay_AI.exe';
+        const executablePath = path.join(installPath, executable);
+        let executableMissing = false;
+        
+        try {
+            await fs.access(executablePath);
+            console.log(`Main executable found at ${executablePath}`);
+        } catch (error) {
+            console.log(`Main executable not found at ${executablePath}.`);
+            executableMissing = true;
+        }
+
+        if (type === 'chunk-based') {
+            // Reset cancellation flag and track sender
+            verificationCancelled = false;
+            currentVerificationSender = event.sender;
+            
+            // For chunk-based, return immediately and do checking in background
+            setImmediate(async () => {
+                try {
+                    const result = await checkChunkBasedUpdates(serverManifest, installPath, serverVersion, executableMissing, event.sender);
+                    // Send final result when done (only if not cancelled)
+                    if (!verificationCancelled) {
+                        event.sender.send('chunk-check-result', result);
+                    }
+                } catch (error) {
+                    console.error('Error during background chunk check:', error);
+                    if (!verificationCancelled) {
+                        event.sender.send('chunk-check-error', { error: error.message });
+                    }
+                } finally {
+                    // Reset tracking
+                    if (currentVerificationSender === event.sender) {
+                        currentVerificationSender = null;
+                    }
+                }
+            });
+            
+            // Return immediately with "syncing" status
+            return {
+                isSyncing: true,
+                manifest: serverManifest,
+                manifestType: 'chunk-based',
+                latestVersion: serverVersion,
+                executableMissing: executableMissing,
+            };
+        } else {
+            // File-based update check (legacy) - fast, can be synchronous
+            return await checkFileBasedUpdates(serverManifest, installPath, serverVersion, executableMissing);
+        }
+    } catch (error) {
+        let errorMessage = 'File sync failed.';
+        if (error.response) {
+            errorMessage = `File sync failed: Server error ${error.response.status}.`;
+        } else if (error.request) {
+            errorMessage = 'File sync failed: No response from server.';
+        } else {
+            errorMessage = `File sync failed: ${error.message}`;
+        }
+        return { error: errorMessage };
+    }
+});
+
+// Cancel verification handler
+ipcMain.on('cancel-verification', (event) => {
+    console.log('Cancellation requested for verification');
+    verificationCancelled = true;
+    if (currentVerificationSender) {
+        currentVerificationSender.send('chunk-check-error', { 
+            error: 'Verification cancelled by user',
+            cancelled: true 
+        });
+        currentVerificationSender = null;
+    }
+});
+
 ipcMain.handle('check-for-updates', async (event, { gameId, installPath, manifestUrl }) => {
     try {
         const response = await axios.get(manifestUrl, { headers: browserHeaders });
@@ -1106,10 +1335,43 @@ ipcMain.handle('check-for-updates', async (event, { gameId, installPath, manifes
         }
 
         if (type === 'chunk-based') {
-            // Chunk-based update check
-            return await checkChunkBasedUpdates(serverManifest, installPath, serverVersion, executableMissing);
+            // Reset cancellation flag and track sender
+            verificationCancelled = false;
+            currentVerificationSender = event.sender;
+            
+            // For chunk-based, return immediately and do checking in background
+            // This prevents UI from freezing
+            setImmediate(async () => {
+                try {
+                    const result = await checkChunkBasedUpdates(serverManifest, installPath, serverVersion, executableMissing, event.sender);
+                    // Send final result when done (only if not cancelled)
+                    if (!verificationCancelled) {
+                        event.sender.send('chunk-check-result', result);
+                    }
+                } catch (error) {
+                    console.error('Error during background chunk check:', error);
+                    if (!verificationCancelled) {
+                        event.sender.send('chunk-check-error', { error: error.message });
+                    }
+                } finally {
+                    // Reset tracking
+                    if (currentVerificationSender === event.sender) {
+                        currentVerificationSender = null;
+                    }
+                }
+            });
+            
+            // Return immediately with "checking" status
+            return {
+                isChecking: true,
+                manifest: serverManifest,
+                manifestType: 'chunk-based',
+                latestVersion: serverVersion,
+                pathInvalid: false,
+                executableMissing: executableMissing,
+            };
         } else {
-            // File-based update check (legacy)
+            // File-based update check (legacy) - fast, can be synchronous
             return await checkFileBasedUpdates(serverManifest, installPath, serverVersion, executableMissing);
         }
     } catch (error) {
@@ -1125,7 +1387,7 @@ ipcMain.handle('check-for-updates', async (event, { gameId, installPath, manifes
     }
 });
 
-async function checkChunkBasedUpdates(serverManifest, installPath, serverVersion, executableMissing) {
+async function checkChunkBasedUpdates(serverManifest, installPath, serverVersion, executableMissing, eventSender = null) {
     if (!chunkManager) {
         throw new Error('ChunkManager not initialized');
     }
@@ -1147,33 +1409,126 @@ async function checkChunkBasedUpdates(serverManifest, installPath, serverVersion
         return true;
     });
 
-    for (const serverFile of filteredFiles) {
-        const localFilePath = path.join(installPath, serverFile.filename);
-        
-        try {
-            await fs.access(localFilePath);
-            
-            // Chunk the local file
-            const localChunks = await chunkManager.chunkLocalFile(localFilePath);
-            const localHashes = new Set(localChunks.map(c => c.hash));
-            
-            // Compare with server chunks
-            const serverHashes = new Set(serverFile.chunks.map(c => c.hash));
-            const missingChunks = serverFile.chunks.filter(c => !localHashes.has(c.hash));
-            
-            if (missingChunks.length > 0 || localChunks.length !== serverFile.chunks.length) {
-                console.log(`❌ ${serverFile.filename} -> Missing ${missingChunks.length} chunks`);
-                filesToUpdate.push(serverFile);
-            } else {
-                console.log(`✅ ${serverFile.filename} -> All chunks match`);
-            }
-        } catch (e) {
-            console.log(`Checking: ${serverFile.filename} -> File not found locally. Adding to update list.`);
-            filesToUpdate.push(serverFile);
-        }
+    const totalFiles = filteredFiles.length;
+    let checkedFiles = 0;
+
+    // Send initial progress update
+    if (eventSender) {
+        eventSender.send('chunk-check-progress', {
+            checked: 0,
+            total: totalFiles,
+            message: 'Starting file verification...'
+        });
     }
 
-    console.log(`--- Update Check Complete. Found ${filesToUpdate.length} files to update. ---`);
+    // Defer the actual checking to allow UI to render first
+    await new Promise((resolve) => {
+        setImmediate(async () => {
+            try {
+                for (const serverFile of filteredFiles) {
+                    // Check for cancellation
+                    if (verificationCancelled) {
+                        console.log('Verification cancelled by user');
+                        if (eventSender) {
+                            eventSender.send('chunk-check-error', { 
+                                error: 'Verification cancelled by user',
+                                cancelled: true 
+                            });
+                        }
+                        break;
+                    }
+                    
+                    // Use manifest path as-is to preserve exact structure
+                    const localFilePath = path.join(installPath, serverFile.filename);
+                    
+                    try {
+                        await fs.access(localFilePath);
+                        
+                        // Send progress update at start of file check
+                        if (eventSender) {
+                            eventSender.send('chunk-check-progress', {
+                                checked: checkedFiles,
+                                total: totalFiles,
+                                currentFile: path.basename(serverFile.filename),
+                                message: `Verifying ${path.basename(serverFile.filename)}...`
+                            });
+                        }
+                        
+                        // Get local file size for comparison
+                        const localStats = await fs.stat(localFilePath);
+                        
+                        // Chunk the local file (this is the slow part)
+                        const localChunks = await chunkManager.chunkLocalFile(localFilePath);
+                        const localHashes = new Set(localChunks.map(c => c.hash));
+                        
+                        // Compare with server chunks
+                        const serverHashes = new Set(serverFile.chunks.map(c => c.hash));
+                        const missingChunks = serverFile.chunks.filter(c => !localHashes.has(c.hash));
+                        const extraChunks = localChunks.filter(c => !serverHashes.has(c.hash));
+                        
+                        // Debug logging
+                        console.log(`\n📊 ${serverFile.filename}:`);
+                        console.log(`   Local file size: ${localStats.size}, Server file size: ${serverFile.totalSize}`);
+                        console.log(`   Local chunks: ${localChunks.length}, Server chunks: ${serverFile.chunks.length}`);
+                        console.log(`   Missing chunks: ${missingChunks.length}, Extra chunks: ${extraChunks.length}`);
+                        
+                        // Check if file needs update
+                        const needsUpdate = missingChunks.length > 0 || 
+                                          localChunks.length !== serverFile.chunks.length || 
+                                          extraChunks.length > 0 ||
+                                          localStats.size !== serverFile.totalSize;
+                        
+                        if (needsUpdate) {
+                            console.log(`❌ ${serverFile.filename} -> Needs update`);
+                            console.log(`   Reasons: Missing chunks: ${missingChunks.length}, Extra chunks: ${extraChunks.length}, Length mismatch: ${localChunks.length !== serverFile.chunks.length}, Size mismatch: ${localStats.size !== serverFile.totalSize}`);
+                            if (missingChunks.length > 0) {
+                                console.log(`   First 3 missing chunk hashes: ${missingChunks.slice(0, 3).map(c => c.hash.substring(0, 16)).join(', ')}...`);
+                            }
+                            filesToUpdate.push(serverFile);
+                        } else {
+                            console.log(`✅ ${serverFile.filename} -> All chunks match`);
+                            // Double-check: if sizes match but we expect differences, log a warning
+                            if (localStats.size === serverFile.totalSize && localChunks.length === serverFile.chunks.length) {
+                                console.log(`   ⚠️ WARNING: File sizes and chunk counts match, but content might differ.`);
+                            }
+                        }
+                    } catch (e) {
+                        console.log(`⚠️ ${serverFile.filename} -> File not found locally (${localFilePath}). Adding to update list.`);
+                        filesToUpdate.push(serverFile);
+                    }
+                    
+                    checkedFiles++;
+                    
+                    // Send progress update after file is checked
+                    if (eventSender) {
+                        eventSender.send('chunk-check-progress', {
+                            checked: checkedFiles,
+                            total: totalFiles,
+                            currentFile: path.basename(serverFile.filename),
+                            message: `Verified ${path.basename(serverFile.filename)} (${checkedFiles}/${totalFiles})`
+                        });
+                    }
+                }
+
+                // Send completion update
+                if (eventSender) {
+                    eventSender.send('chunk-check-complete', {
+                        filesToUpdate: filesToUpdate.length,
+                        totalFiles: totalFiles
+                    });
+                }
+
+                console.log(`--- Update Check Complete. Found ${filesToUpdate.length} files to update. ---`);
+                resolve();
+            } catch (error) {
+                console.error('Error during chunk checking:', error);
+                if (eventSender) {
+                    eventSender.send('chunk-check-error', { error: error.message });
+                }
+                resolve();
+            }
+        });
+    });
 
     return {
         isUpdateAvailable: filesToUpdate.length > 0,
@@ -1206,6 +1561,7 @@ async function checkFileBasedUpdates(serverManifest, installPath, serverVersion,
             continue;
         }
 
+        // Use manifest path as-is to preserve exact structure
         const localFilePath = path.join(installPath, fileInfo.path);
         try {
             await fs.access(localFilePath);

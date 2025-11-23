@@ -15,6 +15,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     moveInstallPath: (currentPath) => ipcRenderer.invoke('move-install-path', currentPath),
     launchGame: (args) => ipcRenderer.send('launch-game', args),
     checkForUpdates: (args) => ipcRenderer.invoke('check-for-updates', args),
+    checkVersionOnly: (args) => ipcRenderer.invoke('check-version-only', args),
+    syncFiles: (args) => ipcRenderer.invoke('sync-files', args),
     openInstallFolder: (path) => ipcRenderer.send('open-install-folder', path),
     uninstallGame: (path) => ipcRenderer.send('uninstall-game', path),
     getFileSize: (url) => ipcRenderer.invoke('get-file-size', url),
@@ -33,5 +35,18 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onGameClosed: (callback) => ipcRenderer.on('game-closed', () => callback()),
     
     // --- Auto-Updater Status Events ---
-    onAutoUpdaterStatus: (callback) => ipcRenderer.on('auto-updater-status', (event, status) => callback(status))
+    onAutoUpdaterStatus: (callback) => ipcRenderer.on('auto-updater-status', (event, status) => callback(status)),
+    
+    // --- Chunk Check Progress Events ---
+    onChunkCheckProgress: (callback) => ipcRenderer.on('chunk-check-progress', (event, progress) => callback(progress)),
+    onChunkCheckComplete: (callback) => ipcRenderer.on('chunk-check-complete', (event, data) => callback(data)),
+    onChunkCheckResult: (callback) => ipcRenderer.on('chunk-check-result', (event, result) => callback(result)),
+    onChunkCheckError: (callback) => ipcRenderer.on('chunk-check-error', (event, error) => callback(error)),
+    cancelVerification: () => ipcRenderer.send('cancel-verification'),
+    removeChunkCheckListeners: () => {
+        ipcRenderer.removeAllListeners('chunk-check-progress');
+        ipcRenderer.removeAllListeners('chunk-check-complete');
+        ipcRenderer.removeAllListeners('chunk-check-result');
+        ipcRenderer.removeAllListeners('chunk-check-error');
+    }
 });

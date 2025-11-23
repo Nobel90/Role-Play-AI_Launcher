@@ -1,0 +1,53 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Test server files and chunks (generated, don't index)
+test-server-files/
+chunks/
+chunks_backup/
+
+# Generated manifests (keep scripts, ignore generated files)
+roleplayai_manifest*.json
+!generate-*.js
+!compare-*.js
+!check-*.js
+version.json
+
+# Game files and binaries (Unreal Engine packages - large files)
+*.pak
+*.exe
+*.dll
+*.pdb
+*.bin
+*.dylib
+*.so
+
+# Test directories
+D_/
+
+# Log files
+*.log
+
+# System files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# VS Code
+.vscode/
+
+# Memory bank (optional - uncomment if you don't want it indexed)
+# memory-bank/
+
+# Assets (large image files - uncomment if not needed for indexing)
+# assets/*.jpg
+# assets/*.png
+# assets/*.ico
+
+# Documentation (uncomment if you don't want docs indexed)
+# *.md
+# !README.md

@@ -9,33 +9,35 @@ const { createChunkManifest } = require('./manifestUtils');
 // Configuration
 const config = {
     // Source directory (Unreal package)
-    sourceGameDirectory: 'D:\\VR Centre\\Perforce\\RolePlay_AI\\Package\\noChubks\\V2\\Windows',
+    sourceGameDirectory: 'D:\\VR Centre\\Perforce\\RolePlay_AI\\Package\\300MB_Chunks\\V2\\Windows',
     
     // Where to store chunks (for test server to serve)
     chunksOutputDir: path.join(__dirname, 'test-server-files', 'chunks'),
     
     // Where to save the manifest (preserve old manifest)
-    manifestOutputPath: path.join(__dirname, 'test-server-files', 'roleplayai_manifest_v1.0.4.json'),
+    manifestOutputPath: path.join(__dirname, 'test-server-files', 'roleplayai_manifest_v1.0.1.3.json'),
     
     // Base URL for chunks (test server)
     chunkBaseUrl: 'http://localhost:8080/chunks',
     
     // Game version
-    version: '1.0.4'
+    version: '1.0.1.3'
 };
 
 // Filter out non-essential files (same as launcher)
 function shouldIncludeFile(relativePath) {
     const fileName = path.basename(relativePath);
     const pathString = relativePath.toLowerCase();
+    const fileExt = path.extname(fileName).toLowerCase();
     
     const isSavedFolder = pathString.includes('saved/') || pathString.includes('saved\\');
     const isManifest = fileName.toLowerCase().startsWith('manifest_') && fileName.toLowerCase().endsWith('.txt');
     const isLauncher = fileName.toLowerCase() === 'roleplayai_launcher.exe';
     const isVrClassroomTxt = fileName.toLowerCase() === 'roleplayai.txt';
     const isVersionJson = fileName.toLowerCase() === 'version.json';
+    const isPdb = fileExt === '.pdb'; // Exclude debug symbol files
     
-    return !(isSavedFolder || isManifest || isLauncher || isVrClassroomTxt || isVersionJson);
+    return !(isSavedFolder || isManifest || isLauncher || isVrClassroomTxt || isVersionJson || isPdb);
 }
 
 async function getAllFiles(dir) {
@@ -80,10 +82,15 @@ async function generateChunkManifest() {
         process.exit(1);
     }
     
-    // Initialize chunk manager
-    console.log('📦 Initializing chunk manager...');
+    // Initialize chunk manager with 10MB chunk size
+    console.log('📦 Initializing chunk manager with 10MB chunks...');
     const chunkManager = new ChunkManager({
-        chunkCacheDir: config.chunksOutputDir
+        chunkCacheDir: config.chunksOutputDir,
+        fastCDCOptions: {
+            minSize: 5 * 1024 * 1024,   // 5MB
+            avgSize: 10 * 1024 * 1024,  // 10MB
+            maxSize: 20 * 1024 * 1024   // 20MB
+        }
     });
     await chunkManager.initialize();
     

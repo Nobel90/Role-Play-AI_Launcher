@@ -5,9 +5,7 @@ node_modules/
 dist/
 
 # Test server files and chunks (generated, don't commit)
-test-server-files/chunks/
-test-server-files/*.json
-!test-server-files/.gitkeep
+test-server-files/
 
 # Generated manifests (keep scripts, ignore generated files)
 *.json

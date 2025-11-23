@@ -1,57 +1,61 @@
-# Delta Update Report: 1.0.0 → 1.0.4
+# Delta Update Report: 1.0.1.2 → 1.0.1.3
 
-Generated: 2025-11-21T20:31:50.910Z
+Generated: 2025-11-22T09:51:08.953Z
 
 ## Summary
 
 | Metric | Value |
 |--------|-------|
-| **Old Version** | 1.0.0 |
-| **New Version** | 1.0.4 |
-| **Total Files (Old)** | 365 |
-| **Total Files (New)** | 364 |
+| **Old Version** | 1.0.1.2 |
+| **New Version** | 1.0.1.3 |
+| **Total Files (Old)** | 400 |
+| **Total Files (New)** | 400 |
 | **Files Added** | 0 |
-| **Files Removed** | 1 |
-| **Files Modified** | 1 |
+| **Files Removed** | 0 |
+| **Files Modified** | 5 |
 
 ## Chunk Statistics
 
 | Metric | Count | Size |
 |--------|-------|------|
-| **Total Chunks (Old)** | 319,847 | 5.33 GB |
-| **Total Chunks (New)** | 319,832 | 5.33 GB |
-| **Shared Chunks** | 318,906 | 5.31 GB |
-| **New Chunks** | 926 | 16.18 MB |
-| **Removed Chunks** | 941 | 16.24 MB |
+| **Total Chunks (Old)** | 972 | 5.11 GB |
+| **Total Chunks (New)** | 971 | 5.11 GB |
+| **Shared Chunks** | 949 | 4.93 GB |
+| **New Chunks** | 22 | 184.16 MB |
+| **Removed Chunks** | 23 | 184.17 MB |
 
 ## Delta Update Analysis
 
 | Metric | Value |
 |--------|-------|
-| **Delta Download Size** | 32.42 MB |
-| **Full Download Size (Old)** | 5.33 GB |
-| **Full Download Size (New)** | 5.33 GB |
-| **Bandwidth Saved** | 5.3 GB |
-| **Bandwidth Savings** | 99.41% |
-| **Chunks to Download** | 1,867 |
-| **Chunks Already Cached** | 318,906 |
+| **Delta Download Size** | 368.33 MB |
+| **Full Download Size (Old)** | 5.11 GB |
+| **Full Download Size (New)** | 5.11 GB |
+| **Bandwidth Saved** | 4.75 GB |
+| **Bandwidth Savings** | 92.96% |
+| **Chunks to Download** | 45 |
+| **Chunks Already Cached** | 949 |
 
 ## File Changes
 
 ### Added Files (0)
 None
 
-### Removed Files (1)
-- roleplayai_manifest.json
+### Removed Files (0)
+None
 
-### Modified Files (1)
-- RolePlay_AI/Content/Paks/RolePlay_AI-Windows.pak
+### Modified Files (5)
+- RolePlay_AI/Content/Paks/pakchunk0-Windows.pak
+- RolePlay_AI/Content/Paks/pakchunk0_s1-Windows.pak
+- RolePlay_AI/Content/Paks/pakchunk0_s2-Windows.pak
+- RolePlay_AI/Content/Paks/pakchunk0_s29-Windows.pak
+- RolePlay_AI/Content/Paks/pakchunk0_s3-Windows.pak
 
 ## Conclusion
 
-With chunk-based delta updates, users only need to download **32.42 MB** instead of the full **5.33 GB**, saving **99.41%** bandwidth.
+With chunk-based delta updates, users only need to download **368.33 MB** instead of the full **5.11 GB**, saving **92.96%** bandwidth.
 
 This means:
-- **318,906 chunks** are already cached locally
-- Only **1,867 chunks** need to be downloaded
-- Update is **99.41%** smaller than a full download
+- **949 chunks** are already cached locally
+- Only **45 chunks** need to be downloaded
+- Update is **92.96%** smaller than a full download

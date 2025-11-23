@@ -4,8 +4,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const oldManifestPath = path.join(__dirname, 'test-server-files', 'roleplayai_manifest_v1.0.0.json');
-const newManifestPath = path.join(__dirname, 'test-server-files', 'roleplayai_manifest_v1.0.4.json');
+const oldManifestPath = path.join(__dirname, 'test-server-files', 'roleplayai_manifest_v1.0.1.2.json');
+const newManifestPath = path.join(__dirname, 'test-server-files', 'roleplayai_manifest_v1.0.1.3.json');
 const reportPath = path.join(__dirname, 'DELTA-UPDATE-REPORT.md');
 
 function formatBytes(bytes, decimals = 2) {

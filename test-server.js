@@ -13,7 +13,7 @@ const config = {
     host: 'localhost',
     // Directory containing your game files/manifests
     // Change this to point to your Unreal package directory
-    serveDirectory: 'D:\\VR Centre\\Perforce\\RolePlay_AI\\Package\\noChubks\\Windows',
+    serveDirectory: 'D:\\VR Centre\\Perforce\\RolePlay_AI\\Package\\300MB_Chunks\\V2\\Windows',
     // Directory for chunks (chunk-based downloads)
     chunksDirectory: path.join(process.cwd(), 'test-server-files', 'chunks'),
     // Directory for manifests and version files
@@ -107,14 +107,15 @@ function handleRequest(req, res) {
     }
 
     // Handle manifest and version files from test-server-files
-    // Serve v1.0.4 manifest as default, but also support v1.0.0 for comparison
+    // Serve v1.0.1.3 manifest as default, but also support other versions for comparison
     if (filePath === 'roleplayai_manifest.json') {
-        // Default to v1.0.4 manifest
-        const fullPath = path.join(config.testFilesDirectory, 'roleplayai_manifest_v1.0.4.json');
+        // Default to v1.0.1.3 manifest
+        const fullPath = path.join(config.testFilesDirectory, 'roleplayai_manifest_v1.0.1.3.json');
         serveFileIfExists(fullPath, res, req);
         return;
     }
-    if (filePath === 'roleplayai_manifest_v1.0.0.json' || filePath === 'roleplayai_manifest_v1.0.4.json') {
+    // Support multiple manifest versions for comparison
+    if (filePath.startsWith('roleplayai_manifest_v') && filePath.endsWith('.json')) {
         const fullPath = path.join(config.testFilesDirectory, filePath);
         serveFileIfExists(fullPath, res, req);
         return;

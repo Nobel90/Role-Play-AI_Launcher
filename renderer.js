@@ -257,8 +257,14 @@ function initLauncher() {
         settingsButtonEl.classList.add('hidden');
         uninstallButtonEl.classList.add('hidden');
         checkUpdateButtonEl.classList.add('hidden');
+        cancelButtonEl.classList.add('hidden'); // Hide cancel button by default
         progressContainerEl.style.display = 'none';
         locateGameContainerEl.classList.add('hidden');
+        
+        // Reset button styles to defaults
+        settingsButtonEl.style.cursor = '';
+        uninstallButtonEl.style.cursor = '';
+        cancelButtonEl.style.cursor = '';
         
         switch (game.status) {
             case 'installed':
@@ -268,6 +274,15 @@ function initLauncher() {
                 settingsButtonEl.classList.remove('hidden');
                 uninstallButtonEl.classList.remove('hidden');
                 checkUpdateButtonEl.classList.remove('hidden');
+                // Re-enable buttons (in case they were disabled during sync)
+                settingsButtonEl.disabled = false;
+                uninstallButtonEl.disabled = false;
+                settingsButtonEl.style.opacity = '';
+                settingsButtonEl.style.pointerEvents = '';
+                settingsButtonEl.style.cursor = 'pointer';
+                uninstallButtonEl.style.opacity = '';
+                uninstallButtonEl.style.pointerEvents = '';
+                uninstallButtonEl.style.cursor = 'pointer';
                 break;
             case 'needs_update':
                 actionButtonEl.innerText = 'UPDATE';
@@ -275,6 +290,72 @@ function initLauncher() {
                 gameStatusTextEl.innerText = `Update available!`;
                 settingsButtonEl.classList.remove('hidden');
                 uninstallButtonEl.classList.remove('hidden');
+                // Re-enable buttons (in case they were disabled during sync)
+                settingsButtonEl.disabled = false;
+                uninstallButtonEl.disabled = false;
+                settingsButtonEl.style.opacity = '';
+                settingsButtonEl.style.pointerEvents = '';
+                settingsButtonEl.style.cursor = 'pointer';
+                uninstallButtonEl.style.opacity = '';
+                uninstallButtonEl.style.pointerEvents = '';
+                uninstallButtonEl.style.cursor = 'pointer';
+                break;
+            case 'needs_sync':
+                actionButtonEl.innerText = 'SYNC FILES';
+                actionButtonEl.classList.add('bg-orange-500', 'hover:bg-orange-600');
+                gameStatusTextEl.innerText = 'Version mismatch detected. Click to sync files.';
+                settingsButtonEl.classList.remove('hidden');
+                uninstallButtonEl.classList.remove('hidden');
+                // Re-enable buttons (in case they were disabled during sync)
+                settingsButtonEl.disabled = false;
+                uninstallButtonEl.disabled = false;
+                settingsButtonEl.style.opacity = '';
+                settingsButtonEl.style.pointerEvents = '';
+                settingsButtonEl.style.cursor = 'pointer';
+                uninstallButtonEl.style.opacity = '';
+                uninstallButtonEl.style.pointerEvents = '';
+                uninstallButtonEl.style.cursor = 'pointer';
+                break;
+            case 'syncing':
+                actionButtonEl.disabled = true;
+                // Add spinner to button
+                actionButtonEl.innerHTML = `
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    SYNCING...
+                `;
+                actionButtonEl.classList.add('bg-gray-500', 'cursor-not-allowed');
+                gameStatusTextEl.innerText = 'Syncing files... This may take a few minutes.';
+                // Show progress container - ensure it's visible
+                progressContainerEl.style.display = 'block';
+                progressContainerEl.classList.remove('hidden');
+                if (progressBarEl) {
+                    progressBarEl.style.width = '0%';
+                }
+                if (progressTextEl) {
+                    progressTextEl.innerText = 'Starting sync... This process may take a few minutes.';
+                }
+                // Show download controls container (for cancel button) but hide pause button
+                downloadControlsEl.classList.remove('hidden');
+                pauseResumeButtonEl.classList.add('hidden');
+                cancelButtonEl.classList.remove('hidden');
+                cancelButtonEl.disabled = false;
+                cancelButtonEl.style.opacity = '';
+                cancelButtonEl.style.pointerEvents = '';
+                cancelButtonEl.style.cursor = '';
+                // Show but disable settings and uninstall buttons
+                settingsButtonEl.classList.remove('hidden');
+                uninstallButtonEl.classList.remove('hidden');
+                settingsButtonEl.disabled = true;
+                uninstallButtonEl.disabled = true;
+                settingsButtonEl.style.opacity = '0.5';
+                settingsButtonEl.style.pointerEvents = 'none';
+                settingsButtonEl.style.cursor = 'not-allowed';
+                uninstallButtonEl.style.opacity = '0.5';
+                uninstallButtonEl.style.pointerEvents = 'none';
+                uninstallButtonEl.style.cursor = 'not-allowed';
                 break;
             case 'uninstalled':
                 actionButtonEl.innerText = 'INSTALL';
@@ -284,9 +365,44 @@ function initLauncher() {
                 break;
             case 'verifying':
                 actionButtonEl.disabled = true;
-                actionButtonEl.innerText = 'VERIFYING...';
+                // Add spinner to button
+                actionButtonEl.innerHTML = `
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    VERIFYING...
+                `;
                 actionButtonEl.classList.add('bg-gray-500', 'cursor-not-allowed');
-                gameStatusTextEl.innerText = 'Verifying game files...';
+                gameStatusTextEl.innerText = 'Verifying game files... This may take a few minutes.';
+                // Show progress container - ensure it's visible
+                progressContainerEl.style.display = 'block';
+                progressContainerEl.classList.remove('hidden');
+                if (progressBarEl) {
+                    progressBarEl.style.width = '0%';
+                }
+                if (progressTextEl) {
+                    progressTextEl.innerText = 'Starting verification... This process may take a few minutes.';
+                }
+                // Show download controls container (for cancel button) but hide pause button
+                downloadControlsEl.classList.remove('hidden');
+                pauseResumeButtonEl.classList.add('hidden');
+                cancelButtonEl.classList.remove('hidden');
+                cancelButtonEl.disabled = false;
+                cancelButtonEl.style.opacity = '';
+                cancelButtonEl.style.pointerEvents = '';
+                cancelButtonEl.style.cursor = '';
+                // Show but disable settings and uninstall buttons
+                settingsButtonEl.classList.remove('hidden');
+                uninstallButtonEl.classList.remove('hidden');
+                settingsButtonEl.disabled = true;
+                uninstallButtonEl.disabled = true;
+                settingsButtonEl.style.opacity = '0.5';
+                settingsButtonEl.style.pointerEvents = 'none';
+                settingsButtonEl.style.cursor = 'not-allowed';
+                uninstallButtonEl.style.opacity = '0.5';
+                uninstallButtonEl.style.pointerEvents = 'none';
+                uninstallButtonEl.style.cursor = 'not-allowed';
                 break;
             case 'moving':
                 actionButtonEl.disabled = true;
@@ -299,16 +415,51 @@ function initLauncher() {
                 break;
             case 'checking_update':
                 actionButtonEl.disabled = true;
-                actionButtonEl.innerText = 'Please wait...';
+                // Add spinner to button
+                actionButtonEl.innerHTML = `
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    VERIFYING...
+                `;
                 actionButtonEl.classList.add('bg-gray-500', 'cursor-not-allowed');
-                gameStatusTextEl.innerText = 'Checking for updates...';
+                gameStatusTextEl.innerText = 'Verifying files... This may take a few minutes.';
+                // Show progress container - ensure it's visible
+                progressContainerEl.style.display = 'block';
+                progressContainerEl.classList.remove('hidden');
+                if (progressBarEl) {
+                    progressBarEl.style.width = '0%';
+                }
+                if (progressTextEl) {
+                    progressTextEl.innerText = 'Starting verification... This process may take a few minutes.';
+                }
+                // Show download controls container (for cancel button) but hide pause button
+                downloadControlsEl.classList.remove('hidden');
+                pauseResumeButtonEl.classList.add('hidden');
+                cancelButtonEl.classList.remove('hidden');
+                cancelButtonEl.disabled = false;
+                cancelButtonEl.style.opacity = '';
+                cancelButtonEl.style.pointerEvents = '';
+                cancelButtonEl.style.cursor = '';
+                // Show but disable settings and uninstall buttons
                 settingsButtonEl.classList.remove('hidden');
                 uninstallButtonEl.classList.remove('hidden');
+                settingsButtonEl.disabled = true;
+                uninstallButtonEl.disabled = true;
+                settingsButtonEl.style.opacity = '0.5';
+                settingsButtonEl.style.pointerEvents = 'none';
+                settingsButtonEl.style.cursor = 'not-allowed';
+                uninstallButtonEl.style.opacity = '0.5';
+                uninstallButtonEl.style.pointerEvents = 'none';
+                uninstallButtonEl.style.cursor = 'not-allowed';
                 break;
             case 'downloading':
             case 'paused':
                 actionButtonEl.classList.add('hidden');
                 downloadControlsEl.classList.remove('hidden');
+                pauseResumeButtonEl.classList.remove('hidden');
+                cancelButtonEl.classList.remove('hidden');
                 progressContainerEl.style.display = 'block';
                 break;
         }
@@ -344,6 +495,10 @@ function initLauncher() {
                         handleActionButtonClick();
                     }
                 }
+                break;
+            case 'needs_sync':
+                // User clicked "Sync Files" - start chunk matching
+                await syncFiles(currentGameId);
                 break;
             case 'needs_update':
                  gameStatusTextEl.innerText = 'Preparing to download...';
@@ -397,6 +552,215 @@ function initLauncher() {
         }
     }
 
+    async function checkVersionOnly(gameId) {
+        const game = gameLibrary[gameId];
+        console.log(`Fast version check for ${gameId}, installPath: ${game.installPath}`);
+        
+        if (!game.installPath) {
+            game.status = 'uninstalled';
+            renderGame(gameId);
+            return;
+        }
+
+        try {
+            const result = await window.electronAPI.checkVersionOnly({
+                gameId,
+                installPath: game.installPath,
+                manifestUrl: game.manifestUrl,
+                versionUrl: game.versionUrl
+            });
+
+            if (result.error) {
+                console.error('Version check error:', result.error);
+                game.status = 'installed'; // Assume installed if check fails
+                renderGame(gameId);
+                return;
+            }
+
+            if (result.versionMismatch) {
+                // Version mismatch - show "Sync Files" button
+                game.status = 'needs_sync';
+                game.localVersion = result.localVersion;
+                game.version = result.serverVersion;
+                gameStatusTextEl.innerText = `Version mismatch: Local ${result.localVersion} → Server ${result.serverVersion}`;
+            } else {
+                // Versions match - game is up to date
+                game.status = 'installed';
+                game.version = result.serverVersion;
+                game.localVersion = result.localVersion;
+            }
+
+            window.electronAPI.saveGameData(gameLibrary);
+            renderGame(gameId);
+        } catch (error) {
+            console.error('Version check failed:', error);
+            game.status = 'installed'; // Fallback to installed
+            renderGame(gameId);
+        }
+    }
+
+    async function syncFiles(gameId) {
+        const game = gameLibrary[gameId];
+        console.log(`Syncing files for ${gameId}`);
+        
+        if (!game.installPath) {
+            game.status = 'uninstalled';
+            renderGame(gameId);
+            return;
+        }
+
+        game.status = 'syncing';
+        renderGame(gameId);
+
+        // Set up progress listeners for chunk-based verification
+        const progressHandler = (progress) => {
+            console.log('Progress update received:', progress);
+            const percentage = Math.round((progress.checked / progress.total) * 100);
+            const message = progress.message || `Verifying ${progress.checked}/${progress.total} files...`;
+            
+            // Update status text
+            gameStatusTextEl.innerText = `Syncing files... ${percentage}% (${progress.checked}/${progress.total})`;
+            
+            // Update progress bar
+            if (progressBarEl) {
+                progressBarEl.style.width = `${percentage}%`;
+            }
+            
+            // Update progress text
+            if (progressTextEl) {
+                progressTextEl.innerText = message;
+            }
+            
+            // Ensure progress container is visible
+            if (progressContainerEl) {
+                progressContainerEl.style.display = 'block';
+            }
+        };
+
+        const resultHandler = (result) => {
+            // Final result received - process it
+            console.log('Sync result received:', result);
+            
+            if (result.error) {
+                game.status = 'needs_sync';
+                gameStatusTextEl.innerText = `Sync error: ${result.error}`;
+            } else if (result.isUpdateAvailable) {
+                game.status = 'needs_update';
+                game.filesToUpdate = result.filesToUpdate || [];
+                game.manifest = result.manifest;
+                game.manifestType = result.manifestType || 'chunk-based';
+                game.version = result.latestVersion;
+                
+                if (result.executableMissing) {
+                    gameStatusTextEl.innerText = result.message || `Main executable missing. Will download ${game.filesToUpdate.length} files including the executable.`;
+                } else {
+                    if (game.manifestType === 'chunk-based') {
+                        const totalChunks = game.filesToUpdate.reduce((sum, file) => sum + (file.chunks ? file.chunks.length : 0), 0);
+                        gameStatusTextEl.innerText = result.message || `Update available. ${game.filesToUpdate.length} files, ${totalChunks} chunks to download.`;
+                    } else {
+                        gameStatusTextEl.innerText = result.message || `Update available. ${game.filesToUpdate.length} files to download.`;
+                    }
+                }
+            } else {
+                // No update needed - versions match after sync
+                game.status = 'installed';
+                game.version = result.latestVersion;
+                gameStatusTextEl.innerText = 'Files are up to date!';
+            }
+            
+            window.electronAPI.saveGameData(gameLibrary);
+            renderGame(gameId);
+            
+            // Clean up listeners
+            if (window.electronAPI.removeChunkCheckListeners) {
+                window.electronAPI.removeChunkCheckListeners();
+            }
+        };
+
+        const errorHandler = (error) => {
+            // Handle cancellation
+            if (error.cancelled) {
+                gameStatusTextEl.innerText = 'Sync cancelled.';
+                game.status = 'needs_sync';
+            } else {
+                gameStatusTextEl.innerText = `Sync error: ${error.error}`;
+                game.status = 'needs_sync';
+            }
+            renderGame(gameId);
+            
+            // Clean up listeners
+            if (window.electronAPI.removeChunkCheckListeners) {
+                window.electronAPI.removeChunkCheckListeners();
+            }
+        };
+
+        // Remove any existing listeners first to avoid duplicates
+        if (window.electronAPI.removeChunkCheckListeners) {
+            window.electronAPI.removeChunkCheckListeners();
+        }
+        
+        // Set up listeners for chunk verification progress
+        if (window.electronAPI.onChunkCheckProgress) {
+            window.electronAPI.onChunkCheckProgress(progressHandler);
+        }
+        if (window.electronAPI.onChunkCheckResult) {
+            window.electronAPI.onChunkCheckResult(resultHandler);
+        }
+        if (window.electronAPI.onChunkCheckError) {
+            window.electronAPI.onChunkCheckError(errorHandler);
+        }
+
+        try {
+            const result = await window.electronAPI.syncFiles({
+                gameId,
+                installPath: game.installPath,
+                manifestUrl: game.manifestUrl
+            });
+
+            // If result indicates syncing is in progress, wait for async result
+            if (result.isSyncing) {
+                // Don't process result here - wait for chunk-check-result event
+                game.manifest = result.manifest;
+                game.manifestType = result.manifestType;
+                game.version = result.latestVersion;
+                return; // Exit early, result will come via event
+            }
+            
+            // For file-based or immediate results, process normally
+            if (result.error) {
+                game.status = 'needs_sync';
+                gameStatusTextEl.innerText = result.error;
+            } else if (result.isUpdateAvailable) {
+                game.status = 'needs_update';
+                game.filesToUpdate = result.filesToUpdate || [];
+                game.manifest = result.manifest;
+                game.manifestType = result.manifestType || 'file-based';
+                game.version = result.latestVersion;
+            } else {
+                game.status = 'installed';
+                game.version = result.latestVersion;
+            }
+            
+            // Clean up listeners if not waiting for async result
+            if (window.electronAPI.removeChunkCheckListeners) {
+                window.electronAPI.removeChunkCheckListeners();
+            }
+            
+            window.electronAPI.saveGameData(gameLibrary);
+            renderGame(gameId);
+        } catch (error) {
+            console.error('Sync files failed:', error);
+            game.status = 'needs_sync';
+            gameStatusTextEl.innerText = `Sync failed: ${error.message}`;
+            renderGame(gameId);
+            
+            // Clean up listeners
+            if (window.electronAPI.removeChunkCheckListeners) {
+                window.electronAPI.removeChunkCheckListeners();
+            }
+        }
+    }
+
     async function checkForUpdates(gameId) {
         const game = gameLibrary[gameId];
         console.log(`Checking for updates for ${gameId}, status: ${game.status}, installPath: ${game.installPath}`);
@@ -410,9 +774,120 @@ function initLauncher() {
         game.status = 'checking_update';
         renderGame(gameId);
 
+        // Set up progress listeners for chunk-based verification
+        const progressHandler = (progress) => {
+            if (game.status === 'checking_update') {
+                console.log('Verification progress update received:', progress);
+                const percentage = Math.round((progress.checked / progress.total) * 100);
+                const message = progress.message || `Verifying ${progress.checked}/${progress.total} files...`;
+                
+                // Update status text
+                gameStatusTextEl.innerText = `Verifying files... ${percentage}% (${progress.checked}/${progress.total})`;
+                
+                // Update progress bar
+                if (progressBarEl) {
+                    progressBarEl.style.width = `${percentage}%`;
+                }
+                
+                // Update progress text
+                if (progressTextEl) {
+                    progressTextEl.innerText = message;
+                }
+                
+                // Ensure progress container is visible
+                if (progressContainerEl) {
+                    progressContainerEl.style.display = 'block';
+                    progressContainerEl.classList.remove('hidden');
+                }
+            }
+        };
+
+        const resultHandler = (result) => {
+            // Final result received - process it
+            console.log('Chunk check result received:', result);
+            
+            if (result.error) {
+                if (result.needsReinstall) {
+                    game.status = 'uninstalled';
+                    game.installPath = null;
+                    gameStatusTextEl.innerText = result.error;
+                } else {
+                    game.status = 'installed';
+                    gameStatusTextEl.innerText = result.error;
+                }
+            } else if (result.isUpdateAvailable) {
+                game.status = 'needs_update';
+                game.filesToUpdate = result.filesToUpdate || [];
+                game.manifest = result.manifest;
+                game.manifestType = result.manifestType || 'chunk-based';
+                game.version = result.latestVersion;
+                
+                if (result.executableMissing) {
+                    gameStatusTextEl.innerText = result.message || `Main executable missing. Will download ${game.filesToUpdate.length} files including the executable.`;
+                } else {
+                    if (game.manifestType === 'chunk-based') {
+                        const totalChunks = game.filesToUpdate.reduce((sum, file) => sum + (file.chunks ? file.chunks.length : 0), 0);
+                        gameStatusTextEl.innerText = result.message || `Update available. ${game.filesToUpdate.length} files, ${totalChunks} chunks to download.`;
+                    } else {
+                        gameStatusTextEl.innerText = result.message || `Update available. ${game.filesToUpdate.length} files to download.`;
+                    }
+                }
+            } else {
+                game.status = 'installed';
+                game.version = result.latestVersion;
+            }
+            
+            window.electronAPI.saveGameData(gameLibrary);
+            renderGame(gameId);
+            
+            // Clean up listeners
+            if (window.electronAPI.removeChunkCheckListeners) {
+                window.electronAPI.removeChunkCheckListeners();
+            }
+        };
+
+        const errorHandler = (error) => {
+            // Handle cancellation
+            if (error.cancelled) {
+                gameStatusTextEl.innerText = 'Verification cancelled.';
+                game.status = 'installed';
+            } else {
+                gameStatusTextEl.innerText = `Verification error: ${error.error}`;
+                game.status = 'installed';
+            }
+            renderGame(gameId);
+            
+            // Clean up listeners
+            if (window.electronAPI.removeChunkCheckListeners) {
+                window.electronAPI.removeChunkCheckListeners();
+            }
+        };
+
+        // Set up listeners for chunk verification progress
+        if (window.electronAPI.onChunkCheckProgress) {
+            window.electronAPI.onChunkCheckProgress(progressHandler);
+        }
+        if (window.electronAPI.onChunkCheckResult) {
+            window.electronAPI.onChunkCheckResult(resultHandler);
+        }
+        if (window.electronAPI.onChunkCheckError) {
+            window.electronAPI.onChunkCheckError(errorHandler);
+        }
+
         console.log(`Calling checkForUpdates with manifestUrl: ${game.manifestUrl}`);
         const result = await window.electronAPI.checkForUpdates({ gameId, installPath: game.installPath, manifestUrl: game.manifestUrl });
         console.log('checkForUpdates result:', result);
+        
+        // If result indicates checking is in progress, wait for async result
+        if (result.isChecking) {
+            // Don't process result here - wait for chunk-check-result event
+            game.manifest = result.manifest;
+            game.manifestType = result.manifestType;
+            game.version = result.latestVersion;
+            return; // Exit early, result will come via event
+        }
+        
+        // For file-based or immediate results, process normally
         if (result.error) {
             if (result.needsReinstall) {
                 game.status = 'uninstalled';
@@ -425,29 +900,30 @@ function initLauncher() {
         } else if (result.isUpdateAvailable) {
             game.status = 'needs_update';
             game.filesToUpdate = result.filesToUpdate || [];
-            game.manifest = result.manifest; // Store full manifest for chunk-based downloads
+            game.manifest = result.manifest;
             game.manifestType = result.manifestType || 'file-based';
             game.version = result.latestVersion;
             
-            // Show appropriate message based on whether executable is missing
             if (result.executableMissing) {
                 gameStatusTextEl.innerText = result.message || `Main executable missing. Will download ${game.filesToUpdate.length} files including the executable.`;
             } else {
                 if (game.manifestType === 'chunk-based') {
-                    // Calculate total chunks for chunk-based
                     const totalChunks = game.filesToUpdate.reduce((sum, file) => sum + (file.chunks ? file.chunks.length : 0), 0);
                     gameStatusTextEl.innerText = result.message || `Update available. ${game.filesToUpdate.length} files, ${totalChunks} chunks to download.`;
                 } else {
                     gameStatusTextEl.innerText = result.message || `Update available. ${game.filesToUpdate.length} files to download.`;
                 }
             }
-            
-            // Log for debugging
-            console.log(`Update check complete: ${game.filesToUpdate.length} files to update`);
         } else {
             game.status = 'installed';
             game.version = result.latestVersion;
         }
+        
+        // Clean up listeners if not waiting for async result
+        if (window.electronAPI.removeChunkCheckListeners) {
+            window.electronAPI.removeChunkCheckListeners();
+        }
+        
         window.electronAPI.saveGameData(gameLibrary);
         renderGame(gameId);
     }
@@ -539,27 +1015,13 @@ function initLauncher() {
             }
         }
 
+        // On startup, do fast version check instead of full chunk matching
         for (const gameId in gameLibrary) {
             const game = gameLibrary[gameId];
-            if (game.installPath && (game.status === 'installed' || game.status === 'needs_update')) {
-                console.log(`Verifying installation for ${gameId} at ${game.installPath}`);
-                // Verify the installation is still valid
-                const result = await window.electronAPI.checkForUpdates({ 
-                    gameId, 
-                    installPath: game.installPath, 
-                    manifestUrl: game.manifestUrl 
-                });
-                
-                if (result.pathInvalid) {
-                    // Installation is invalid, reset to uninstalled
-                    console.log(`Game ${gameId} marked as uninstalled due to invalid installation`);
-                    game.status = 'uninstalled';
-                    game.installPath = null;
-                    game.version = '0.0.0';
-                } else {
-                    const localVersion = await window.electronAPI.getLocalVersion(game.installPath);
-                    game.version = localVersion;
-                }
+            if (game.installPath && (game.status === 'installed' || game.status === 'needs_update' || game.status === 'needs_sync')) {
+                console.log(`Fast version check for ${gameId} at ${game.installPath}`);
+                // Do fast version check instead of full chunk matching
+                await checkVersionOnly(gameId);
             }
         }
 
@@ -598,7 +1060,18 @@ function initLauncher() {
         }
         actionButtonEl.addEventListener('click', handleActionButtonClick);
         pauseResumeButtonEl.addEventListener('click', handlePauseResumeClick);
-        cancelButtonEl.addEventListener('click', () => window.electronAPI.handleDownloadAction({ type: 'CANCEL' }));
+        cancelButtonEl.addEventListener('click', () => {
+            const game = gameLibrary[currentGameId];
+            if (game.status === 'downloading' || game.status === 'paused') {
+                // Cancel download
+                window.electronAPI.handleDownloadAction({ type: 'CANCEL' });
+            } else if (game.status === 'checking_update' || game.status === 'verifying' || game.status === 'syncing') {
+                // Cancel verification
+                if (window.electronAPI.cancelVerification) {
+                    window.electronAPI.cancelVerification();
+                }
+            }
+        });
         
         settingsButtonEl.addEventListener('click', openSettingsModal);
         closeSettingsButtonEl.addEventListener('click', closeSettingsModal);
@@ -678,37 +1151,13 @@ function initLauncher() {
                 return;
             }
 
-            game.status = 'checking_update'; // Use a more descriptive status
-            renderGame(currentGameId);
+            // Update install path before calling checkForUpdates
+            game.installPath = selectedPath;
+            await window.electronAPI.saveGameData(gameLibrary);
 
-            // Use checkForUpdates for a full integrity check on the selected path
-            const result = await window.electronAPI.checkForUpdates({
-                gameId: currentGameId,
-                installPath: selectedPath, // Use the new path
-                manifestUrl: game.manifestUrl
-            });
-
-            if (result.error) {
-                game.status = 'uninstalled';
-                renderGame(currentGameId);
-                gameStatusTextEl.innerText = result.error || "Could not validate the selected folder.";
-            } else {
-                // Path is valid, now update the state
-                game.installPath = selectedPath;
-                game.version = result.latestVersion;
-                game.filesToUpdate = result.filesToUpdate;
-                game.manifest = result.manifest;
-                game.manifestType = result.manifestType || 'file-based';
-
-                if (result.isUpdateAvailable) {
-                    game.status = 'needs_update';
-                } else {
-                    game.status = 'installed';
-                }
-
-                await window.electronAPI.saveGameData(gameLibrary);
-                renderGame(currentGameId);
-            }
+            // Use the local checkForUpdates function which sets up progress listeners
+            // This will show the verification UI with progress bar and throbber
+            await checkForUpdates(currentGameId);
         });
 
     window.electronAPI.onGameLaunched(() => {
@@ -823,43 +1272,6 @@ function initLauncher() {
         });
 
         renderGame(currentGameId);
-        for (const gameId in gameLibrary) {
-            const game = gameLibrary[gameId];
-            if (game.installPath && game.status !== 'uninstalled') {
-                const versionResult = await window.electronAPI.checkForUpdates({
-                    gameId: gameId,
-                    installPath: game.installPath,
-                    manifestUrl: game.manifestUrl
-                });
-
-                if (versionResult.pathInvalid) {
-                    game.status = 'uninstalled';
-                    game.installPath = null;
-                } else if (versionResult.isUpdateAvailable) {
-                    game.status = 'needs_update';
-                    game.version = versionResult.latestVersion;
-                    game.filesToUpdate = versionResult.filesToUpdate;
-                    game.manifest = versionResult.manifest;
-                    game.manifestType = versionResult.manifestType || 'file-based';
-                    
-                    // Show appropriate message based on whether executable is missing
-                    if (versionResult.executableMissing) {
-                        gameStatusTextEl.innerText = versionResult.message || 'Main executable missing. Click INSTALL to download missing files.';
-                    } else {
-                        if (game.manifestType === 'chunk-based') {
-                            const totalChunks = versionResult.filesToUpdate.reduce((sum, file) => sum + (file.chunks ? file.chunks.length : 0), 0);
-                            gameStatusTextEl.innerText = versionResult.message || `Update available. ${versionResult.filesToUpdate.length} files, ${totalChunks} chunks to download.`;
-                        } else {
-                            gameStatusTextEl.innerText = versionResult.message || `Update available. ${versionResult.filesToUpdate.length} files to download.`;
-                        }
-                    }
-                } else {
-                    game.status = 'installed';
-                    game.version = versionResult.latestVersion;
-                }
-                renderGame(gameId);
-            }
-        }
     }
     
     // This is the initial call that starts the launcher logic
