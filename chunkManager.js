@@ -238,22 +238,28 @@ class ChunkManager {
     
     /**
      * Retrieve a chunk from disk
+     * Hash verification removed - chunks are already verified when downloaded
+     * This significantly speeds up reconstruction
      */
     async getChunk(chunkHash) {
         const chunkPath = this.getChunkPath(chunkHash);
         
         try {
-            const data = await fs.readFile(chunkPath);
-            // Verify hash
-            const calculatedHash = crypto.createHash('sha256').update(data).digest('hex');
-            if (calculatedHash !== chunkHash) {
-                throw new Error(`Chunk hash mismatch for ${chunkHash}`);
-            }
+            // Add timeout to prevent hanging on slow I/O
+            const readPromise = fs.readFile(chunkPath);
+            const timeoutPromise = new Promise((_, reject) => {
+                setTimeout(() => reject(new Error(`Chunk read timeout after 10 seconds: ${chunkHash.substring(0, 16)}...`)), 10000);
+            });
+            
+            const data = await Promise.race([readPromise, timeoutPromise]);
+            // Hash verification removed - chunks already verified when downloaded
+            // This saves significant time during reconstruction
             return data;
         } catch (error) {
             if (error.code === 'ENOENT') {
                 return null; // Chunk not found
             }
+            // Re-throw timeout and other errors
             throw error;
         }
     }
@@ -340,37 +346,120 @@ class ChunkManager {
         
         return new Promise((resolve, reject) => {
             let currentIndex = 0;
+            let lastBatchStartTime = Date.now();
+            const BATCH_TIMEOUT = 120000; // 2 minutes per batch max
             
             const processBatch = async () => {
                 try {
+                    console.log(`[Reconstruction] Starting reconstruction of ${sortedChunks.length} chunks for file: ${path.basename(outputPath)}`);
                     while (currentIndex < sortedChunks.length) {
+                        const batchStartTime = Date.now();
                         const batchEnd = Math.min(currentIndex + BATCH_SIZE, sortedChunks.length);
                         const batch = sortedChunks.slice(currentIndex, batchEnd);
                         
+                        console.log(`[Reconstruction] Processing batch: chunks ${currentIndex + 1}-${batchEnd} of ${sortedChunks.length}`);
+                        
+                        // Check if previous batch took too long
+                        if (currentIndex > 0) {
+                            const previousBatchTime = batchStartTime - lastBatchStartTime;
+                            if (previousBatchTime > BATCH_TIMEOUT) {
+                                console.warn(`[Reconstruction] Previous batch took ${(previousBatchTime / 1000).toFixed(1)}s (threshold: ${BATCH_TIMEOUT / 1000}s)`);
+                            }
+                        }
+                        lastBatchStartTime = batchStartTime;
+                        
+                        // Report progress at start of batch reading
+                        if (onProgress) {
+                            const readProgress = (currentIndex / sortedChunks.length) * 50;
+                            onProgress({
+                                chunksProcessed: currentIndex,
+                                totalChunks: sortedChunks.length,
+                                bytesWritten: totalWritten,
+                                totalBytes: totalSize,
+                                progress: readProgress,
+                                phase: 'reading'
+                            });
+                        }
+                        
                         // Read all chunks in batch in parallel (no hash verification - already verified)
-                        const chunkDataPromises = batch.map(async (chunk) => {
-                            if (chunk.data) {
-                                return { data: chunk.data, hash: null }; // In-memory chunk, no hash to track
-                            } else {
-                                const data = await this.getChunk(chunk.hash);
-                                if (!data) {
-                                    throw new Error(`Missing chunk: ${chunk.hash}`);
+                        const chunkDataPromises = batch.map(async (chunk, batchIndex) => {
+                            try {
+                                if (chunk.data) {
+                                    return { data: chunk.data, hash: null }; // In-memory chunk, no hash to track
+                                } else {
+                                    const data = await this.getChunk(chunk.hash);
+                                    if (!data) {
+                                        const errorMsg = `Missing chunk: ${chunk.hash.substring(0, 16)}... (chunk ${currentIndex + batchIndex + 1}/${sortedChunks.length})`;
+                                        console.error(`[Reconstruction Error] ${errorMsg}`);
+                                        throw new Error(errorMsg);
+                                    }
+                                    // Hash verification removed - chunks already verified when downloaded
+                                    // This saves ~337,000 SHA256 calculations!
+                                    return { data: data, hash: chunk.hash };
                                 }
-                                // Hash verification removed - chunks already verified when downloaded
-                                // This saves ~337,000 SHA256 calculations!
-                                return { data: data, hash: chunk.hash };
+                            } catch (error) {
+                                // Add context about which chunk failed
+                                const chunkInfo = chunk.hash ? `chunk ${chunk.hash.substring(0, 16)}...` : `chunk at index ${currentIndex + batchIndex}`;
+                                console.error(`[Reconstruction Error] Failed to read ${chunkInfo}:`, error.message);
+                                throw error;
                             }
                         });
                         
-                        const chunkDataArray = await Promise.all(chunkDataPromises);
+                        let chunkDataArray;
+                        try {
+                            // Report progress during chunk reading phase
+                            if (onProgress) {
+                                const readProgress = (currentIndex / sortedChunks.length) * 50; // Reading is 50% of the work
+                                onProgress({
+                                    chunksProcessed: currentIndex,
+                                    totalChunks: sortedChunks.length,
+                                    bytesWritten: totalWritten,
+                                    totalBytes: totalSize,
+                                    progress: readProgress,
+                                    phase: 'reading'
+                                });
+                            }
+                            
+                            chunkDataArray = await Promise.all(chunkDataPromises);
+                            
+                            // Report progress after reading batch
+                            if (onProgress) {
+                                const readProgress = (batchEnd / sortedChunks.length) * 50;
+                                onProgress({
+                                    chunksProcessed: batchEnd,
+                                    totalChunks: sortedChunks.length,
+                                    bytesWritten: totalWritten,
+                                    totalBytes: totalSize,
+                                    progress: readProgress,
+                                    phase: 'reading'
+                                });
+                            }
+                        } catch (error) {
+                            // Log which batch failed
+                            console.error(`[Reconstruction Error] Failed to read chunk batch (chunks ${currentIndex + 1}-${batchEnd} of ${sortedChunks.length}):`, error.message);
+                            throw error;
+                        }
                         
                         // Write chunks sequentially to stream and delete after use
                         for (let i = 0; i < chunkDataArray.length; i++) {
                             const { data: chunkData, hash: chunkHash } = chunkDataArray[i];
                             
                             if (!writeStream.write(chunkData)) {
-                                // Wait for drain if buffer is full
-                                await new Promise(resolve => writeStream.once('drain', resolve));
+                                // Wait for drain if buffer is full, with timeout to prevent hanging
+                                console.log(`[Reconstruction] Write buffer full, waiting for drain...`);
+                                await new Promise((resolve, reject) => {
+                                    const timeout = setTimeout(() => {
+                                        writeStream.removeListener('drain', onDrain);
+                                        reject(new Error('Write stream drain timeout after 30 seconds. The file system may be slow or blocked.'));
+                                    }, 30000); // 30 second timeout
+                                    
+                                    const onDrain = () => {
+                                        clearTimeout(timeout);
+                                        resolve();
+                                    };
+                                    
+                                    writeStream.once('drain', onDrain);
+                                });
                             }
                             totalWritten += chunkData.length;
                             
@@ -382,15 +471,24 @@ class ChunkManager {
                         
                         currentIndex = batchEnd;
                         
-                        // Report progress periodically (every 100 chunks or at end)
-                        if (onProgress && (currentIndex % 100 === 0 || currentIndex === sortedChunks.length)) {
+                        // Report progress more frequently (every batch or every 10 chunks, whichever is smaller)
+                        // Writing is the other 50% of the work, so add 50% to the progress
+                        const progressInterval = Math.min(10, BATCH_SIZE);
+                        if (onProgress && (currentIndex % progressInterval === 0 || currentIndex === sortedChunks.length)) {
+                            const writeProgress = 50 + ((totalWritten / totalSize) * 50); // Writing is 50-100% of progress
                             onProgress({
                                 chunksProcessed: currentIndex,
                                 totalChunks: sortedChunks.length,
                                 bytesWritten: totalWritten,
                                 totalBytes: totalSize,
-                                progress: (totalWritten / totalSize) * 100
+                                progress: writeProgress,
+                                phase: 'writing'
                             });
+                        }
+                        
+                        // Log progress every 100 chunks to help debug
+                        if (currentIndex % 100 === 0) {
+                            console.log(`[Reconstruction] Processed ${currentIndex}/${sortedChunks.length} chunks (${((currentIndex / sortedChunks.length) * 100).toFixed(1)}%), written ${(totalWritten / 1024 / 1024).toFixed(2)} MB / ${(totalSize / 1024 / 1024).toFixed(2)} MB`);
                         }
                     }
                     

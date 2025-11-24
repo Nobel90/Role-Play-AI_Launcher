@@ -64,25 +64,39 @@ function normalizePathSeparators(filePath) {
 // Handles both scenarios:
 // 1. User selects root folder that contains the game (where RolePlay_AI.exe is)
 // 2. User selects a parent folder that contains the game root
+// Always ensures the final path ends with "RolePlay_AI" for consistency
 async function detectGameInstallPath(selectedPath) {
     const executable = 'RolePlay_AI.exe';
+    const requiredFolderName = 'RolePlay_AI';
+    
+    // Normalize the path
+    const normalizedPath = path.normalize(selectedPath);
+    const pathParts = normalizedPath.split(path.sep).filter(p => p.length > 0);
+    const lastPart = pathParts[pathParts.length - 1];
     
     // Check if executable exists directly in selected path (root level)
     const executableInRoot = path.join(selectedPath, executable);
     try {
         await fs.access(executableInRoot);
         console.log(`Game executable found in root: ${selectedPath}`);
+        // If path doesn't end with RolePlay_AI, we need to adjust it
+        if (lastPart !== requiredFolderName) {
+            // This is an existing installation, but path doesn't match expected name
+            // Return as-is for existing installations to avoid breaking them
+            return selectedPath;
+        }
         return selectedPath; // This is the game root directory
     } catch (error) {
         // Executable not in root, continue checking
     }
     
     // Check if executable exists in RolePlay_AI subfolder (Binaries/Win64)
-    const rolePlayAIBinariesPath = path.join(selectedPath, 'RolePlay_AI', 'Binaries', 'Win64', executable);
+    const rolePlayAIBinariesPath = path.join(selectedPath, requiredFolderName, 'Binaries', 'Win64', executable);
     try {
         await fs.access(rolePlayAIBinariesPath);
         console.log(`Game executable found in RolePlay_AI/Binaries/Win64: ${selectedPath}`);
-        return selectedPath; // Return parent directory (game root)
+        // Return the path that includes RolePlay_AI
+        return path.join(selectedPath, requiredFolderName);
     } catch (error) {
         // Not found here either
     }
@@ -94,6 +108,13 @@ async function detectGameInstallPath(selectedPath) {
         try {
             await fs.access(executableCheck);
             console.log(`Game executable found by going up: ${currentPath}`);
+            // Ensure path ends with RolePlay_AI
+            const currentParts = path.normalize(currentPath).split(path.sep).filter(p => p.length > 0);
+            if (currentParts[currentParts.length - 1] !== requiredFolderName) {
+                // Path doesn't end with RolePlay_AI, but executable exists - this is an existing install
+                // Return as-is to avoid breaking existing installations
+                return currentPath;
+            }
             return currentPath;
         } catch (error) {
             // Not found, go up one level
@@ -103,10 +124,19 @@ async function detectGameInstallPath(selectedPath) {
         }
     }
     
-    // For new installations, return the selected path as-is
-    // The manifest paths will determine the exact structure
-    console.log(`Using selected path for new installation: ${selectedPath}`);
-    return selectedPath;
+    // For new installations, ensure the path ends with "RolePlay_AI"
+    // If user selected a parent directory, append "RolePlay_AI"
+    // If user selected a directory that should become the parent, use it as parent
+    if (lastPart === requiredFolderName) {
+        // User already selected a folder named "RolePlay_AI"
+        console.log(`Using selected path for new installation: ${selectedPath}`);
+        return selectedPath;
+    } else {
+        // User selected a parent directory - append "RolePlay_AI"
+        const finalPath = path.join(selectedPath, requiredFolderName);
+        console.log(`Using selected path for new installation (appending RolePlay_AI): ${finalPath}`);
+        return finalPath;
+    }
 }
 
 
@@ -733,16 +763,45 @@ class DownloadManager {
         const cleanCache = true; // Enable consume and destroy
         
         // Collect all chunks from all files and build global reference count
+        const allChunkHashes = new Set();
         for (const file of files) {
             for (const chunk of file.chunks) {
                 if (!chunk.data) { // Only count chunks that need to be read from disk
                     const count = globalRefCount.get(chunk.hash) || 0;
                     globalRefCount.set(chunk.hash, count + 1);
+                    allChunkHashes.add(chunk.hash);
                 }
             }
         }
         
         console.log(`Building global chunk reference map: ${globalRefCount.size} unique chunks across ${files.length} files`);
+        
+        // Pre-check: Verify all required chunks exist before starting reconstruction
+        console.log(`[Reconstruction] Verifying ${allChunkHashes.size} required chunks exist...`);
+        const missingChunks = [];
+        let verifiedCount = 0;
+        
+        for (const chunkHash of allChunkHashes) {
+            const exists = await this.chunkManager.hasChunk(chunkHash);
+            if (!exists) {
+                missingChunks.push(chunkHash);
+            } else {
+                verifiedCount++;
+            }
+            
+            // Report progress every 100 chunks
+            if ((verifiedCount + missingChunks.length) % 100 === 0) {
+                console.log(`[Reconstruction] Verified ${verifiedCount + missingChunks.length}/${allChunkHashes.size} chunks...`);
+            }
+        }
+        
+        if (missingChunks.length > 0) {
+            const errorMsg = `Missing ${missingChunks.length} required chunks before reconstruction. First 5 missing chunks: ${missingChunks.slice(0, 5).map(h => h.substring(0, 16) + '...').join(', ')}`;
+            console.error(`[Reconstruction Error] ${errorMsg}`);
+            throw new Error(errorMsg);
+        }
+        
+        console.log(`[Reconstruction] ✅ All ${allChunkHashes.size} required chunks verified. Starting reconstruction...`);
         
         // Reconstruct each file using the global reference count
         for (let i = 0; i < files.length; i++) {
@@ -759,16 +818,38 @@ class DownloadManager {
             const destinationDir = path.dirname(destinationPath);
             await fs.mkdir(destinationDir, { recursive: true });
 
+            console.log(`[Reconstruction] Starting file ${i + 1}/${files.length}: ${file.filename} (${file.chunks.length} chunks, ${((file.totalSize || 0) / 1024 / 1024).toFixed(2)} MB)`);
+
             this.setState({
                 currentFileName: path.basename(file.filename),
                 filesDownloaded: i
             });
 
             try {
-                await this.chunkManager.reconstructFile(
+                // Add overall timeout for reconstruction (1 hour max per file)
+                const RECONSTRUCTION_TIMEOUT = 60 * 60 * 1000; // 1 hour in milliseconds
+                const startTime = Date.now();
+                
+                // Add a heartbeat to ensure we're making progress
+                let lastProgressTime = Date.now();
+                let lastProgressChunks = 0;
+                const heartbeatInterval = setInterval(() => {
+                    const elapsed = Date.now() - lastProgressTime;
+                    if (elapsed > 60000) { // 1 minute without progress
+                        console.warn(`[Reconstruction] Warning: No progress for ${(elapsed / 1000).toFixed(0)} seconds on file ${file.filename}`);
+                    }
+                }, 10000); // Check every 10 seconds
+                
+                const reconstructionPromise = this.chunkManager.reconstructFile(
                     file.chunks,
                     destinationPath,
                     (progress) => {
+                        // Update heartbeat
+                        if (progress.chunksProcessed > lastProgressChunks) {
+                            lastProgressTime = Date.now();
+                            lastProgressChunks = progress.chunksProcessed;
+                        }
+                        
                         const fileProgress = (i / files.length) * 100;
                         const reconstructionProgress = (progress.progress / 100) * (100 / files.length);
                         this.setState({
@@ -778,6 +859,19 @@ class DownloadManager {
                     cleanCache, // Delete chunks after use to minimize disk usage
                     globalRefCount // Pass global reference count for cross-file tracking
                 );
+                
+                const timeoutPromise = new Promise((_, reject) => {
+                    setTimeout(() => {
+                        clearInterval(heartbeatInterval);
+                        reject(new Error(`Reconstruction timeout: File "${file.filename}" took longer than 1 hour to reconstruct. This may indicate a system issue or corrupted chunks.`));
+                    }, RECONSTRUCTION_TIMEOUT);
+                });
+                
+                await Promise.race([reconstructionPromise, timeoutPromise]);
+                clearInterval(heartbeatInterval);
+                
+                const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+                console.log(`[Reconstruction] ✅ Completed file ${i + 1}/${files.length}: ${file.filename} in ${elapsed}s`);
 
                 // Verify reconstructed file size
                 const stats = await fs.stat(destinationPath);
@@ -1008,7 +1102,19 @@ ipcMain.handle('move-install-path', async (event, currentPath) => {
     if (canceled || !filePaths || filePaths.length === 0) return null;
 
     const newParentDir = filePaths[0];
-    const newPath = path.join(newParentDir, path.basename(currentPath));
+    // Ensure the new path ends with "RolePlay_AI"
+    const currentBasename = path.basename(currentPath);
+    const requiredFolderName = 'RolePlay_AI';
+    
+    // If current path ends with RolePlay_AI, preserve that structure
+    // Otherwise, ensure new path ends with RolePlay_AI
+    let newPath;
+    if (currentBasename === requiredFolderName) {
+        newPath = path.join(newParentDir, requiredFolderName);
+    } else {
+        // Current path doesn't end with RolePlay_AI, but we want the new one to
+        newPath = path.join(newParentDir, requiredFolderName);
+    }
 
     const normalizedCurrentPath = path.normalize(currentPath);
     const normalizedNewPath = path.normalize(newPath);

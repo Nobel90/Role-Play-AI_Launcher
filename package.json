@@ -1,6 +1,6 @@
 {
   "name": "role-play-ai-launcher",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Role-Play-AI Launcher",
   "main": "main.js",
   "scripts": {
@@ -10,7 +10,8 @@
     "test-server": "node test-server.js",
     "test-server-status": "node test-server-status.js",
     "generate-test-manifest": "node generate-test-manifest.js",
-    "generate-chunk-manifest": "node generate-chunk-manifest.js"
+    "generate-chunk-manifest": "node generate-chunk-manifest.js",
+    "build:release": "powershell -ExecutionPolicy Bypass -File build-and-release.ps1"
   },
   "keywords": [],
   "author": "VR Centre Pty Ltd",
@@ -39,14 +40,29 @@
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Role-Play-AI Launcher",
       "installerIcon": "assets/icon-white_s.ico",
-      "uninstallerIcon": "assets/icon-white_s.ico",
-      "installerSidebar": "build/installerSidebar.bmp",
-      "installerHeader": "build/installerHeader.bmp"
+      "uninstallerIcon": "assets/icon-white_s.ico"
     },
     "directories": {
       "output": "dist"
-    }
+    },
+    "files": [
+      "**/*",
+      "!node_modules/**/*",
+      "!dist/**/*",
+      "!*.md",
+      "!*.ps1",
+      "!*.bat",
+      "!test-server*.js",
+      "!generate-*.js",
+      "!sign.js",
+      "!unused-temp-files/**/*",
+      "!memory-bank/**/*",
+      "!memory--bank/**/*"
+    ]
   },
   "devDependencies": {
     "electron": "^37.2.0",
