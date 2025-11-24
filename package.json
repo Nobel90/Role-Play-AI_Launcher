@@ -25,13 +25,12 @@
     },
     "appId": "com.role-play-ai.launcher",
     "productName": "Role-Play-AI-Launcher",
-    "afterSign": "sign.js",
-    "afterPack": "sign.js",
-    "afterAllArtifactBuild": "sign.js",
+    "afterSign": "scripts/sign-app.js",
+    "afterAllArtifactBuild": "scripts/sign-installer.js",
     "win": {
       "target": "nsis",
       "icon": "assets/icon-white_s.ico",
-      "signAndEditExecutable": false,
+      "signAndEditExecutable": true,
       "signtoolOptions": {
         "signingHashAlgorithms": ["sha256"]
       }
@@ -51,7 +50,6 @@
     },
     "files": [
       "**/*",
-      "!node_modules/**/*",
       "!dist/**/*",
       "!*.md",
       "!*.ps1",
@@ -59,9 +57,13 @@
       "!test-server*.js",
       "!generate-*.js",
       "!sign.js",
+      "!sign-utils.js",
       "!unused-temp-files/**/*",
       "!memory-bank/**/*",
       "!memory--bank/**/*"
+    ],
+    "asarUnpack": [
+      "**/node_modules/electron-updater/**/*"
     ]
   },
   "devDependencies": {
