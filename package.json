@@ -21,7 +21,7 @@
       "provider": "github",
       "owner": "Nobel90",
       "repo": "Role-Play-AI_Launcher",
-      "private": true
+      "private": false
     },
     "appId": "com.role-play-ai.launcher",
     "productName": "Role-Play-AI-Launcher",

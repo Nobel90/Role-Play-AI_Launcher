@@ -25,24 +25,7 @@ Write-Host " IMPORTANT: Ensure your Sectigo USB Token is plugged in" -Foreground
 Write-Host " and the SafeNet Client is 'Ready'." -ForegroundColor Cyan
 Write-Host "========================================================`n" -ForegroundColor Cyan
 
-# 3. Manual Cache Clearing (Replaces the invalid --clear-cache flag)
-Write-Host "🧹 Clearing previous build artifacts..." -ForegroundColor Magenta
-
-# Remove dist folder to force fresh package
-if (Test-Path "dist") {
-    Remove-Item -Path "dist" -Recurse -Force -ErrorAction SilentlyContinue
-    Write-Host "   - Deleted 'dist' folder." -ForegroundColor Gray
-}
-
-# Clear Electron Builder cache (forces re-download of tools/headers if needed)
-# This is located in %LOCALAPPDATA%\electron-builder\Cache on Windows
-$builderCache = "$env:LOCALAPPDATA\electron-builder\Cache"
-if (Test-Path $builderCache) {
-    Write-Host "   - Cleaning Electron Builder cache at $builderCache..." -ForegroundColor Gray
-    Remove-Item -Path $builderCache -Recurse -Force -ErrorAction SilentlyContinue
-}
-
-# 4. Build
+# 3. Build
 Write-Host "`n🚀 Starting Build Process..." -ForegroundColor Magenta
 
 try {
