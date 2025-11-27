@@ -1,7 +1,7 @@
 // Import Firebase modules. The 'type="module"' in the HTML script tag makes this possible.
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 // --- FIREBASE CONFIGURATION ---
 // Use the same configuration from your web dashboard
@@ -20,6 +20,73 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// --- DYNAMIC SETTINGS ---
+let launcherSettings = {
+    ui: {
+        gameTitle: 'Role Play AI',
+        tagline: 'SYNTHETIC SCENES™ – Avatar-Led Role Play Platform',
+        buttons: {},
+        backgroundImageUrl: '',
+        backgroundImages: [],
+        backgroundTransitionTime: 1000,
+        backgroundDisplayTime: 5000,
+        logoUrl: '',
+        gameName: '',
+        headerLinks: []
+    },
+    news: {
+        active: false,
+        text: ''
+    }
+};
+
+// Background slideshow state
+let backgroundSlideshowInterval = null;
+let currentBackgroundIndex = 0;
+
+// Global function to trigger UI updates (will be assigned inside initLauncher)
+let triggerUIUpdate = () => {};
+
+// Listen for realtime settings updates
+onSnapshot(doc(db, "settings", "launcher"), (docSnapshot) => {
+    console.log('Settings update received from Firestore:', docSnapshot.exists());
+    if (docSnapshot.exists()) {
+        const data = docSnapshot.data();
+        console.log('Settings data:', data);
+        
+        if (data.ui) {
+            if (data.ui.gameTitle) launcherSettings.ui.gameTitle = data.ui.gameTitle;
+            if (data.ui.tagline) launcherSettings.ui.tagline = data.ui.tagline;
+            if (data.ui.buttons) {
+                launcherSettings.ui.buttons = { ...launcherSettings.ui.buttons, ...data.ui.buttons };
+            }
+            if (data.ui.backgroundImageUrl !== undefined) launcherSettings.ui.backgroundImageUrl = data.ui.backgroundImageUrl;
+            if (data.ui.backgroundImages) launcherSettings.ui.backgroundImages = data.ui.backgroundImages;
+            if (data.ui.backgroundTransitionTime !== undefined) launcherSettings.ui.backgroundTransitionTime = data.ui.backgroundTransitionTime || 1000;
+            if (data.ui.backgroundDisplayTime !== undefined) launcherSettings.ui.backgroundDisplayTime = data.ui.backgroundDisplayTime || 5000;
+            if (data.ui.logoUrl !== undefined) launcherSettings.ui.logoUrl = data.ui.logoUrl;
+            if (data.ui.gameName !== undefined) launcherSettings.ui.gameName = data.ui.gameName;
+            if (data.ui.headerLinks) launcherSettings.ui.headerLinks = data.ui.headerLinks;
+        }
+        if (data.news) {
+            launcherSettings.news = { ...launcherSettings.news, ...data.news };
+        }
+        
+        console.log('Updated launcherSettings:', launcherSettings);
+        
+        // Trigger UI update if launcher is initialized
+        if (typeof triggerUIUpdate === 'function') {
+            triggerUIUpdate();
+        } else {
+            console.warn('triggerUIUpdate not yet initialized, will update when launcher initializes');
+        }
+    } else {
+        console.log('Settings document does not exist yet, using defaults');
+    }
+}, (error) => {
+    console.error('Error listening to settings:', error);
+});
+
 
 // --- VIEWS & DOM Elements ---
 const loginView = document.getElementById('login-view');
@@ -33,8 +100,7 @@ const userInfo = document.getElementById('user-info');
 const guestInfo = document.getElementById('guest-info');
 const showLoginButton = document.getElementById('show-login-button');
 const backToLauncherButton = document.getElementById('back-to-launcher');
-const websiteLink = document.getElementById('website-link');
-const myAccountLink = document.getElementById('my-account-link');
+// Header links are now dynamically rendered - no static references needed
 
 // --- AUTHENTICATION LOGIC ---
 
@@ -100,15 +166,7 @@ backToLauncherButton.addEventListener('click', () => {
     showLauncher(null);
 });
 
-websiteLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    window.electronAPI.openExternal('https://vrcentre.com.au/');
-});
-
-myAccountLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    window.electronAPI.openExternal('https://vrcentre.com.au/account/');
-});
+// Header links are now dynamically rendered in triggerUIUpdate()
 
 
 // --- VIEW MANAGEMENT ---
@@ -170,6 +228,105 @@ const R2_CONFIG = {
 };
 
 function initLauncher() {
+    // Assign the global trigger function
+    triggerUIUpdate = () => {
+        console.log('triggerUIUpdate called with settings:', launcherSettings);
+        
+        // Update News Bar
+        const newsBar = document.getElementById('news-bar');
+        const newsText = document.getElementById('news-text');
+        if (newsBar && newsText) {
+            if (launcherSettings.news.active && launcherSettings.news.text) {
+                newsBar.classList.remove('hidden');
+                newsBar.classList.add('flex');
+                newsText.innerText = launcherSettings.news.text;
+                console.log('News bar shown:', launcherSettings.news.text);
+            } else {
+                newsBar.classList.add('hidden');
+                newsBar.classList.remove('flex');
+                console.log('News bar hidden');
+            }
+        } else {
+            console.warn('News bar elements not found:', { newsBar, newsText });
+        }
+        
+        // Update Header Links
+        const headerLinksContainer = document.getElementById('header-links-container');
+        if (headerLinksContainer) {
+            headerLinksContainer.innerHTML = '';
+            if (launcherSettings.ui.headerLinks && launcherSettings.ui.headerLinks.length > 0) {
+                const sortedLinks = [...launcherSettings.ui.headerLinks].sort((a, b) => (a.order || 0) - (b.order || 0));
+                sortedLinks.forEach(link => {
+                    const linkEl = document.createElement('a');
+                    linkEl.href = link.url || '#';
+                    linkEl.textContent = link.text || 'LINK';
+                    linkEl.className = 'hover:text-white transition-all duration-300 font-semibold hover:scale-105 active:scale-95';
+                    linkEl.addEventListener('click', (e) => {
+                        if (link.url && link.url !== '#') {
+                            e.preventDefault();
+                            window.electronAPI.openExternal(link.url);
+                        }
+                    });
+                    headerLinksContainer.appendChild(linkEl);
+                });
+            } else {
+                // Fallback to default links if none configured
+                const defaultWebsite = document.createElement('a');
+                defaultWebsite.href = '#';
+                defaultWebsite.textContent = 'WEBSITE';
+                defaultWebsite.className = 'hover:text-white transition-all duration-300 font-semibold hover:scale-105 active:scale-95';
+                defaultWebsite.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    window.electronAPI.openExternal('https://vrcentre.com.au/');
+                });
+                headerLinksContainer.appendChild(defaultWebsite);
+            }
+        }
+        
+        // Update Sidebar Logo and Game Name
+        const gameListEl = document.getElementById('game-list');
+        if (gameListEl) {
+            // Update logo images
+            if (launcherSettings.ui.logoUrl) {
+                const logoElements = gameListEl.querySelectorAll('.game-logo');
+                logoElements.forEach(logo => {
+                    logo.src = launcherSettings.ui.logoUrl;
+                });
+            }
+            
+            // Update game name text
+            if (launcherSettings.ui.gameName) {
+                const textElements = gameListEl.querySelectorAll('.game-text');
+                textElements.forEach(textEl => {
+                    textEl.textContent = launcherSettings.ui.gameName;
+                });
+                
+                // Also update logo alt text and title (tooltip)
+                const logoElements = gameListEl.querySelectorAll('.game-logo');
+                logoElements.forEach(logo => {
+                    logo.alt = `${launcherSettings.ui.gameName} Logo`;
+                    logo.title = launcherSettings.ui.gameName;
+                });
+            }
+        }
+        
+        // Restart slideshow if settings changed
+        if (typeof startBackgroundSlideshow === 'function') {
+            startBackgroundSlideshow();
+        }
+        
+        // Update game UI if launcher is initialized
+        if (typeof currentGameId !== 'undefined' && typeof renderGame === 'function') {
+            console.log('Calling renderGame for:', currentGameId);
+            renderGame(currentGameId);
+        } else {
+            console.warn('Cannot update game UI - launcher not fully initialized:', {
+                currentGameId: typeof currentGameId,
+                renderGame: typeof renderGame
+            });
+        }
+    };
+
     // All of your original launcher code goes here.
     let gameLibrary = {
         'RolePlayAI': {
@@ -234,39 +391,182 @@ function initLauncher() {
 
     // Sidebar toggle functionality
     function toggleSidebar() {
-        sidebarEl.classList.toggle('expanded');
-        sidebarEl.classList.toggle('collapsed');
+        // Ensure only one class is active at a time
+        const isCurrentlyExpanded = sidebarEl.classList.contains('expanded');
         
-        // Save sidebar state to localStorage
-        const isExpanded = sidebarEl.classList.contains('expanded');
-        localStorage.setItem('sidebarExpanded', isExpanded);
+        if (isCurrentlyExpanded) {
+            sidebarEl.classList.remove('expanded');
+            sidebarEl.classList.add('collapsed');
+            localStorage.setItem('sidebarExpanded', 'false');
+        } else {
+            sidebarEl.classList.remove('collapsed');
+            sidebarEl.classList.add('expanded');
+            localStorage.setItem('sidebarExpanded', 'true');
+        }
     }
 
     // Initialize sidebar state from localStorage
     function initializeSidebar() {
+        // Remove both classes first to ensure clean state
+        sidebarEl.classList.remove('expanded', 'collapsed');
+        
         const savedState = localStorage.getItem('sidebarExpanded');
-        if (savedState === null) {
-            // Default to collapsed on first visit for better UX
-            sidebarEl.classList.add('collapsed');
-            localStorage.setItem('sidebarExpanded', 'false');
-        } else if (savedState === 'true') {
+        if (savedState === 'true') {
             sidebarEl.classList.add('expanded');
         } else {
+            // Default to collapsed on first visit or if state is false/null
             sidebarEl.classList.add('collapsed');
+            if (savedState === null) {
+                localStorage.setItem('sidebarExpanded', 'false');
+            }
         }
+    }
+
+    // Background slideshow function
+    function startBackgroundSlideshow() {
+        // Clear existing interval
+        if (backgroundSlideshowInterval) {
+            clearInterval(backgroundSlideshowInterval);
+            backgroundSlideshowInterval = null;
+        }
+        
+        const gameBgEl = document.getElementById('game-background');
+        const gameBgNextEl = document.getElementById('game-background-next');
+        
+        if (!gameBgEl) {
+            console.warn('Background element not found, skipping slideshow');
+            return;
+        }
+        
+        const images = launcherSettings.ui.backgroundImages || [];
+        if (images.length === 0) {
+            // No slideshow images, use single background URL or default
+            const defaultUrl = launcherSettings.ui.backgroundImageUrl || gameLibrary[currentGameId]?.backgroundUrl || '';
+            if (defaultUrl) {
+                gameBgEl.src = defaultUrl;
+                gameBgEl.style.opacity = '1';
+            }
+            return;
+        }
+        
+        // Filter out empty URLs and sort by order
+        const validImages = images.filter(img => img.url && img.url.trim() !== '').sort((a, b) => (a.order || 0) - (b.order || 0));
+        if (validImages.length === 0) {
+            const defaultUrl = launcherSettings.ui.backgroundImageUrl || gameLibrary[currentGameId]?.backgroundUrl || '';
+            if (defaultUrl) {
+                gameBgEl.src = defaultUrl;
+                gameBgEl.style.opacity = '1';
+            }
+            return;
+        }
+        
+        const transitionTime = launcherSettings.ui.backgroundTransitionTime || 1000;
+        const displayTime = launcherSettings.ui.backgroundDisplayTime || 5000;
+        currentBackgroundIndex = 0;
+        
+        // Set initial image
+        if (validImages[0]) {
+            gameBgEl.src = validImages[0].url;
+            gameBgEl.style.opacity = '1';
+            gameBgEl.style.transition = `opacity ${transitionTime}ms ease-in-out`;
+        }
+        
+        // If only one image, no need for slideshow
+        if (validImages.length === 1) return;
+        
+        // Start slideshow
+        backgroundSlideshowInterval = setInterval(() => {
+            const bgEl = document.getElementById('game-background');
+            const bgNextEl = document.getElementById('game-background-next');
+            
+            if (!bgEl) {
+                console.warn('Background element not found in slideshow interval');
+                return;
+            }
+            
+            // Skip transition during active operations
+            const game = gameLibrary[currentGameId];
+            const activeStates = ['downloading', 'paused', 'syncing', 'verifying', 'checking_update', 'moving'];
+            if (game && activeStates.includes(game.status)) {
+                return;
+            }
+            
+            currentBackgroundIndex = (currentBackgroundIndex + 1) % validImages.length;
+            const nextImage = validImages[currentBackgroundIndex];
+            
+            // Crossfade: fade out current, fade in next
+            if (bgNextEl) {
+                // Set next image
+                bgNextEl.src = nextImage.url;
+                bgNextEl.style.opacity = '0';
+                bgNextEl.style.transition = `opacity ${transitionTime}ms ease-in-out`;
+                
+                // Fade in next, fade out current
+                setTimeout(() => {
+                    bgNextEl.style.opacity = '1';
+                    bgEl.style.opacity = '0';
+                }, 50);
+                
+                // Swap after transition
+                setTimeout(() => {
+                    bgEl.src = nextImage.url;
+                    bgEl.style.opacity = '1';
+                    bgNextEl.style.opacity = '0';
+                }, transitionTime);
+            } else {
+                // Fallback if next element doesn't exist - simple fade
+                bgEl.style.opacity = '0';
+                setTimeout(() => {
+                    bgEl.src = nextImage.url;
+                    bgEl.style.opacity = '1';
+                }, transitionTime);
+            }
+        }, displayTime + transitionTime);
     }
 
     function renderGame(gameId) {
         const game = gameLibrary[gameId];
         if (!game) return;
-        gameBgEl.style.opacity = '0';
-        setTimeout(() => {
-            gameBgEl.src = game.backgroundUrl;
-            gameBgEl.onload = () => { gameBgEl.style.opacity = '1'; };
-        }, 500);
-        gameTitleEl.innerText = game.name;
-        gameTaglineEl.innerText = game.tagline;
-        gameVersionEl.innerText = 'Version ' + (game.version || 'N/A');
+        
+        // Don't update background during active operations to prevent flashing
+        const activeStates = ['downloading', 'paused', 'syncing', 'verifying', 'checking_update', 'moving'];
+        const isActiveOperation = activeStates.includes(game.status);
+        
+        // Handle background: slideshow if configured, otherwise single image or default
+        if (!isActiveOperation) {
+            const hasSlideshowImages = launcherSettings.ui.backgroundImages && launcherSettings.ui.backgroundImages.length > 0;
+            if (hasSlideshowImages) {
+                // Start slideshow
+                startBackgroundSlideshow();
+            } else {
+                // No slideshow, use single background URL or default
+                const newBackgroundUrl = launcherSettings.ui.backgroundImageUrl || game.backgroundUrl;
+                if (gameBgEl.src !== newBackgroundUrl && gameBgEl.src !== '') {
+                    gameBgEl.style.opacity = '0';
+                    setTimeout(() => {
+                        gameBgEl.src = newBackgroundUrl;
+                        gameBgEl.onload = () => { gameBgEl.style.opacity = '1'; };
+                    }, 500);
+                } else if (gameBgEl.src === '' && newBackgroundUrl) {
+                    // Initial load
+                    gameBgEl.src = newBackgroundUrl;
+                    gameBgEl.onload = () => { gameBgEl.style.opacity = '1'; };
+                }
+            }
+        }
+        
+        gameTitleEl.innerText = launcherSettings.ui.gameTitle || game.name;
+        gameTaglineEl.innerText = launcherSettings.ui.tagline || game.tagline;
+        
+        // Enhanced version display: show current and latest if update available
+        const currentVersion = game.localVersion || game.version || 'N/A';
+        const latestVersion = game.version || 'N/A';
+        if (game.status === 'needs_update' && latestVersion !== currentVersion) {
+            gameVersionEl.innerText = `v${currentVersion} (Latest: v${latestVersion})`;
+        } else {
+            gameVersionEl.innerText = `v${currentVersion}`;
+        }
+        
         updateButtonAndStatus(game);
         document.querySelectorAll('.game-logo').forEach(logo => {
             logo.classList.toggle('game-logo-active', logo.dataset.gameId === gameId);
@@ -292,7 +592,7 @@ function initLauncher() {
         
         switch (game.status) {
             case 'installed':
-                actionButtonEl.innerText = 'LAUNCH';
+                actionButtonEl.innerText = launcherSettings.ui.buttons.installed || 'LAUNCH';
                 actionButtonEl.classList.add('bg-green-500', 'hover:bg-green-600', 'btn-glow');
                 gameStatusTextEl.innerText = 'Ready to Launch!';
                 settingsButtonEl.classList.remove('hidden');
@@ -309,7 +609,7 @@ function initLauncher() {
                 uninstallButtonEl.style.cursor = 'pointer';
                 break;
             case 'needs_update':
-                actionButtonEl.innerText = 'UPDATE';
+                actionButtonEl.innerText = launcherSettings.ui.buttons.needs_update || 'UPDATE';
                 actionButtonEl.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
                 gameStatusTextEl.innerText = `Update available!`;
                 settingsButtonEl.classList.remove('hidden');
@@ -325,7 +625,7 @@ function initLauncher() {
                 uninstallButtonEl.style.cursor = 'pointer';
                 break;
             case 'needs_sync':
-                actionButtonEl.innerText = 'SYNC FILES';
+                actionButtonEl.innerText = launcherSettings.ui.buttons.needs_sync || 'SYNC FILES';
                 actionButtonEl.classList.add('bg-orange-500', 'hover:bg-orange-600');
                 gameStatusTextEl.innerText = 'Version mismatch detected. Click to sync files.';
                 settingsButtonEl.classList.remove('hidden');
@@ -348,7 +648,7 @@ function initLauncher() {
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    SYNCING...
+                    ${launcherSettings.ui.buttons.syncing || 'SYNCING...'}
                 `;
                 actionButtonEl.classList.add('bg-gray-500', 'cursor-not-allowed');
                 gameStatusTextEl.innerText = 'Syncing files... This may take a few minutes.';
@@ -382,7 +682,7 @@ function initLauncher() {
                 uninstallButtonEl.style.cursor = 'not-allowed';
                 break;
             case 'uninstalled':
-                actionButtonEl.innerText = 'INSTALL';
+                actionButtonEl.innerText = launcherSettings.ui.buttons.uninstalled || 'INSTALL';
                 actionButtonEl.classList.add('bg-blue-500', 'hover:bg-blue-600', 'btn-glow');
                 gameStatusTextEl.innerText = 'Not Installed';
                 locateGameContainerEl.classList.remove('hidden');
@@ -395,7 +695,7 @@ function initLauncher() {
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    VERIFYING...
+                    ${launcherSettings.ui.buttons.verifying || 'VERIFYING...'}
                 `;
                 actionButtonEl.classList.add('bg-gray-500', 'cursor-not-allowed');
                 gameStatusTextEl.innerText = 'Verifying game files... This may take a few minutes.';
@@ -430,7 +730,7 @@ function initLauncher() {
                 break;
             case 'moving':
                 actionButtonEl.disabled = true;
-                actionButtonEl.innerText = 'MOVING...';
+                actionButtonEl.innerText = launcherSettings.ui.buttons.moving || 'MOVING...';
                 actionButtonEl.classList.add('bg-gray-500', 'cursor-not-allowed');
                 gameStatusTextEl.innerText = 'Moving game files to a new location...';
                 settingsButtonEl.classList.add('hidden');
@@ -445,7 +745,7 @@ function initLauncher() {
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    VERIFYING...
+                    ${launcherSettings.ui.buttons.checking_update || 'VERIFYING...'}
                 `;
                 actionButtonEl.classList.add('bg-gray-500', 'cursor-not-allowed');
                 gameStatusTextEl.innerText = 'Verifying files... This may take a few minutes.';
@@ -684,7 +984,7 @@ function initLauncher() {
                 } else {
                     if (game.manifestType === 'chunk-based') {
                         const totalChunks = game.filesToUpdate.reduce((sum, file) => sum + (file.chunks ? file.chunks.length : 0), 0);
-                        gameStatusTextEl.innerText = result.message || `Update available. ${game.filesToUpdate.length} files, ${totalChunks} chunks to download.`;
+                        gameStatusTextEl.innerText = result.message || `Update available. ${game.filesToUpdate.length} files, ${totalChunks} parts to download.`;
                     } else {
                         gameStatusTextEl.innerText = result.message || `Update available. ${game.filesToUpdate.length} files to download.`;
                     }
@@ -855,7 +1155,7 @@ function initLauncher() {
                 } else {
                     if (game.manifestType === 'chunk-based') {
                         const totalChunks = game.filesToUpdate.reduce((sum, file) => sum + (file.chunks ? file.chunks.length : 0), 0);
-                        gameStatusTextEl.innerText = result.message || `Update available. ${game.filesToUpdate.length} files, ${totalChunks} chunks to download.`;
+                        gameStatusTextEl.innerText = result.message || `Update available. ${game.filesToUpdate.length} files, ${totalChunks} parts to download.`;
                     } else {
                         gameStatusTextEl.innerText = result.message || `Update available. ${game.filesToUpdate.length} files to download.`;
                     }
@@ -1063,15 +1363,15 @@ function initLauncher() {
             
             // Create logo element - larger size
             const logoEl = document.createElement('img');
-            logoEl.src = game.logoUrl;
-            logoEl.alt = `${game.name} Logo`;
+            logoEl.src = launcherSettings.ui.logoUrl || game.logoUrl;
+            logoEl.alt = `${launcherSettings.ui.gameName || game.name} Logo`;
             logoEl.className = 'w-12 h-12 rounded-lg cursor-pointer transition-all duration-300 hover:scale-110 game-logo flex-shrink-0';
             logoEl.dataset.gameId = gameId;
-            logoEl.title = game.name; // Tooltip for collapsed state
+            logoEl.title = launcherSettings.ui.gameName || game.name; // Tooltip for collapsed state
             
             // Create text element (hidden when collapsed) - larger size
             const textEl = document.createElement('span');
-            textEl.textContent = game.name;
+            textEl.textContent = launcherSettings.ui.gameName || game.name;
             textEl.className = 'text-white font-medium text-base whitespace-nowrap opacity-0 transition-opacity duration-300 game-text';
             
             // Add click handler to the container
@@ -1220,14 +1520,14 @@ function initLauncher() {
                         gameStatusTextEl.innerText = `Reconstructing files... (${state.filesDownloaded}/${state.totalFiles})`;
                     } else {
                         // Chunk-based or file-based downloading
-                        if (state.totalChunks && state.chunksDownloaded !== undefined) {
+                            if (state.totalChunks && state.chunksDownloaded !== undefined) {
                             // Chunk-based download
                             if (state.totalBytes > 0) {
-                                progressTextEl.innerText = `Downloading chunks: ${state.chunksDownloaded}/${state.totalChunks} (${formatBytes(state.downloadedBytes)} / ${formatBytes(state.totalBytes)})`;
+                                progressTextEl.innerText = `Downloading parts: ${state.chunksDownloaded}/${state.totalChunks} (${formatBytes(state.downloadedBytes)} / ${formatBytes(state.totalBytes)})`;
                             } else {
-                                progressTextEl.innerText = `Downloading chunks: ${state.chunksDownloaded}/${state.totalChunks}`;
+                                progressTextEl.innerText = `Downloading parts: ${state.chunksDownloaded}/${state.totalChunks}`;
                             }
-                            gameStatusTextEl.innerText = `Downloading chunks... (${state.chunksDownloaded}/${state.totalChunks} chunks)`;
+                            gameStatusTextEl.innerText = `Downloading parts... (${state.chunksDownloaded}/${state.totalChunks} parts)`;
                         } else {
                             // File-based download
                             if (state.totalBytes > 0) {
@@ -1300,6 +1600,14 @@ function initLauncher() {
         });
 
         renderGame(currentGameId);
+        
+        // Start slideshow after UI is initialized
+        startBackgroundSlideshow();
+        
+        // Trigger UI update after initialization to apply any loaded settings
+        if (typeof triggerUIUpdate === 'function') {
+            triggerUIUpdate();
+        }
     }
     
     // This is the initial call that starts the launcher logic
