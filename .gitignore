@@ -31,3 +31,6 @@ Thumbs.db
 
 # Unused/temporary files (old implementations)
 unused-temp-files/
+
+# Separate Admin project (has its own repository)
+RolePlayAI_Admin/
