@@ -201,14 +201,14 @@ const exports = module.exports = async function (configuration) {
   // 2. SIGNING LOGIC
   // Sign all signable file types (exe, dll, sys, ocx, msi, etc.)
   if (shouldSignFile(filePath)) {
-    const timestampServer = process.env.WIN_TIMESTAMP_SERVER || 'http://timestamp.digicert.com';
-    
+  const timestampServer = process.env.WIN_TIMESTAMP_SERVER || 'http://timestamp.digicert.com';
+
     // Call signing function - it will THROW an error if signtool fails to stop the build
     // Do not catch errors silently
     if (process.env.WIN_CERTIFICATE_SHA1) {
       signFileWithToken(filePath, process.env.WIN_CERTIFICATE_SHA1, timestampServer);
     } else if (process.env.WIN_CERTIFICATE_FILE) {
-      const certificatePassword = process.env.WIN_CERTIFICATE_PASSWORD || '';
+  const certificatePassword = process.env.WIN_CERTIFICATE_PASSWORD || '';
       signFileWithCertificate(filePath, process.env.WIN_CERTIFICATE_FILE, certificatePassword, timestampServer);
     }
     
