@@ -27,6 +27,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     
     // --- Browser/OS Interaction ---
     openExternal: (url) => ipcRenderer.send('open-external', url),
+    closeWindow: () => ipcRenderer.send('close-window'),
     
     // --- Other Event Listeners ---
     onUninstallComplete: (callback) => ipcRenderer.on('uninstall-complete', () => callback()),

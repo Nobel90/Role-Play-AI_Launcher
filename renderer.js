@@ -1,7 +1,7 @@
 // Import Firebase modules. The 'type="module"' in the HTML script tag makes this possible.
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, onSnapshot, collection, query, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 // --- FIREBASE CONFIGURATION ---
 // Use the same configuration from your web dashboard
@@ -40,6 +40,93 @@ let launcherSettings = {
     }
 };
 
+// Apps library - stores all apps from Firestore
+let appsLibrary = {};
+
+// Favorites management
+const FAVORITES_STORAGE_KEY = 'launcher_favorites';
+const DEFAULT_FAVORITES = ['RolePlayAI'];
+
+function getFavorites() {
+    try {
+        const stored = localStorage.getItem(FAVORITES_STORAGE_KEY);
+        if (stored) {
+            const parsed = JSON.parse(stored);
+            // Ensure RolePlayAI is always in favorites
+            if (!parsed.includes('RolePlayAI')) {
+                parsed.unshift('RolePlayAI');
+                localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(parsed));
+            }
+            return parsed;
+        }
+    } catch (e) {
+        console.error('Error reading favorites:', e);
+    }
+    return DEFAULT_FAVORITES;
+}
+
+function addToFavorites(appId) {
+    const favorites = getFavorites();
+    if (!favorites.includes(appId)) {
+        favorites.push(appId);
+        localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favorites));
+        return true;
+    }
+    return false;
+}
+
+function removeFromFavorites(appId) {
+    // Don't allow removing RolePlayAI
+    if (appId === 'RolePlayAI') {
+        return false;
+    }
+    const favorites = getFavorites();
+    const index = favorites.indexOf(appId);
+    if (index > -1) {
+        favorites.splice(index, 1);
+        localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favorites));
+        return true;
+    }
+    return false;
+}
+
+function isFavorite(appId) {
+    return getFavorites().includes(appId);
+}
+
+// Toast notification function
+function showToast(message, duration = 3000) {
+    const toast = document.getElementById('toast-notification');
+    const toastMessage = document.getElementById('toast-message');
+    
+    if (!toast || !toastMessage) return;
+    
+    toastMessage.textContent = message;
+    
+    // Remove hidden class and reset to initial state
+    toast.classList.remove('hidden');
+    toast.classList.add('opacity-0', '-translate-y-2');
+    
+    // Force reflow to ensure initial state is applied
+    void toast.offsetHeight;
+    
+    // Animate in
+    setTimeout(() => {
+        toast.classList.remove('opacity-0', '-translate-y-2');
+        toast.classList.add('opacity-100', 'translate-y-0');
+    }, 10);
+    
+    // Auto-dismiss after duration
+    setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', '-translate-y-2');
+        
+        setTimeout(() => {
+            toast.classList.add('hidden');
+        }, 300); // Wait for fade-out animation
+    }, duration);
+}
+
 // Background slideshow state
 let backgroundSlideshowInterval = null;
 let currentBackgroundIndex = 0;
@@ -47,44 +134,97 @@ let currentBackgroundIndex = 0;
 // Global function to trigger UI updates (will be assigned inside initLauncher)
 let triggerUIUpdate = () => {};
 
-// Listen for realtime settings updates
-onSnapshot(doc(db, "settings", "launcher"), (docSnapshot) => {
-    console.log('Settings update received from Firestore:', docSnapshot.exists());
+// Listen for app settings updates
+// Try new structure first: apps/{appId}
+// Fallback to legacy: settings/launcher
+onSnapshot(doc(db, "apps", "RolePlayAI"), (docSnapshot) => {
     if (docSnapshot.exists()) {
+        const appId = 'RolePlayAI';
         const data = docSnapshot.data();
-        console.log('Settings data:', data);
         
-        if (data.ui) {
-            if (data.ui.gameTitle) launcherSettings.ui.gameTitle = data.ui.gameTitle;
-            if (data.ui.tagline) launcherSettings.ui.tagline = data.ui.tagline;
-            if (data.ui.buttons) {
-                launcherSettings.ui.buttons = { ...launcherSettings.ui.buttons, ...data.ui.buttons };
+        appsLibrary[appId] = {
+            appId: appId,
+            name: data.name || appId,
+            ui: data.ui || {},
+            news: data.news || { active: false, text: '' }
+        };
+        
+        // If this is the current app, update launcherSettings
+        if (appId === currentGameId || !currentGameId) {
+            if (data.ui) {
+                if (data.ui.gameTitle) launcherSettings.ui.gameTitle = data.ui.gameTitle;
+                if (data.ui.tagline) launcherSettings.ui.tagline = data.ui.tagline;
+                if (data.ui.buttons) {
+                    launcherSettings.ui.buttons = { ...launcherSettings.ui.buttons, ...data.ui.buttons };
+                }
+                if (data.ui.backgroundImageUrl !== undefined) launcherSettings.ui.backgroundImageUrl = data.ui.backgroundImageUrl;
+                if (data.ui.backgroundImages) launcherSettings.ui.backgroundImages = data.ui.backgroundImages;
+                if (data.ui.backgroundTransitionTime !== undefined) launcherSettings.ui.backgroundTransitionTime = data.ui.backgroundTransitionTime || 1000;
+                if (data.ui.backgroundDisplayTime !== undefined) launcherSettings.ui.backgroundDisplayTime = data.ui.backgroundDisplayTime || 5000;
+                if (data.ui.logoUrl !== undefined) launcherSettings.ui.logoUrl = data.ui.logoUrl;
+                if (data.ui.gameName !== undefined) launcherSettings.ui.gameName = data.ui.gameName;
+                if (data.ui.headerLinks) launcherSettings.ui.headerLinks = data.ui.headerLinks;
             }
-            if (data.ui.backgroundImageUrl !== undefined) launcherSettings.ui.backgroundImageUrl = data.ui.backgroundImageUrl;
-            if (data.ui.backgroundImages) launcherSettings.ui.backgroundImages = data.ui.backgroundImages;
-            if (data.ui.backgroundTransitionTime !== undefined) launcherSettings.ui.backgroundTransitionTime = data.ui.backgroundTransitionTime || 1000;
-            if (data.ui.backgroundDisplayTime !== undefined) launcherSettings.ui.backgroundDisplayTime = data.ui.backgroundDisplayTime || 5000;
-            if (data.ui.logoUrl !== undefined) launcherSettings.ui.logoUrl = data.ui.logoUrl;
-            if (data.ui.gameName !== undefined) launcherSettings.ui.gameName = data.ui.gameName;
-            if (data.ui.headerLinks) launcherSettings.ui.headerLinks = data.ui.headerLinks;
-        }
-        if (data.news) {
-            launcherSettings.news = { ...launcherSettings.news, ...data.news };
+            if (data.news) {
+                launcherSettings.news = { ...launcherSettings.news, ...data.news };
+            }
+            
+            // Trigger UI update
+            if (typeof triggerUIUpdate === 'function') {
+                triggerUIUpdate();
+            }
         }
         
-        console.log('Updated launcherSettings:', launcherSettings);
-        
-        // Trigger UI update if launcher is initialized
-        if (typeof triggerUIUpdate === 'function') {
-            triggerUIUpdate();
-        } else {
-            console.warn('triggerUIUpdate not yet initialized, will update when launcher initializes');
+        if (typeof renderAppFavorites === 'function') {
+            renderAppFavorites();
         }
-    } else {
-        console.log('Settings document does not exist yet, using defaults');
     }
 }, (error) => {
-    console.error('Error listening to settings:', error);
+    console.log('New app structure not found, trying legacy launcher document:', error.message);
+    // Fallback to legacy launcher document
+    onSnapshot(doc(db, "settings", "launcher"), (docSnapshot) => {
+        if (docSnapshot.exists()) {
+            const data = docSnapshot.data();
+            appsLibrary['RolePlayAI'] = {
+                appId: 'RolePlayAI',
+                name: 'Role Play AI',
+                ui: data.ui || {},
+                news: data.news || { active: false, text: '' }
+            };
+            
+            // Update launcherSettings if RolePlayAI is current
+            if (currentGameId === 'RolePlayAI' || !currentGameId) {
+                if (data.ui) {
+                    if (data.ui.gameTitle) launcherSettings.ui.gameTitle = data.ui.gameTitle;
+                    if (data.ui.tagline) launcherSettings.ui.tagline = data.ui.tagline;
+                    if (data.ui.buttons) {
+                        launcherSettings.ui.buttons = { ...launcherSettings.ui.buttons, ...data.ui.buttons };
+                    }
+                    if (data.ui.backgroundImageUrl !== undefined) launcherSettings.ui.backgroundImageUrl = data.ui.backgroundImageUrl;
+                    if (data.ui.backgroundImages) launcherSettings.ui.backgroundImages = data.ui.backgroundImages;
+                    if (data.ui.backgroundTransitionTime !== undefined) launcherSettings.ui.backgroundTransitionTime = data.ui.backgroundTransitionTime || 1000;
+                    if (data.ui.backgroundDisplayTime !== undefined) launcherSettings.ui.backgroundDisplayTime = data.ui.backgroundDisplayTime || 5000;
+                    if (data.ui.logoUrl !== undefined) launcherSettings.ui.logoUrl = data.ui.logoUrl;
+                    if (data.ui.gameName !== undefined) launcherSettings.ui.gameName = data.ui.gameName;
+                    if (data.ui.headerLinks) launcherSettings.ui.headerLinks = data.ui.headerLinks;
+                }
+                if (data.news) {
+                    launcherSettings.news = { ...launcherSettings.news, ...data.news };
+                }
+                
+                // Trigger UI update
+                if (typeof triggerUIUpdate === 'function') {
+                    triggerUIUpdate();
+                }
+            }
+            
+            if (typeof renderAppFavorites === 'function') {
+                renderAppFavorites();
+            }
+        }
+    }, (legacyError) => {
+        console.error('Error listening to legacy launcher settings:', legacyError);
+    });
 });
 
 
@@ -95,7 +235,7 @@ const loginForm = document.getElementById('electron-login-form');
 const errorMessage = document.getElementById('error-message');
 const loginButton = document.getElementById('login-button');
 const usernameDisplay = document.getElementById('username-display');
-const logoutButton = document.getElementById('logout-button');
+const logoutButton = document.getElementById('logout-button'); // Old logout button (may not exist in new design)
 const userInfo = document.getElementById('user-info');
 const guestInfo = document.getElementById('guest-info');
 const showLoginButton = document.getElementById('show-login-button');
@@ -154,9 +294,12 @@ loginForm.addEventListener('submit', async (e) => {
     }
 });
 
-logoutButton.addEventListener('click', () => {
-    signOut(auth);
-});
+// Logout button handler (if it exists - new design uses dropdown)
+if (logoutButton) {
+    logoutButton.addEventListener('click', () => {
+        signOut(auth);
+    });
+}
 
 showLoginButton.addEventListener('click', () => {
     showLogin();
@@ -202,6 +345,348 @@ function showLogin() {
     errorMessage.textContent = '';
 }
 
+// --- VIEW MANAGEMENT SYSTEM ---
+let currentView = 'home'; // 'home', 'apps', 'shop', 'app-detail'
+let currentSelectedApp = null;
+let gameLibrary = null; // Will be set in initLauncher
+
+const homeView = document.getElementById('home-view');
+const appsView = document.getElementById('apps-view');
+const shopView = document.getElementById('shop-view');
+const appDetailView = document.getElementById('app-detail-view');
+const navTabs = document.querySelectorAll('.nav-tab');
+const logoDropdown = document.getElementById('logo-dropdown');
+const logoDropdownToggle = document.getElementById('logo-dropdown-toggle');
+const appFavoritesContainer = document.getElementById('app-favorites-container');
+const appsGrid = document.getElementById('apps-grid');
+
+// Switch between views
+function switchView(viewName) {
+    // Hide all views
+    homeView.classList.add('hidden');
+    appsView.classList.add('hidden');
+    shopView.classList.add('hidden');
+    appDetailView.classList.add('hidden');
+    
+    // Remove active class from all tabs
+    navTabs.forEach(tab => tab.classList.remove('active'));
+    
+    // Show selected view
+    if (viewName === 'home') {
+        homeView.classList.remove('hidden');
+        document.querySelector('.nav-tab[data-view="home"]')?.classList.add('active');
+        currentView = 'home';
+    } else if (viewName === 'apps') {
+        appsView.classList.remove('hidden');
+        document.querySelector('.nav-tab[data-view="apps"]')?.classList.add('active');
+        currentView = 'apps';
+        renderAppsGrid();
+    } else if (viewName === 'shop') {
+        shopView.classList.remove('hidden');
+        document.querySelector('.nav-tab[data-view="shop"]')?.classList.add('active');
+        currentView = 'shop';
+    } else if (viewName === 'app-detail') {
+        appDetailView.classList.remove('hidden');
+        currentView = 'app-detail';
+        console.log('Switched to app-detail view');
+    }
+}
+
+// Global renderGame function (will be assigned in initLauncher)
+let renderGame = null;
+
+// Global currentGameId (will be set in initLauncher, but needs to be accessible globally)
+let currentGameId = 'RolePlayAI'; // Default value
+
+// Select an app and show its detail view
+function selectApp(gameId) {
+    console.log('selectApp called with:', gameId);
+    console.log('gameLibrary:', gameLibrary);
+    console.log('appsLibrary:', appsLibrary);
+    
+    if (!gameId) {
+        console.error('selectApp called with invalid gameId');
+        return;
+    }
+    
+    // Check if game exists
+    if (!gameLibrary || !gameLibrary[gameId]) {
+        console.error('Game not found in gameLibrary:', gameId, 'Available games:', gameLibrary ? Object.keys(gameLibrary) : 'gameLibrary is null');
+        return;
+    }
+    
+    currentSelectedApp = gameId;
+    currentGameId = gameId;
+    
+    // Load app settings from appsLibrary
+    if (appsLibrary[gameId]) {
+        const appData = appsLibrary[gameId];
+        if (appData.ui) {
+            launcherSettings.ui = { ...launcherSettings.ui, ...appData.ui };
+        }
+        if (appData.news) {
+            launcherSettings.news = { ...launcherSettings.news, ...appData.news };
+        }
+    }
+    
+    console.log('Switching to app-detail view for:', gameId);
+    switchView('app-detail');
+    
+    if (renderGame && typeof renderGame === 'function') {
+        console.log('Calling renderGame for:', gameId);
+        renderGame(gameId);
+    } else {
+        console.warn('renderGame not yet initialized');
+    }
+    
+    // Update favorites bar selection
+    updateFavoritesSelection(gameId);
+    
+    // Trigger UI update
+    if (typeof triggerUIUpdate === 'function') {
+        triggerUIUpdate();
+    }
+}
+
+// Render apps grid
+function renderAppsGrid() {
+    if (!appsGrid) return;
+    
+    appsGrid.innerHTML = '';
+    
+    // Combine apps from appsLibrary and gameLibrary
+    const allAppIds = new Set();
+    if (appsLibrary) {
+        Object.keys(appsLibrary).forEach(id => allAppIds.add(id));
+    }
+    if (gameLibrary) {
+        Object.keys(gameLibrary).forEach(id => allAppIds.add(id));
+    }
+    
+    const favorites = getFavorites();
+    
+    allAppIds.forEach((appId) => {
+        const appData = appsLibrary[appId];
+        const gameData = gameLibrary && gameLibrary[appId];
+        
+        const appName = appData?.name || gameData?.name || appId;
+        const tagline = appData?.ui?.tagline || gameData?.tagline || '';
+        const status = gameData?.status || 'uninstalled';
+        const statusBadge = getStatusBadge(status);
+        const logoUrl = (appData?.ui?.logoUrl) || (gameData?.logoUrl) || 'assets/icon-white_s.png';
+        const isFav = isFavorite(appId);
+        
+        const card = document.createElement('div');
+        card.className = 'app-card p-6 relative cursor-pointer';
+        card.dataset.appId = appId; // Store app ID for easier access
+        
+        card.innerHTML = `
+            <div class="flex flex-col items-center text-center">
+                <div class="relative w-24 h-24 mb-4">
+                    <img src="${logoUrl}" alt="${appName}" class="w-full h-full rounded-lg object-cover">
+                    <button class="favorite-toggle absolute top-0 right-0 p-1 rounded-full bg-gray-900/80 hover:bg-gray-800 transition-all ${isFav ? 'text-yellow-400' : 'text-gray-400'}" 
+                            data-app-id="${appId}" data-is-favorite="${isFav}">
+                        <svg class="w-5 h-5" fill="${isFav ? 'currentColor' : 'none'}" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                        </svg>
+                    </button>
+                </div>
+                <h3 class="text-lg font-semibold mb-2">${appName}</h3>
+                <p class="text-sm text-gray-400 mb-3">${tagline}</p>
+                ${statusBadge}
+            </div>
+        `;
+        
+        // Add click handler for the card (but not for the favorite button)
+        card.addEventListener('click', (e) => {
+            // Don't trigger if clicking the favorite button
+            if (e.target.closest('.favorite-toggle')) return;
+            console.log('App card clicked:', appId);
+            selectApp(appId);
+        });
+        
+        // Add click handler for the favorite button
+        const favoriteButton = card.querySelector('.favorite-toggle');
+        if (favoriteButton) {
+            favoriteButton.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent card click
+                const appIdToToggle = favoriteButton.dataset.appId;
+                const isCurrentlyFavorite = favoriteButton.dataset.isFavorite === 'true';
+                
+                if (isCurrentlyFavorite) {
+                    removeFromFavorites(appIdToToggle);
+                } else {
+                    addToFavorites(appIdToToggle);
+                }
+                
+                // Re-render to update UI
+                renderAppFavorites();
+                renderAppsGrid();
+            });
+        }
+        
+        appsGrid.appendChild(card);
+    });
+    
+    // Make functions available globally for onclick handlers
+    if (typeof window !== 'undefined') {
+        window.addToFavorites = addToFavorites;
+        window.removeFromFavorites = removeFromFavorites;
+        window.renderAppFavorites = renderAppFavorites;
+        window.renderAppsGrid = renderAppsGrid;
+    }
+}
+
+// Get status badge HTML
+function getStatusBadge(status) {
+    const badges = {
+        'installed': '<span class="px-3 py-1 bg-green-600/20 text-green-400 rounded-full text-xs font-semibold">Installed</span>',
+        'needs_update': '<span class="px-3 py-1 bg-blue-600/20 text-blue-400 rounded-full text-xs font-semibold">Update Available</span>',
+        'uninstalled': '<span class="px-3 py-1 bg-gray-600/20 text-gray-400 rounded-full text-xs font-semibold">Not Installed</span>',
+        'downloading': '<span class="px-3 py-1 bg-yellow-600/20 text-yellow-400 rounded-full text-xs font-semibold">Downloading</span>',
+        'paused': '<span class="px-3 py-1 bg-orange-600/20 text-orange-400 rounded-full text-xs font-semibold">Paused</span>',
+        'syncing': '<span class="px-3 py-1 bg-purple-600/20 text-purple-400 rounded-full text-xs font-semibold">Syncing</span>',
+        'verifying': '<span class="px-3 py-1 bg-indigo-600/20 text-indigo-400 rounded-full text-xs font-semibold">Verifying</span>',
+        'checking_update': '<span class="px-3 py-1 bg-cyan-600/20 text-cyan-400 rounded-full text-xs font-semibold">Checking</span>'
+    };
+    return badges[status] || badges['uninstalled'];
+}
+
+// Render app favorites bar
+function renderAppFavorites() {
+    if (!appFavoritesContainer) return;
+    
+    appFavoritesContainer.innerHTML = '';
+    
+    const favorites = getFavorites();
+    
+    // Only show favorited apps
+    favorites.forEach((appId) => {
+        // Check if app exists in appsLibrary or gameLibrary
+        const appData = appsLibrary[appId];
+        const gameData = gameLibrary && gameLibrary[appId];
+        
+        if (!appData && !gameData) return; // Skip if app doesn't exist
+        
+        const appName = appData?.name || gameData?.name || appId;
+        const logoUrl = (appData?.ui?.logoUrl) || (gameData?.logoUrl) || 'assets/icon-white_s.png';
+        
+        const icon = document.createElement('div');
+        icon.className = `app-favorite-icon ${currentSelectedApp === appId ? 'selected' : ''} cursor-pointer`;
+        icon.dataset.appId = appId; // Add data attribute for easier identification
+        icon.title = appName;
+        
+        const img = document.createElement('img');
+        img.src = logoUrl;
+        img.alt = appName;
+        img.className = 'w-full h-full object-cover rounded-lg';
+        
+        icon.appendChild(img);
+        
+        // Add click handler after creating the element
+        icon.addEventListener('click', () => {
+            console.log('Favorite icon clicked:', appId);
+            selectApp(appId);
+        });
+        
+        appFavoritesContainer.appendChild(icon);
+    });
+    
+    // Update selection highlight
+    if (currentSelectedApp) {
+        updateFavoritesSelection(currentSelectedApp);
+    }
+}
+
+// Update favorites selection highlight
+function updateFavoritesSelection(gameId) {
+    if (!appFavoritesContainer) return;
+    const icons = appFavoritesContainer.querySelectorAll('.app-favorite-icon');
+    
+    icons.forEach((icon) => {
+        // Use data attribute to identify the app
+        if (icon.dataset.appId === gameId) {
+            icon.classList.add('selected');
+        } else {
+            icon.classList.remove('selected');
+        }
+    });
+}
+
+// Navigation tab click handlers
+navTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+        const view = tab.getAttribute('data-view');
+        switchView(view);
+    });
+});
+
+// Logo dropdown toggle
+if (logoDropdownToggle && logoDropdown) {
+    logoDropdownToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        logoDropdown.classList.toggle('hidden');
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!logoDropdownToggle.contains(e.target) && !logoDropdown.contains(e.target)) {
+            logoDropdown.classList.add('hidden');
+        }
+    });
+}
+
+// Dropdown menu handlers
+const dropdownLogout = document.getElementById('dropdown-logout');
+const dropdownExit = document.getElementById('dropdown-exit');
+
+if (dropdownLogout) {
+    dropdownLogout.addEventListener('click', () => {
+        signOut(auth);
+        logoDropdown.classList.add('hidden');
+    });
+}
+
+if (dropdownExit) {
+    dropdownExit.addEventListener('click', () => {
+        if (window.electronAPI && window.electronAPI.closeWindow) {
+            window.electronAPI.closeWindow();
+        }
+        logoDropdown.classList.add('hidden');
+    });
+}
+
+// Social links handlers
+const socialLinkedIn = document.getElementById('social-linkedin');
+const socialInstagram = document.getElementById('social-instagram');
+const socialFacebook = document.getElementById('social-facebook');
+
+if (socialLinkedIn) {
+    socialLinkedIn.addEventListener('click', () => {
+        if (window.electronAPI && window.electronAPI.openExternal) {
+            window.electronAPI.openExternal('https://www.linkedin.com/company/vr-centre-aus/');
+        }
+        logoDropdown.classList.add('hidden');
+    });
+}
+
+if (socialInstagram) {
+    socialInstagram.addEventListener('click', () => {
+        if (window.electronAPI && window.electronAPI.openExternal) {
+            window.electronAPI.openExternal('https://www.instagram.com/vrcentreaus/');
+        }
+        logoDropdown.classList.add('hidden');
+    });
+}
+
+if (socialFacebook) {
+    socialFacebook.addEventListener('click', () => {
+        if (window.electronAPI && window.electronAPI.openExternal) {
+            window.electronAPI.openExternal('https://www.facebook.com/vrcentreaus');
+        }
+        logoDropdown.classList.add('hidden');
+    });
+}
 
 // --- LAUNCHER LOGIC (Moved from index.html) ---
 
@@ -283,32 +768,7 @@ function initLauncher() {
             }
         }
         
-        // Update Sidebar Logo and Game Name
-        const gameListEl = document.getElementById('game-list');
-        if (gameListEl) {
-            // Update logo images
-            if (launcherSettings.ui.logoUrl) {
-                const logoElements = gameListEl.querySelectorAll('.game-logo');
-                logoElements.forEach(logo => {
-                    logo.src = launcherSettings.ui.logoUrl;
-                });
-            }
-            
-            // Update game name text
-            if (launcherSettings.ui.gameName) {
-                const textElements = gameListEl.querySelectorAll('.game-text');
-                textElements.forEach(textEl => {
-                    textEl.textContent = launcherSettings.ui.gameName;
-                });
-                
-                // Also update logo alt text and title (tooltip)
-                const logoElements = gameListEl.querySelectorAll('.game-logo');
-                logoElements.forEach(logo => {
-                    logo.alt = `${launcherSettings.ui.gameName} Logo`;
-                    logo.title = launcherSettings.ui.gameName;
-                });
-            }
-        }
+        // Sidebar removed - no longer updating sidebar elements
         
         // Restart slideshow if settings changed
         if (typeof startBackgroundSlideshow === 'function') {
@@ -328,7 +788,8 @@ function initLauncher() {
     };
 
     // All of your original launcher code goes here.
-    let gameLibrary = {
+    // Make gameLibrary accessible to view management functions
+    gameLibrary = {
         'RolePlayAI': {
             name: 'Role Play AI',
             tagline: 'SYNTHETIC SCENES™ – Avatar-Led Role Play Platform',
@@ -351,11 +812,13 @@ function initLauncher() {
         },
     };
 
-    let currentGameId = 'RolePlayAI';
+    // currentGameId is now global, just set it if needed
+    if (!currentGameId) {
+        currentGameId = 'RolePlayAI';
+    }
 
     // --- DOM Elements ---
-    const gameListEl = document.getElementById('game-list'),
-          gameBgEl = document.getElementById('game-background'),
+    const gameBgEl = document.getElementById('game-background'),
           gameTitleEl = document.getElementById('game-title'),
           gameTaglineEl = document.getElementById('game-tagline'),
           gameVersionEl = document.getElementById('game-version'),
@@ -376,9 +839,7 @@ function initLauncher() {
           closeSettingsButtonEl = document.getElementById('close-settings-button'),
           installPathDisplayEl = document.getElementById('install-path-display'),
           changePathButtonEl = document.getElementById('change-path-button'),
-          locateGameLinkEl = document.getElementById('locate-game-link'),
-          sidebarEl = document.getElementById('sidebar'),
-          sidebarToggleEl = document.getElementById('sidebar-toggle');
+          locateGameLinkEl = document.getElementById('locate-game-link');
 
     function formatBytes(bytes, decimals = 2) {
         if (!bytes || bytes === 0) return '0 Bytes';
@@ -389,38 +850,7 @@ function initLauncher() {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
     }
 
-    // Sidebar toggle functionality
-    function toggleSidebar() {
-        // Ensure only one class is active at a time
-        const isCurrentlyExpanded = sidebarEl.classList.contains('expanded');
-        
-        if (isCurrentlyExpanded) {
-            sidebarEl.classList.remove('expanded');
-            sidebarEl.classList.add('collapsed');
-            localStorage.setItem('sidebarExpanded', 'false');
-        } else {
-            sidebarEl.classList.remove('collapsed');
-            sidebarEl.classList.add('expanded');
-            localStorage.setItem('sidebarExpanded', 'true');
-        }
-    }
-
-    // Initialize sidebar state from localStorage
-    function initializeSidebar() {
-        // Remove both classes first to ensure clean state
-        sidebarEl.classList.remove('expanded', 'collapsed');
-        
-        const savedState = localStorage.getItem('sidebarExpanded');
-        if (savedState === 'true') {
-            sidebarEl.classList.add('expanded');
-        } else {
-            // Default to collapsed on first visit or if state is false/null
-            sidebarEl.classList.add('collapsed');
-            if (savedState === null) {
-                localStorage.setItem('sidebarExpanded', 'false');
-            }
-        }
-    }
+    // Sidebar removed - no longer needed
 
     // Background slideshow function
     function startBackgroundSlideshow() {
@@ -524,9 +954,13 @@ function initLauncher() {
         }, displayTime + transitionTime);
     }
 
-    function renderGame(gameId) {
+    // Assign renderGame to global variable so selectApp can access it
+    renderGame = function(gameId) {
         const game = gameLibrary[gameId];
-        if (!game) return;
+        if (!game) {
+            console.warn('Game not found in gameLibrary:', gameId);
+            return;
+        }
         
         // Don't update background during active operations to prevent flashing
         const activeStates = ['downloading', 'paused', 'syncing', 'verifying', 'checking_update', 'moving'];
@@ -1353,67 +1787,135 @@ function initLauncher() {
             }
         }
 
-        gameListEl.innerHTML = '';
-        for (const gameId in gameLibrary) {
-            const game = gameLibrary[gameId];
-            
-            // Create container for each game item
-            const gameItemEl = document.createElement('div');
-            gameItemEl.className = 'flex items-center space-x-3';
-            
-            // Create logo element - larger size
-            const logoEl = document.createElement('img');
-            logoEl.src = launcherSettings.ui.logoUrl || game.logoUrl;
-            logoEl.alt = `${launcherSettings.ui.gameName || game.name} Logo`;
-            logoEl.className = 'w-12 h-12 rounded-lg cursor-pointer transition-all duration-300 hover:scale-110 game-logo flex-shrink-0';
-            logoEl.dataset.gameId = gameId;
-            logoEl.title = launcherSettings.ui.gameName || game.name; // Tooltip for collapsed state
-            
-            // Create text element (hidden when collapsed) - larger size
-            const textEl = document.createElement('span');
-            textEl.textContent = launcherSettings.ui.gameName || game.name;
-            textEl.className = 'text-white font-medium text-base whitespace-nowrap opacity-0 transition-opacity duration-300 game-text';
-            
-            // Add click handler to the container
-            gameItemEl.addEventListener('click', () => {
-               if (gameLibrary[currentGameId].status !== 'downloading' && gameLibrary[currentGameId].status !== 'paused') {
-                   currentGameId = gameId;
-                   renderGame(gameId);
-               }
-            });
-            
-            gameItemEl.appendChild(logoEl);
-            gameItemEl.appendChild(textEl);
-            gameListEl.appendChild(gameItemEl);
+        // Sidebar removed - game list no longer rendered in sidebar
+        // Attach event listeners to buttons
+        if (actionButtonEl) {
+            actionButtonEl.addEventListener('click', handleActionButtonClick);
         }
-        actionButtonEl.addEventListener('click', handleActionButtonClick);
-        pauseResumeButtonEl.addEventListener('click', handlePauseResumeClick);
-        cancelButtonEl.addEventListener('click', () => {
-            const game = gameLibrary[currentGameId];
-            if (game.status === 'downloading' || game.status === 'paused') {
-                // Cancel download
-                window.electronAPI.handleDownloadAction({ type: 'CANCEL' });
-            } else if (game.status === 'checking_update' || game.status === 'verifying' || game.status === 'syncing') {
-                // Cancel verification
-                if (window.electronAPI.cancelVerification) {
-                    window.electronAPI.cancelVerification();
+        if (pauseResumeButtonEl) {
+            pauseResumeButtonEl.addEventListener('click', handlePauseResumeClick);
+        }
+        if (cancelButtonEl) {
+            cancelButtonEl.addEventListener('click', () => {
+                const game = gameLibrary[currentGameId];
+                if (game.status === 'downloading' || game.status === 'paused') {
+                    // Cancel download
+                    window.electronAPI.handleDownloadAction({ type: 'CANCEL' });
+                } else if (game.status === 'checking_update' || game.status === 'verifying' || game.status === 'syncing') {
+                    // Cancel verification
+                    if (window.electronAPI.cancelVerification) {
+                        window.electronAPI.cancelVerification();
+                    }
                 }
-            }
-        });
+            });
+        }
+        if (settingsButtonEl) {
+            settingsButtonEl.addEventListener('click', openSettingsModal);
+        }
+        if (closeSettingsButtonEl) {
+            closeSettingsButtonEl.addEventListener('click', closeSettingsModal);
+        }
         
-        settingsButtonEl.addEventListener('click', openSettingsModal);
-        closeSettingsButtonEl.addEventListener('click', closeSettingsModal);
+        // Render app favorites bar
+        renderAppFavorites();
         
-        // Sidebar toggle functionality
-        sidebarToggleEl.addEventListener('click', toggleSidebar);
-        initializeSidebar();
+        // Initialize view - show app detail view by default with RolePlayAI or first favorite
+        // Always show RolePlayAI by default since gameLibrary is initialized with it
+        const favorites = getFavorites();
+        const defaultAppId = 'RolePlayAI'; // Always default to RolePlayAI since it's in gameLibrary
+        
+        console.log('Initializing launcher view. gameLibrary:', gameLibrary);
+        console.log('Default app ID:', defaultAppId);
+        
+        if (gameLibrary && gameLibrary[defaultAppId]) {
+            console.log('Selecting default app:', defaultAppId);
+            currentGameId = defaultAppId;
+            selectApp(defaultAppId);
+        } else if (gameLibrary && Object.keys(gameLibrary).length > 0) {
+            // Fallback to first available game
+            const firstGameId = Object.keys(gameLibrary)[0];
+            console.log('Selecting first available game:', firstGameId);
+            currentGameId = firstGameId;
+            selectApp(firstGameId);
+        } else {
+            // Fallback to home view if no game is available
+            console.warn('No games available in gameLibrary, showing home view');
+            switchView('home');
+        }
+        
+        // App selector modal handlers
+        const addFavoriteButton = document.getElementById('add-favorite-button');
+        const appSelectorModal = document.getElementById('app-selector-modal');
+        const closeAppSelector = document.getElementById('close-app-selector');
+        const appSelectorList = document.getElementById('app-selector-list');
+        
+        if (addFavoriteButton && appSelectorModal) {
+            addFavoriteButton.addEventListener('click', () => {
+                // Populate app selector list
+                if (appSelectorList) {
+                    appSelectorList.innerHTML = '';
+                    const favorites = getFavorites();
+                    const allAppIds = new Set();
+                    if (appsLibrary) Object.keys(appsLibrary).forEach(id => allAppIds.add(id));
+                    if (gameLibrary) Object.keys(gameLibrary).forEach(id => allAppIds.add(id));
+                    
+                    allAppIds.forEach((appId) => {
+                        if (favorites.includes(appId)) return; // Skip already favorited
+                        
+                        const appData = appsLibrary[appId];
+                        const gameData = gameLibrary && gameLibrary[appId];
+                        const appName = appData?.name || gameData?.name || appId;
+                        const logoUrl = (appData?.ui?.logoUrl) || (gameData?.logoUrl) || 'assets/icon-white_s.png';
+                        
+                        const appCard = document.createElement('div');
+                        appCard.className = 'bg-gray-700/50 rounded-lg p-4 cursor-pointer hover:bg-gray-700 transition-all border border-gray-600 hover:border-blue-500';
+                        appCard.innerHTML = `
+                            <div class="flex flex-col items-center text-center">
+                                <img src="${logoUrl}" alt="${appName}" class="w-16 h-16 mb-2 rounded-lg object-cover">
+                                <h3 class="text-sm font-semibold text-white">${appName}</h3>
+                            </div>
+                        `;
+                        appCard.addEventListener('click', () => {
+                            addToFavorites(appId);
+                            renderAppFavorites();
+                            appSelectorModal.classList.add('hidden');
+                        });
+                        appSelectorList.appendChild(appCard);
+                    });
+                    
+                    if (appSelectorList.children.length === 0) {
+                        // Close the modal and show toast notification
+                        appSelectorModal.classList.add('hidden');
+                        showToast('All available apps are already in favorites', 4000);
+                    }
+                }
+                appSelectorModal.classList.remove('hidden');
+            });
+        }
+        
+        if (closeAppSelector && appSelectorModal) {
+            closeAppSelector.addEventListener('click', () => {
+                appSelectorModal.classList.add('hidden');
+            });
+        }
+        
+        // Close modal on outside click
+        if (appSelectorModal) {
+            appSelectorModal.addEventListener('click', (e) => {
+                if (e.target === appSelectorModal) {
+                    appSelectorModal.classList.add('hidden');
+                }
+            });
+        }
 
-        uninstallButtonEl.addEventListener('click', () => {
-            const game = gameLibrary[currentGameId];
-            if (game.installPath) {
-                window.electronAPI.uninstallGame(game.installPath);
-            }
-        });
+        if (uninstallButtonEl) {
+            uninstallButtonEl.addEventListener('click', () => {
+                const game = gameLibrary[currentGameId];
+                if (game.installPath) {
+                    window.electronAPI.uninstallGame(game.installPath);
+                }
+            });
+        }
 
         // Add a manual reset function for debugging
         window.resetGameStatus = () => {
@@ -1445,7 +1947,9 @@ function initLauncher() {
             console.log('All game data cleared and URLs reset');
         };
 
-        checkUpdateButtonEl.addEventListener('click', () => checkForUpdates(currentGameId));
+        if (checkUpdateButtonEl) {
+            checkUpdateButtonEl.addEventListener('click', () => checkForUpdates(currentGameId));
+        }
 
         changePathButtonEl.addEventListener('click', async () => {
             const game = gameLibrary[currentGameId];

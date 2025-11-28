@@ -143,13 +143,13 @@ async function detectGameInstallPath(selectedPath) {
 async function createWindow() {
     const win = new BrowserWindow({
         width: 1280,
-        height: 720,
+        height: 860,
         minWidth: 1280,
-        minHeight: 720,
+        minHeight: 860,
         aspectRatio: 16/9,
         resizable: true,
         frame: true,
-        title: 'Role-Play-AI Launcher',
+        title: 'RolePlay-AI Launcher',
         autoHideMenuBar: true,
         icon: path.join(__dirname, '/assets/icon-white.png'),
         webPreferences: {
@@ -275,6 +275,13 @@ autoUpdater.on('update-downloaded', (info) => {
 
 ipcMain.handle('get-app-version', () => {
     return app.getVersion();
+});
+
+ipcMain.on('close-window', () => {
+    const focusedWindow = BrowserWindow.getFocusedWindow();
+    if (focusedWindow) {
+        focusedWindow.close();
+    }
 });
 
 ipcMain.on('open-external', (event, url) => {
