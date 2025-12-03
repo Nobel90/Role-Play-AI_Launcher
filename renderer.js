@@ -845,8 +845,10 @@ function initLauncher() {
 
     // All of your original launcher code goes here.
     // Make gameLibrary accessible to view management functions
+    // Structure: gameLibrary[gameId][buildType] = { ... }
     gameLibrary = {
         'RolePlayAI': {
+            production: {
             name: 'Role Play AI',
             tagline: 'SYNTHETIC SCENES™ – Avatar-Led Role Play Platform',
             version: '1.0.0',
@@ -855,18 +857,45 @@ function initLauncher() {
             backgroundUrl: 'assets/BG.png',
             installPath: null,
             executable: 'RolePlay_AI.exe',
-            // R2 Configuration for Production
-            manifestUrl: R2_CONFIG.manifestUrl,
-            // OLD PRODUCTION URLs (commented out - using R2 now)
-            //manifestUrl: 'https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/roleplayai_manifest.json',
-            //versionUrl: 'https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/version.json',
-            // TEST SERVER URLs (uncomment to use local test server)
-            //manifestUrl: 'http://localhost:8080/roleplayai_manifest.json',
-            //versionUrl: 'http://localhost:8080/version.json',
+                manifestUrl: '', // Will be set by updateManifestUrls()
             filesToUpdate: [],
             isPaused: false,
         },
+            staging: {
+                name: 'Role Play AI',
+                tagline: 'SYNTHETIC SCENES™ – Avatar-Led Role Play Platform',
+                version: '1.0.0',
+                status: 'uninstalled',
+                logoUrl: 'assets/icon-white_s.png',
+                backgroundUrl: 'assets/BG.png',
+                installPath: null,
+                executable: 'RolePlay_AI.exe',
+                manifestUrl: '', // Will be set by updateManifestUrls()
+                filesToUpdate: [],
+                isPaused: false,
+            }
+        },
     };
+    
+    // Migration function to convert old structure to new structure
+    function migrateGameLibrary(oldLibrary) {
+        if (!oldLibrary || typeof oldLibrary !== 'object') return oldLibrary;
+        
+        const migrated = {};
+        for (const [gameId, gameData] of Object.entries(oldLibrary)) {
+            // Check if already migrated (has production/staging keys)
+            if (gameData.production || gameData.staging) {
+                migrated[gameId] = gameData;
+            } else {
+                // Migrate: copy data to both build types
+                migrated[gameId] = {
+                    production: { ...gameData },
+                    staging: { ...gameData, installPath: null, status: 'uninstalled' }
+                };
+            }
+        }
+        return migrated;
+    }
 
     // currentGameId is now global, just set it if needed
     if (!currentGameId) {
@@ -971,7 +1000,7 @@ function initLauncher() {
             }
             
             // Skip transition during active operations
-            const game = gameLibrary[currentGameId];
+            const game = getCurrentGame();
             const activeStates = ['downloading', 'paused', 'syncing', 'verifying', 'checking_update', 'moving'];
             if (game && activeStates.includes(game.status)) {
                 return;
@@ -1012,7 +1041,7 @@ function initLauncher() {
 
     // Assign renderGame to global variable so selectApp can access it
     renderGame = function(gameId) {
-        const game = gameLibrary[gameId];
+        const game = gameLibrary[gameId]?.[currentBuildType] || gameLibrary[gameId];
         if (!game) {
             console.warn('Game not found in gameLibrary:', gameId);
             return;
@@ -1061,6 +1090,11 @@ function initLauncher() {
         document.querySelectorAll('.game-logo').forEach(logo => {
             logo.classList.toggle('game-logo-active', logo.dataset.gameId === gameId);
         });
+        
+        // Load DLCs for this app
+        if (typeof window.loadDLCs === 'function') {
+            window.loadDLCs(gameId);
+        }
     }
     
     function updateButtonAndStatus(game) {
@@ -1279,9 +1313,270 @@ function initLauncher() {
         }
     }
 
+    // Build Type Management
+    let currentBuildType = 'production';
+    
+    // Helper function to get current game data (with build type)
+    function getCurrentGame(gameId = currentGameId) {
+        if (!gameId || !gameLibrary[gameId]) return null;
+        const gameData = gameLibrary[gameId];
+        // Check if old structure (no build types)
+        if (gameData.production || gameData.staging) {
+            return gameData[currentBuildType] || gameData.production || null;
+        }
+        // Old structure - return as-is for backward compatibility during migration
+        return gameData;
+    }
+    
+    // Helper function to set current game data
+    function setCurrentGame(gameId, data) {
+        if (!gameId || !gameLibrary[gameId]) {
+            gameLibrary[gameId] = { production: {}, staging: {} };
+        }
+        const gameData = gameLibrary[gameId];
+        // Ensure build type structure exists
+        if (!gameData.production && !gameData.staging) {
+            // Migrate old structure
+            gameLibrary[gameId] = {
+                production: { ...gameData },
+                staging: { ...gameData, installPath: null, status: 'uninstalled' }
+            };
+        }
+        // Set data for current build type
+        gameLibrary[gameId][currentBuildType] = { ...gameLibrary[gameId][currentBuildType], ...data };
+    }
+    
+    async function loadBuildType() {
+        try {
+            const result = await window.electronAPI.getBuildType();
+            if (result.success) {
+                currentBuildType = result.buildType;
+                updateBuildTypeUI();
+                updateManifestUrls();
+            }
+        } catch (error) {
+            console.error('Error loading build type:', error);
+        }
+    }
+    
+    function updateBuildTypeUI() {
+        const buildTypeSelect = document.getElementById('build-type-select');
+        const buildTypeBadge = document.getElementById('build-type-badge');
+        const buildTypeBadgeHeader = document.getElementById('build-type-badge-header');
+        const dlcBuildTypeBadge = document.getElementById('dlc-build-type-badge');
+        const buildSwitcherLabel = document.getElementById('build-switcher-label');
+        const productionCheck = document.getElementById('production-check');
+        const stagingCheck = document.getElementById('staging-check');
+        
+        if (buildTypeSelect) {
+            buildTypeSelect.value = currentBuildType;
+        }
+        
+        const badgeClass = `px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+            currentBuildType === 'production' 
+                ? 'bg-green-600/30 text-green-300' 
+                : 'bg-yellow-600/30 text-yellow-300'
+        }`;
+        const badgeText = currentBuildType.charAt(0).toUpperCase() + currentBuildType.slice(1);
+        
+        if (buildTypeBadge) {
+            buildTypeBadge.textContent = badgeText;
+            buildTypeBadge.className = badgeClass.replace('text-xs', 'text-sm');
+        }
+        
+        if (buildTypeBadgeHeader) {
+            buildTypeBadgeHeader.textContent = badgeText;
+            buildTypeBadgeHeader.className = badgeClass;
+        }
+        
+        if (dlcBuildTypeBadge) {
+            dlcBuildTypeBadge.textContent = `(${badgeText})`;
+            dlcBuildTypeBadge.className = badgeClass;
+        }
+        
+        // Update build switcher dropdown
+        if (buildSwitcherLabel) {
+            buildSwitcherLabel.textContent = badgeText;
+        }
+        
+        // Update checkmarks in dropdown
+        if (productionCheck) {
+            productionCheck.classList.toggle('hidden', currentBuildType !== 'production');
+        }
+        if (stagingCheck) {
+            stagingCheck.classList.toggle('hidden', currentBuildType !== 'staging');
+        }
+        
+        // Update active state on options
+        document.querySelectorAll('.build-type-option').forEach(opt => {
+            const isActive = opt.dataset.buildType === currentBuildType;
+            opt.classList.toggle('active', isActive);
+        });
+    }
+    
+    // Build Switcher Dropdown Toggle
+    function initBuildSwitcher() {
+        const buildSwitcherToggle = document.getElementById('build-switcher-toggle');
+        const buildSwitcherDropdown = document.getElementById('build-switcher-dropdown');
+        
+        if (buildSwitcherToggle && buildSwitcherDropdown) {
+            // Toggle dropdown
+            buildSwitcherToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isOpen = buildSwitcherDropdown.classList.contains('show');
+                
+                // Close all other dropdowns
+                document.querySelectorAll('.logo-dropdown').forEach(dd => {
+                    dd.classList.remove('show');
+                    dd.classList.add('hidden');
+                });
+                
+                if (!isOpen) {
+                    buildSwitcherDropdown.classList.remove('hidden');
+                    buildSwitcherDropdown.classList.add('show');
+                    buildSwitcherToggle.classList.add('open');
+                } else {
+                    buildSwitcherDropdown.classList.remove('show');
+                    buildSwitcherDropdown.classList.add('hidden');
+                    buildSwitcherToggle.classList.remove('open');
+                }
+            });
+            
+            // Build type option clicks
+            document.querySelectorAll('.build-type-option').forEach(opt => {
+                opt.addEventListener('click', async () => {
+                    const newBuildType = opt.dataset.buildType;
+                    if (newBuildType && newBuildType !== currentBuildType) {
+                        await handleBuildTypeChange(newBuildType);
+                    }
+                    // Close dropdown
+                    buildSwitcherDropdown.classList.remove('show');
+                    buildSwitcherDropdown.classList.add('hidden');
+                    buildSwitcherToggle.classList.remove('open');
+                });
+            });
+            
+            // Close on outside click
+            document.addEventListener('click', (e) => {
+                if (!buildSwitcherToggle.contains(e.target) && !buildSwitcherDropdown.contains(e.target)) {
+                    buildSwitcherDropdown.classList.remove('show');
+                    buildSwitcherDropdown.classList.add('hidden');
+                    buildSwitcherToggle.classList.remove('open');
+                }
+            });
+        }
+    }
+    
+    async function updateManifestUrls() {
+        // Update manifest URLs for all games based on current build type
+        const r2BaseUrl = 'https://pub-f87e49b41fad4c0fad84e94d65ed13cc.r2.dev';
+        
+        for (const gameId in gameLibrary) {
+            const game = gameLibrary[gameId]?.[currentBuildType] || gameLibrary[gameId];
+            // Update manifest URL to use current build type
+            game.manifestUrl = `${r2BaseUrl}/${currentBuildType}/roleplayai_manifest.json`;
+        }
+        
+        // Reload DLCs to update their manifest URLs
+        if (currentGameId) {
+            await loadDLCs(currentGameId);
+        }
+        
+        // Trigger UI update
+        if (typeof renderGame === 'function' && currentGameId) {
+            renderGame(currentGameId);
+        }
+    }
+    
+    async function handleBuildTypeChange(newBuildType) {
+        if (newBuildType === currentBuildType) return;
+        
+        try {
+            // Save current build type's state before switching
+            if (currentGameId && gameLibrary[currentGameId]) {
+                await window.electronAPI.saveGameData(gameLibrary);
+            }
+            
+            const result = await window.electronAPI.setBuildType(newBuildType);
+            if (result.success) {
+                const previousBuildType = currentBuildType;
+                currentBuildType = newBuildType;
+                
+                // Invalidate catalog cache to fetch fresh data for new build type
+                if (typeof invalidateCatalogCache === 'function') {
+                    invalidateCatalogCache();
+                }
+                
+                // Ensure build type structure exists for all games
+                for (const gameId in gameLibrary) {
+                    const gameData = gameLibrary[gameId];
+                    if (!gameData.production && !gameData.staging) {
+                        // Migrate old structure
+                        gameLibrary[gameId] = {
+                            production: { ...gameData },
+                            staging: { ...gameData, installPath: null, status: 'uninstalled' }
+                        };
+                    }
+                    // Ensure both build types exist
+                    if (!gameLibrary[gameId].production) {
+                        gameLibrary[gameId].production = { ...gameLibrary[gameId].staging, installPath: null, status: 'uninstalled' };
+                    }
+                    if (!gameLibrary[gameId].staging) {
+                        gameLibrary[gameId].staging = { ...gameLibrary[gameId].production, installPath: null, status: 'uninstalled' };
+                    }
+                }
+                
+                // Reload game data to get the new build type's state
+                const loadedData = await window.electronAPI.loadGameData();
+                if (loadedData && Object.keys(loadedData).length > 0) {
+                    // Migrate loaded data if needed
+                    for (const gameId in loadedData) {
+                        const gameData = loadedData[gameId];
+                        if (!gameData.production && !gameData.staging) {
+                            loadedData[gameId] = {
+                                production: { ...gameData },
+                                staging: { ...gameData, installPath: null, status: 'uninstalled' }
+                            };
+                        }
+                    }
+                    Object.assign(gameLibrary, loadedData);
+                }
+                
+                updateBuildTypeUI();
+                await updateManifestUrls();
+                
+                // Reload DLCs for new build type
+                if (currentGameId) {
+                    await loadDLCs(currentGameId);
+                }
+                
+                // Update UI
+                if (typeof renderGame === 'function' && currentGameId) {
+                    renderGame(currentGameId);
+                }
+                
+                showToast(`Build type changed to ${newBuildType}`, 3000);
+            } else {
+                showToast(`Error: ${result.error}`, 3000);
+            }
+        } catch (error) {
+            console.error('Error setting build type:', error);
+            showToast(`Error changing build type: ${error.message}`, 3000);
+        }
+    }
+    
+    // Listen for build type changes from main process
+    window.electronAPI.onBuildTypeChanged((data) => {
+        currentBuildType = data.buildType;
+        updateBuildTypeUI();
+        updateManifestUrls();
+    });
+
     function openSettingsModal() {
-        const game = gameLibrary[currentGameId];
-        installPathDisplayEl.value = game.installPath || 'Not Set';
+        const game = getCurrentGame();
+        installPathDisplayEl.value = game?.installPath || 'Not Set';
+        // Update build type UI when opening settings
+        updateBuildTypeUI();
         settingsModalEl.classList.remove('hidden');
     }
 
@@ -1290,7 +1585,11 @@ function initLauncher() {
     }
     
     async function handleActionButtonClick() {
-        const game = gameLibrary[currentGameId];
+        const game = getCurrentGame();
+        if (!game) {
+            console.error('Game not found:', currentGameId);
+            return;
+        }
         console.log(`Action button clicked for ${currentGameId}, status: ${game.status}`);
         
         switch (game.status) {
@@ -1299,12 +1598,13 @@ function initLauncher() {
                 const selectedPath = await window.electronAPI.selectInstallDir();
                 console.log('Selected path:', selectedPath);
                 if (selectedPath) {
-                    game.installPath = selectedPath;
+                    setCurrentGame(currentGameId, { installPath: selectedPath });
                     await window.electronAPI.saveGameData(gameLibrary);
                     console.log('Calling checkForUpdates...');
                     await checkForUpdates(currentGameId);
-                    console.log(`After checkForUpdates, status is: ${game.status}`);
-                    if (game.status === 'needs_update') {
+                    const updatedGame = getCurrentGame();
+                    console.log(`After checkForUpdates, status is: ${updatedGame?.status}`);
+                    if (updatedGame?.status === 'needs_update') {
                         console.log('Status is needs_update, calling handleActionButtonClick again...');
                         handleActionButtonClick();
                     }
@@ -1354,7 +1654,10 @@ function initLauncher() {
                  });
                 break;
             case 'installed':
-                window.electronAPI.launchGame({ installPath: game.installPath, executable: game.executable });
+                const currentGame = getCurrentGame();
+                if (currentGame) {
+                    window.electronAPI.launchGame({ installPath: currentGame.installPath, executable: currentGame.executable });
+                }
                 actionButtonEl.innerText = 'LAUNCHING...';
                 setTimeout(() => renderGame(currentGameId), 1000);
                 break;
@@ -1362,7 +1665,8 @@ function initLauncher() {
     }
 
     function handlePauseResumeClick() {
-        const game = gameLibrary[currentGameId];
+        const game = getCurrentGame();
+        if (!game) return;
         if (game.status === 'downloading') {
             window.electronAPI.handleDownloadAction({ type: 'PAUSE' });
         } else if (game.status === 'paused') {
@@ -1371,7 +1675,7 @@ function initLauncher() {
     }
 
     async function checkVersionOnly(gameId) {
-        const game = gameLibrary[gameId];
+        const game = gameLibrary[gameId]?.[currentBuildType] || gameLibrary[gameId];
         console.log(`Fast version check for ${gameId}, installPath: ${game.installPath}`);
         
         if (!game.installPath) {
@@ -1418,7 +1722,7 @@ function initLauncher() {
     }
 
     async function syncFiles(gameId) {
-        const game = gameLibrary[gameId];
+        const game = gameLibrary[gameId]?.[currentBuildType] || gameLibrary[gameId];
         console.log(`Syncing files for ${gameId}`);
         
         if (!game.installPath) {
@@ -1580,7 +1884,7 @@ function initLauncher() {
     }
 
     async function checkForUpdates(gameId) {
-        const game = gameLibrary[gameId];
+        const game = gameLibrary[gameId]?.[currentBuildType] || gameLibrary[gameId];
         console.log(`Checking for updates for ${gameId}, status: ${game.status}, installPath: ${game.installPath}`);
         
         if (!game.installPath && game.status !== 'uninstalled') {
@@ -1821,21 +2125,29 @@ function initLauncher() {
             for (const gameId in gameLibrary) {
                 if (loadedLibrary[gameId]) {
                     // Merge loaded data but preserve the correct manifest URLs and executable name
-                    const correctManifestUrl = gameLibrary[gameId].manifestUrl;
-                    const correctVersionUrl = gameLibrary[gameId].versionUrl;
-                    const correctExecutable = gameLibrary[gameId].executable;
+                    const gameData = gameLibrary[gameId];
+                    const correctManifestUrl = (gameData[currentBuildType] || gameData.production || gameData)?.manifestUrl;
+                    const correctVersionUrl = (gameData[currentBuildType] || gameData.production || gameData)?.versionUrl;
+                    const correctExecutable = (gameData[currentBuildType] || gameData.production || gameData)?.executable;
                     gameLibrary[gameId] = { ...gameLibrary[gameId], ...loadedLibrary[gameId] };
                     // Ensure we always use the correct URLs and executable name
-                    gameLibrary[gameId].manifestUrl = correctManifestUrl;
-                    gameLibrary[gameId].versionUrl = correctVersionUrl;
-                    gameLibrary[gameId].executable = correctExecutable;
+                    // Ensure build type structure exists
+                    if (!gameLibrary[gameId].production && !gameLibrary[gameId].staging) {
+                        gameLibrary[gameId] = {
+                            production: { ...gameLibrary[gameId] },
+                            staging: { ...gameLibrary[gameId], installPath: null, status: 'uninstalled' }
+                        };
+                    }
+                    gameLibrary[gameId][currentBuildType].manifestUrl = correctManifestUrl;
+                    gameLibrary[gameId][currentBuildType].versionUrl = correctVersionUrl;
+                    gameLibrary[gameId][currentBuildType].executable = correctExecutable;
                 }
             }
         }
 
         // On startup, do fast version check instead of full chunk matching
         for (const gameId in gameLibrary) {
-            const game = gameLibrary[gameId];
+            const game = gameLibrary[gameId]?.[currentBuildType] || gameLibrary[gameId];
             if (game.installPath && (game.status === 'installed' || game.status === 'needs_update' || game.status === 'needs_sync')) {
                 console.log(`Fast version check for ${gameId} at ${game.installPath}`);
                 // Do fast version check instead of full chunk matching
@@ -1853,7 +2165,7 @@ function initLauncher() {
         }
         if (cancelButtonEl) {
         cancelButtonEl.addEventListener('click', () => {
-            const game = gameLibrary[currentGameId];
+            const game = getCurrentGame();
             if (game.status === 'downloading' || game.status === 'paused') {
                 // Cancel download
                 window.electronAPI.handleDownloadAction({ type: 'CANCEL' });
@@ -1871,6 +2183,23 @@ function initLauncher() {
         if (closeSettingsButtonEl) {
         closeSettingsButtonEl.addEventListener('click', closeSettingsModal);
         }
+        
+        // Build type selector
+        const buildTypeSelect = document.getElementById('build-type-select');
+        if (buildTypeSelect) {
+            buildTypeSelect.addEventListener('change', (e) => {
+                handleBuildTypeChange(e.target.value);
+            });
+        }
+        
+        // Load build type on initialization and update manifest URLs
+        loadBuildType().then(() => {
+            // Manifest URLs will be updated by loadBuildType -> updateManifestUrls
+            // Initialize build switcher dropdown
+            initBuildSwitcher();
+        }).catch(err => {
+            console.error('Error loading build type:', err);
+        });
         
         // Render app favorites bar
         renderAppFavorites();
@@ -2019,7 +2348,7 @@ function initLauncher() {
 
         if (uninstallButtonEl) {
         uninstallButtonEl.addEventListener('click', () => {
-            const game = gameLibrary[currentGameId];
+            const game = getCurrentGame();
             if (game.installPath) {
                 window.electronAPI.uninstallGame(game.installPath);
             }
@@ -2028,7 +2357,7 @@ function initLauncher() {
 
         // Add a manual reset function for debugging
         window.resetGameStatus = () => {
-            const game = gameLibrary[currentGameId];
+            const game = getCurrentGame();
             console.log('Manually resetting game status to uninstalled');
             game.status = 'uninstalled';
             game.installPath = null;
@@ -2042,14 +2371,23 @@ function initLauncher() {
         window.clearAllGameData = async () => {
             console.log('Clearing all stored game data and resetting URLs');
             for (const gameId in gameLibrary) {
-                gameLibrary[gameId].status = 'uninstalled';
-                gameLibrary[gameId].installPath = null;
-                gameLibrary[gameId].version = '0.0.0';
-                gameLibrary[gameId].filesToUpdate = [];
+                // Ensure build type structure exists
+                if (!gameLibrary[gameId].production && !gameLibrary[gameId].staging) {
+                    gameLibrary[gameId] = {
+                        production: { ...gameLibrary[gameId] },
+                        staging: { ...gameLibrary[gameId], installPath: null, status: 'uninstalled' }
+                    };
+                }
+                gameLibrary[gameId][currentBuildType].status = 'uninstalled';
+                gameLibrary[gameId][currentBuildType].installPath = null;
+                gameLibrary[gameId][currentBuildType].version = '0.0.0';
+                gameLibrary[gameId][currentBuildType].filesToUpdate = [];
                 // Ensure correct URLs and executable name are set
-                gameLibrary[gameId].manifestUrl = R2_CONFIG.manifestUrl;
-                gameLibrary[gameId].versionUrl = 'https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/version.json';
-                gameLibrary[gameId].executable = 'RolePlay_AI.exe';
+                // Manifest URL will be set by updateManifestUrls() based on current build type
+                const r2BaseUrl = 'https://pub-f87e49b41fad4c0fad84e94d65ed13cc.r2.dev';
+                gameLibrary[gameId][currentBuildType].manifestUrl = `${r2BaseUrl}/${currentBuildType}/roleplayai_manifest.json`;
+                gameLibrary[gameId][currentBuildType].versionUrl = 'https://vrcentre.com.au/RolePlay_Ai/RolePlay_AI_Package/1.0.0.2/version.json';
+                gameLibrary[gameId][currentBuildType].executable = 'RolePlay_AI.exe';
             }
             await window.electronAPI.saveGameData(gameLibrary);
             renderGame(currentGameId);
@@ -2061,28 +2399,27 @@ function initLauncher() {
         }
 
         changePathButtonEl.addEventListener('click', async () => {
-            const game = gameLibrary[currentGameId];
-            if (!game.installPath) return;
+            const game = getCurrentGame();
+            if (!game || !game.installPath) return;
 
-            game.status = 'moving';
+            setCurrentGame(currentGameId, { status: 'moving' });
             renderGame(currentGameId);
             closeSettingsModal();
 
             const newPath = await window.electronAPI.moveInstallPath(game.installPath);
             if (newPath) {
-                game.installPath = newPath;
+                setCurrentGame(currentGameId, { installPath: newPath, status: 'installed' });
                 await window.electronAPI.saveGameData(gameLibrary);
-                game.status = 'installed';
                 renderGame(currentGameId);
             } else {
-                game.status = 'installed';
+                setCurrentGame(currentGameId, { status: 'installed' });
                 renderGame(currentGameId);
             }
         });
 
         locateGameLinkEl.addEventListener('click', async (e) => {
             e.preventDefault();
-            const game = gameLibrary[currentGameId];
+            const game = getCurrentGame();
 
             // This just opens a dialog and returns a path, no verification happens here.
             const selectedPath = await window.electronAPI.selectInstallDir();
@@ -2093,7 +2430,7 @@ function initLauncher() {
             }
 
             // Update install path before calling checkForUpdates
-            game.installPath = selectedPath;
+            setCurrentGame(currentGameId, { installPath: selectedPath });
             await window.electronAPI.saveGameData(gameLibrary);
 
             // Use the local checkForUpdates function which sets up progress listeners
@@ -2102,8 +2439,7 @@ function initLauncher() {
         });
 
     window.electronAPI.onGameLaunched(() => {
-        const game = gameLibrary[currentGameId];
-        game.status = 'running';
+        setCurrentGame(currentGameId, { status: 'running' });
         actionButtonEl.innerText = 'Running...';
         actionButtonEl.disabled = true;
         actionButtonEl.classList.add('bg-green-800', 'cursor-not-allowed');
@@ -2111,15 +2447,15 @@ function initLauncher() {
     });
 
     window.electronAPI.onGameClosed(() => {
-        const game = gameLibrary[currentGameId];
-        if (game.status === 'running') {
-             game.status = 'installed';
+        const game = getCurrentGame();
+        if (game && game.status === 'running') {
+            setCurrentGame(currentGameId, { status: 'installed' });
         }
         renderGame(currentGameId);
     });
 
         window.electronAPI.onDownloadStateUpdate((state) => {
-            const game = gameLibrary[currentGameId];
+            const game = getCurrentGame();
             game.status = state.status;
             renderGame(currentGameId);
 
@@ -2200,7 +2536,7 @@ function initLauncher() {
         });
 
         window.electronAPI.onUninstallComplete(() => {
-            const game = gameLibrary[currentGameId];
+            const game = getCurrentGame();
             game.status = 'uninstalled';
             game.installPath = null;
             game.version = '0.0.0';
@@ -2222,6 +2558,687 @@ function initLauncher() {
             triggerUIUpdate();
         }
     }
+    
+    // ==================== DLC Management Functions ====================
+    
+    let dlcList = {};
+    let dlcStatus = { environments: {}, characters: {} };
+    let catalogCache = null; // Cache the catalog to avoid repeated fetches
+    let catalogFetchTime = 0;
+    const CATALOG_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache
+    
+    const R2_BASE_URL = 'https://pub-f87e49b41fad4c0fad84e94d65ed13cc.r2.dev';
+    const CATALOG_URL = `${R2_BASE_URL}/catalog.json`;
+    
+    /**
+     * Fetch catalog.json from R2
+     * @returns {Object|null} Catalog data or null if fetch fails
+     */
+    async function fetchCatalog() {
+        const now = Date.now();
+        
+        // Return cached catalog if still valid
+        if (catalogCache && (now - catalogFetchTime) < CATALOG_CACHE_DURATION) {
+            console.log('Using cached catalog');
+            return catalogCache;
+        }
+        
+        try {
+            console.log('Fetching catalog from:', CATALOG_URL);
+            const response = await fetch(CATALOG_URL, {
+                cache: 'no-store', // Always fetch fresh
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                console.warn('Catalog fetch failed:', response.status, response.statusText);
+                return null;
+            }
+            
+            const catalog = await response.json();
+            console.log('Catalog fetched successfully:', {
+                version: catalog.catalogVersion,
+                lastUpdated: catalog.lastUpdated,
+                builds: Object.keys(catalog.builds || {})
+            });
+            
+            // Cache the catalog
+            catalogCache = catalog;
+            catalogFetchTime = now;
+            
+            return catalog;
+        } catch (error) {
+            console.error('Error fetching catalog:', error);
+            return null;
+        }
+    }
+    
+    /**
+     * Convert catalog DLC entry to internal DLC format
+     */
+    function catalogDLCToInternal(dlcEntry) {
+        return {
+            id: dlcEntry.id,
+            name: dlcEntry.name,
+            folderName: dlcEntry.folderName,
+            type: dlcEntry.type,
+            level: dlcEntry.level,
+            parentId: dlcEntry.parentId,
+            parentVersion: dlcEntry.parentVersion,
+            version: dlcEntry.version,
+            manifestUrl: dlcEntry.manifestUrl,
+            requiredBaseVersion: dlcEntry.requiredBaseVersion,
+            requiredDLCs: dlcEntry.requiredDLCs || [],
+            description: dlcEntry.description || '',
+            iconUrl: dlcEntry.iconUrl || '',
+            size: dlcEntry.size || 0,
+            enabled: dlcEntry.enabled !== false // Default to true
+        };
+    }
+    
+    /**
+     * Load DLCs for the current app
+     * Priority: catalog.json (R2) → Firebase → IPC fallback
+     */
+    async function loadDLCs(appId) {
+        console.log(`[DLC] Loading DLCs for ${appId} (build type: ${currentBuildType})`);
+        
+        // Strategy 1: Try catalog.json first (canonical source published by Admin)
+        const catalog = await fetchCatalog();
+        
+        console.log('[DLC] Catalog fetch result:', catalog ? 'SUCCESS' : 'FAILED');
+        if (catalog) {
+            console.log('[DLC] Catalog builds available:', Object.keys(catalog.builds || {}));
+            console.log('[DLC] Current build type:', currentBuildType);
+        }
+        
+        if (catalog && catalog.builds && catalog.builds[currentBuildType]) {
+            const buildCatalog = catalog.builds[currentBuildType];
+            const catalogDLCs = buildCatalog.dlcs || [];
+            
+            console.log(`[DLC] DLCs in catalog for ${currentBuildType}:`, catalogDLCs.length, catalogDLCs.map(d => d.id));
+            
+            if (catalogDLCs.length > 0) {
+                console.log(`[DLC] Found ${catalogDLCs.length} DLCs in catalog for ${currentBuildType}`);
+                
+                // Convert catalog DLCs to internal format
+                dlcList = {};
+                for (const dlcEntry of catalogDLCs) {
+                    if (dlcEntry.enabled !== false) { // Include if enabled or not specified
+                        dlcList[dlcEntry.id] = catalogDLCToInternal(dlcEntry);
+                    }
+                }
+                
+                await refreshDLCStatus();
+                renderDLCs();
+                return;
+            }
+        }
+        
+        console.log('Catalog empty or unavailable, falling back to Firebase...');
+        
+        // Strategy 2: Fallback to Firebase
+        try {
+            const appDoc = doc(db, 'apps', appId);
+            const appSnapshot = await getDoc(appDoc);
+            
+            if (appSnapshot.exists()) {
+                const data = appSnapshot.data();
+                const allDlcs = data.dlcs || {};
+                
+                // Filter only enabled DLCs and update manifest URLs based on current build type
+                dlcList = {};
+                
+                for (const [dlcId, dlc] of Object.entries(allDlcs)) {
+                    if (dlc.enabled) {
+                        const dlcCopy = { ...dlc };
+                        
+                        // Update manifest URL to use current build type
+                        if (dlc.folderName && dlc.version) {
+                            dlcCopy.manifestUrl = `${R2_BASE_URL}/${currentBuildType}/${dlc.folderName}/${dlc.version}/manifest.json`;
+                        }
+                        
+                        dlcList[dlcId] = dlcCopy;
+                    }
+                }
+                
+                if (Object.keys(dlcList).length > 0) {
+                    console.log(`Found ${Object.keys(dlcList).length} DLCs in Firebase`);
+                    await refreshDLCStatus();
+                    renderDLCs();
+                    return;
+                }
+            }
+        } catch (firebaseError) {
+            console.error('Firebase DLC fetch failed:', firebaseError);
+        }
+        
+        console.log('Firebase empty or unavailable, trying IPC fallback...');
+        
+        // Strategy 3: Final fallback to IPC handler (main process Firebase)
+        try {
+            const result = await window.electronAPI.getDLCs({ appId });
+            if (result.success && Object.keys(result.dlcs || {}).length > 0) {
+                dlcList = result.dlcs;
+                console.log(`Found ${Object.keys(dlcList).length} DLCs via IPC`);
+                await refreshDLCStatus();
+                renderDLCs();
+                return;
+            }
+        } catch (ipcError) {
+            console.error('IPC DLC fetch failed:', ipcError);
+        }
+        
+        // No DLCs found from any source
+        console.log('No DLCs found from any source');
+        dlcList = {};
+        renderDLCs();
+    }
+    
+    /**
+     * Get base game info from catalog
+     */
+    async function getBaseGameInfoFromCatalog() {
+        const catalog = await fetchCatalog();
+        
+        if (catalog && catalog.builds && catalog.builds[currentBuildType]) {
+            const buildCatalog = catalog.builds[currentBuildType];
+            return {
+                version: buildCatalog.baseGame?.version || 'N/A',
+                manifestUrl: buildCatalog.baseGame?.manifestUrl || null,
+                minLauncherVersion: buildCatalog.baseGame?.minLauncherVersion || '1.0.0',
+                lastUpdated: buildCatalog.baseGame?.lastUpdated || null
+            };
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Invalidate catalog cache (call after build type change)
+     */
+    function invalidateCatalogCache() {
+        catalogCache = null;
+        catalogFetchTime = 0;
+        console.log('Catalog cache invalidated');
+    }
+    
+    /**
+     * Refresh DLC installation status
+     */
+    async function refreshDLCStatus() {
+        // IMPORTANT: Use build-type-specific game data
+        const game = gameLibrary[currentGameId]?.[currentBuildType] || gameLibrary[currentGameId];
+        if (!game || !game.installPath) {
+            dlcStatus = { environments: {}, characters: {} };
+            return;
+        }
+        
+        try {
+            const result = await window.electronAPI.getDLCStatus({ gamePath: game.installPath });
+            if (result.success) {
+                dlcStatus = result.state || { environments: {}, characters: {} };
+            }
+        } catch (error) {
+            console.error('Error refreshing DLC status:', error);
+        }
+    }
+    
+    /**
+     * Render DLCs in the UI
+     */
+    function renderDLCs() {
+        const dlcSection = document.getElementById('dlc-section');
+        const dlcContainer = document.getElementById('dlc-container');
+        
+        console.log('[DLC Render] dlcSection:', dlcSection ? 'found' : 'NOT FOUND');
+        console.log('[DLC Render] dlcContainer:', dlcContainer ? 'found' : 'NOT FOUND');
+        console.log('[DLC Render] dlcList:', dlcList);
+        console.log('[DLC Render] dlcList keys:', Object.keys(dlcList));
+        
+        if (!dlcSection || !dlcContainer) return;
+        
+        // Clear container
+        dlcContainer.innerHTML = '';
+        
+        // Check if there are any DLCs
+        const enabledDLCs = Object.values(dlcList).filter(dlc => dlc.enabled);
+        console.log('[DLC Render] enabledDLCs count:', enabledDLCs.length);
+        console.log('[DLC Render] enabledDLCs:', enabledDLCs);
+        
+        if (enabledDLCs.length === 0) {
+            dlcSection.classList.add('hidden');
+            console.log('[DLC Render] No enabled DLCs, hiding section');
+            return;
+        }
+        
+        dlcSection.classList.remove('hidden');
+        
+        // Separate environments and characters
+        const environments = enabledDLCs.filter(dlc => dlc.type === 'environment');
+        const characters = enabledDLCs.filter(dlc => dlc.type === 'character');
+        console.log('[DLC Render] environments:', environments.length, environments.map(e => e.id));
+        console.log('[DLC Render] characters:', characters.length, characters.map(c => c.id));
+        
+        // Group characters by parent
+        const charactersByParent = {};
+        characters.forEach(char => {
+            const parentId = char.parentId || 'orphaned';
+            if (!charactersByParent[parentId]) {
+                charactersByParent[parentId] = [];
+            }
+            charactersByParent[parentId].push(char);
+        });
+        
+        // Render Base App info
+        console.log('[DLC Render] Creating Base App card...');
+        try {
+            const baseAppCard = createDLCCard({
+                id: 'base-app',
+                name: 'Base App',
+                type: 'base',
+                description: 'Contains the base game files',
+                installed: true
+            }, null);
+            dlcContainer.appendChild(baseAppCard);
+            console.log('[DLC Render] Base App card added');
+        } catch (e) {
+            console.error('[DLC Render] Error creating Base App card:', e);
+        }
+        
+        // Render environments with their characters
+        console.log('[DLC Render] Creating environment cards...');
+        environments.forEach((env, idx) => {
+            console.log(`[DLC Render] Creating env card ${idx}:`, env.id, env.name);
+            try {
+                const envCard = createDLCCard(env, charactersByParent[env.id] || []);
+                dlcContainer.appendChild(envCard);
+                console.log(`[DLC Render] Env card ${idx} added`);
+            } catch (e) {
+                console.error(`[DLC Render] Error creating env card ${idx}:`, e);
+            }
+        });
+        
+        // Render orphaned characters
+        if (charactersByParent['orphaned']) {
+            console.log('[DLC Render] Creating orphaned character cards...');
+            charactersByParent['orphaned'].forEach((char, idx) => {
+                console.log(`[DLC Render] Creating orphan char card ${idx}:`, char.id, char.name);
+                try {
+                    const charCard = createDLCCard(char, []);
+                    dlcContainer.appendChild(charCard);
+                    console.log(`[DLC Render] Orphan char card ${idx} added`);
+                } catch (e) {
+                    console.error(`[DLC Render] Error creating orphan char card ${idx}:`, e);
+                }
+            });
+        }
+        
+        console.log('[DLC Render] Rendering complete. dlcContainer children:', dlcContainer.children.length);
+    }
+    
+    /**
+     * Create a DLC card element
+     */
+    function createDLCCard(dlc, childCharacters = []) {
+        const card = document.createElement('div');
+        
+        // Determine card styling based on type
+        const cardClass = dlc.type === 'environment' 
+            ? 'bg-gray-800/80 backdrop-blur-xl border border-gray-700/50 rounded-lg p-4 dlc-environment-card'
+            : dlc.type === 'character'
+            ? 'bg-gray-800/80 backdrop-blur-xl border border-gray-700/50 rounded-lg p-4 dlc-character-card'
+            : 'bg-gray-800/80 backdrop-blur-xl border border-gray-700/50 rounded-lg p-4';
+        card.className = cardClass;
+        
+        const isInstalled = dlc.type === 'base' || 
+            (dlc.type === 'environment' && dlcStatus.environments[dlc.id]?.installed) ||
+            (dlc.type === 'character' && dlcStatus.characters[dlc.id]?.installed);
+        
+        // Check if parent environment is installed (for characters)
+        const parentInstalled = dlc.parentId ? dlcStatus.environments[dlc.parentId]?.installed : true;
+        
+        // Check version compatibility
+        const parentVersionOk = !dlc.parentVersion || 
+            !dlcStatus.environments[dlc.parentId]?.version ||
+            dlcStatus.environments[dlc.parentId]?.version >= dlc.parentVersion;
+        
+        const canInstall = dlc.type === 'base' ? false :
+            dlc.type === 'environment' ? true :
+            dlc.type === 'character' ? (parentInstalled && parentVersionOk) : false;
+        
+        // Get level display
+        const levelBadge = dlc.level === 1 
+            ? '<span class="px-1.5 py-0.5 text-[10px] bg-blue-500/20 text-blue-400 rounded">L1</span>'
+            : dlc.level === 2 
+            ? '<span class="px-1.5 py-0.5 text-[10px] bg-purple-500/20 text-purple-400 rounded">L2</span>'
+            : '';
+        
+        // Build metadata display
+        const metadataItems = [];
+        if (dlc.version) metadataItems.push(`v${dlc.version}`);
+        if (dlc.folderName) metadataItems.push(dlc.folderName);
+        if (dlc.requiredBaseVersion) metadataItems.push(`Base ≥${dlc.requiredBaseVersion}`);
+        if (dlc.parentVersion) metadataItems.push(`Parent ≥${dlc.parentVersion}`);
+        
+        // Count installed children for environment
+        const installedChildrenCount = dlc.type === 'environment' 
+            ? childCharacters.filter(c => dlcStatus.characters[c.id]?.installed).length 
+            : 0;
+        
+        card.innerHTML = `
+            <div class="flex justify-between items-start">
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-2 flex-wrap">
+                        ${levelBadge}
+                        <h3 class="text-lg font-semibold text-white">${dlc.name || dlc.id}</h3>
+                        ${dlc.type === 'environment' ? '<span class="px-2 py-1 text-xs bg-blue-600/30 text-blue-300 rounded">Environment</span>' : ''}
+                        ${dlc.type === 'character' ? '<span class="px-2 py-1 text-xs bg-purple-600/30 text-purple-300 rounded">Character</span>' : ''}
+                        ${dlc.type === 'base' ? '<span class="px-2 py-1 text-xs bg-green-600/30 text-green-300 rounded">Base</span>' : ''}
+                        ${isInstalled ? '<span class="px-2 py-1 text-xs bg-green-600/30 text-green-300 rounded flex items-center gap-1"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>Installed</span>' : ''}
+                        ${installedChildrenCount > 0 ? `<span class="px-2 py-1 text-xs bg-purple-600/20 text-purple-300 rounded">${installedChildrenCount} Character${installedChildrenCount > 1 ? 's' : ''}</span>` : ''}
+                    </div>
+                    ${dlc.description ? `<p class="text-sm text-gray-400 mb-2">${dlc.description}</p>` : ''}
+                    <div class="flex flex-wrap gap-2 text-xs text-gray-500">
+                        ${metadataItems.map(item => `<span class="bg-gray-700/50 px-2 py-0.5 rounded">${item}</span>`).join('')}
+                    </div>
+                </div>
+                <div class="flex gap-2 items-center">
+                    ${dlc.type !== 'base' ? `
+                        ${!isInstalled && canInstall ? `
+                            <button class="dlc-install-btn px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-all flex items-center gap-2" data-dlc-id="${dlc.id}">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                </svg>
+                                Install
+                            </button>
+                        ` : ''}
+                        ${!isInstalled && !canInstall && dlc.type === 'character' ? `
+                            <div class="flex flex-col items-end gap-1">
+                                <button class="px-4 py-2 bg-gray-600 text-gray-400 rounded-lg text-sm font-medium cursor-not-allowed" disabled>
+                                    Install
+                                </button>
+                                <span class="text-[10px] text-yellow-500">${!parentInstalled ? 'Install parent first' : 'Parent version mismatch'}</span>
+                            </div>
+                        ` : ''}
+                        ${isInstalled ? `
+                            <button class="dlc-uninstall-btn px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-all flex items-center gap-2" data-dlc-id="${dlc.id}" ${installedChildrenCount > 0 ? 'data-has-children="true"' : ''}>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                Uninstall
+                            </button>
+                            <button class="dlc-verify-btn px-3 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm font-medium transition-all" data-dlc-id="${dlc.id}" title="Verify Files">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </button>
+                        ` : ''}
+                    ` : ''}
+                </div>
+            </div>
+            ${childCharacters.length > 0 ? `
+                <div class="mt-4 dlc-child-container space-y-2">
+                    <div class="text-xs text-gray-500 mb-2 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        Characters (${childCharacters.length})
+                    </div>
+                    ${childCharacters.map(char => {
+                        const charInstalled = dlcStatus.characters[char.id]?.installed;
+                        const charMetadata = [];
+                        if (char.version) charMetadata.push(`v${char.version}`);
+                        if (char.folderName) charMetadata.push(char.folderName);
+                        
+                        return `
+                            <div class="bg-gray-700/50 rounded-lg p-3 flex justify-between items-center hover:bg-gray-700/70 transition-colors">
+                                <div class="flex items-center gap-3">
+                                    <span class="px-1.5 py-0.5 text-[10px] bg-purple-500/20 text-purple-400 rounded">L2</span>
+                                    <div>
+                                        <div class="text-white font-medium">${char.name || char.folderName}</div>
+                                        <div class="text-xs text-gray-400">${charMetadata.join(' • ')}</div>
+                                    </div>
+                                    ${charInstalled ? '<span class="px-1.5 py-0.5 text-[10px] bg-green-600/30 text-green-300 rounded">Installed</span>' : ''}
+                                </div>
+                                <div class="flex gap-2">
+                                    ${!charInstalled && isInstalled ? `
+                                        <button class="dlc-install-btn px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-medium transition-all flex items-center gap-1" data-dlc-id="${char.id}">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                            </svg>
+                                            Install
+                                        </button>
+                                    ` : ''}
+                                    ${!charInstalled && !isInstalled ? `
+                                        <span class="text-[10px] text-gray-500">Install environment first</span>
+                                    ` : ''}
+                                    ${charInstalled ? `
+                                        <button class="dlc-uninstall-btn px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded text-xs font-medium transition-all flex items-center gap-1" data-dlc-id="${char.id}">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                            Uninstall
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            ` : ''}
+        `;
+        
+        // Add event listeners for all install/uninstall buttons
+        card.querySelectorAll('.dlc-install-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                handleDLCInstall(btn.dataset.dlcId);
+            });
+        });
+        
+        card.querySelectorAll('.dlc-uninstall-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const dlcId = btn.dataset.dlcId;
+                const hasChildren = btn.dataset.hasChildren === 'true';
+                
+                if (hasChildren) {
+                    // Show warning about dependent children
+                    handleDLCUninstallWithDependents(dlcId);
+                } else {
+                    handleDLCUninstall(dlcId);
+                }
+            });
+        });
+        
+        card.querySelectorAll('.dlc-verify-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                handleDLCVerify(btn.dataset.dlcId);
+            });
+        });
+        
+        return card;
+    }
+    
+    /**
+     * Handle DLC uninstall with dependency check
+     */
+    async function handleDLCUninstallWithDependents(dlcId) {
+        const dlc = dlcList[dlcId];
+        if (!dlc) return;
+        
+        // Find all installed children
+        const installedChildren = Object.values(dlcList)
+            .filter(d => d.type === 'character' && d.parentId === dlcId && dlcStatus.characters[d.id]?.installed);
+        
+        if (installedChildren.length > 0) {
+            const childNames = installedChildren.map(c => c.name || c.folderName).join(', ');
+            const confirmMsg = `This environment has ${installedChildren.length} installed character(s): ${childNames}\n\nYou must uninstall these characters first before removing the environment.\n\nWould you like to uninstall all characters first?`;
+            
+            if (confirm(confirmMsg)) {
+                // Uninstall all children first
+                for (const child of installedChildren) {
+                    showToast(`Uninstalling ${child.name}...`, 2000);
+                    await handleDLCUninstall(child.id);
+                }
+                // Then uninstall the parent
+                await handleDLCUninstall(dlcId);
+            }
+        } else {
+            // No installed children, proceed with normal uninstall
+            handleDLCUninstall(dlcId);
+        }
+    }
+    
+    /**
+     * Handle DLC installation
+     */
+    async function handleDLCInstall(dlcId) {
+        const dlc = dlcList[dlcId];
+        if (!dlc) {
+            showToast('DLC not found', 3000);
+            return;
+        }
+        
+        // IMPORTANT: Use build-type-specific game data for correct install path
+        const game = gameLibrary[currentGameId]?.[currentBuildType] || gameLibrary[currentGameId];
+        console.log(`[DLC Install] Using game path for ${currentBuildType}:`, game?.installPath);
+        
+        if (!game || !game.installPath) {
+            showToast('Game must be installed first', 3000);
+            return;
+        }
+        
+        try {
+            showToast(`Installing ${dlc.name}...`, 3000);
+            
+            const result = await window.electronAPI.downloadDLC({
+                dlcId: dlc.id,
+                manifestUrl: dlc.manifestUrl,
+                gamePath: game.installPath,
+                dlcFolderName: dlc.folderName,
+                dlcList: dlcList
+            });
+            
+            if (result.success) {
+                showToast(`${dlc.name} installed successfully!`, 3000);
+                await refreshDLCStatus();
+                renderDLCs();
+            } else {
+                showToast(`Installation failed: ${result.error}`, 5000);
+            }
+        } catch (error) {
+            console.error('Error installing DLC:', error);
+            showToast(`Error installing DLC: ${error.message}`, 5000);
+        }
+    }
+    
+    /**
+     * Handle DLC uninstallation
+     */
+    async function handleDLCUninstall(dlcId) {
+        const dlc = dlcList[dlcId];
+        if (!dlc) {
+            showToast('DLC not found', 3000);
+            return;
+        }
+        
+        // IMPORTANT: Use build-type-specific game data for correct install path
+        const game = gameLibrary[currentGameId]?.[currentBuildType] || gameLibrary[currentGameId];
+        console.log(`[DLC Uninstall] Using game path for ${currentBuildType}:`, game?.installPath);
+        
+        if (!game || !game.installPath) {
+            showToast('Game path not found', 3000);
+            return;
+        }
+        
+        if (!confirm(`Are you sure you want to uninstall ${dlc.name}?`)) {
+            return;
+        }
+        
+        try {
+            showToast(`Uninstalling ${dlc.name}...`, 3000);
+            
+            const result = await window.electronAPI.uninstallDLC({
+                dlcId: dlc.id,
+                gamePath: game.installPath,
+                dlcFolderName: dlc.folderName,
+                dlcList: dlcList
+            });
+            
+            if (result.success) {
+                showToast(`${dlc.name} uninstalled successfully!`, 3000);
+                await refreshDLCStatus();
+                renderDLCs();
+            } else {
+                showToast(`Uninstallation failed: ${result.error}`, 5000);
+            }
+        } catch (error) {
+            console.error('Error uninstalling DLC:', error);
+            showToast(`Error uninstalling DLC: ${error.message}`, 5000);
+        }
+    }
+    
+    /**
+     * Handle DLC verification
+     */
+    async function handleDLCVerify(dlcId) {
+        const dlc = dlcList[dlcId];
+        if (!dlc) {
+            showToast('DLC not found', 3000);
+            return;
+        }
+        
+        // IMPORTANT: Use build-type-specific game data for correct install path
+        const game = gameLibrary[currentGameId]?.[currentBuildType] || gameLibrary[currentGameId];
+        console.log(`[DLC Verify] Using game path for ${currentBuildType}:`, game?.installPath);
+        
+        if (!game || !game.installPath) {
+            showToast('Game path not found', 3000);
+            return;
+        }
+        
+        // Construct install path (path.join is not available in browser, use string concatenation)
+        const installPath = `${game.installPath.replace(/\\/g, '/')}/RolePlay_AI/Plugins/${dlc.folderName}`;
+        
+        try {
+            showToast(`Verifying ${dlc.name}...`, 3000);
+            
+            const result = await window.electronAPI.verifyDLC({
+                dlcId: dlc.id,
+                manifestUrl: dlc.manifestUrl,
+                installPath: installPath
+            });
+            
+            if (result.success) {
+                if (result.valid) {
+                    showToast(`${dlc.name} verification passed!`, 3000);
+                } else {
+                    const issues = [];
+                    if (result.missingFiles?.length > 0) {
+                        issues.push(`${result.missingFiles.length} missing files`);
+                    }
+                    if (result.corruptedFiles?.length > 0) {
+                        issues.push(`${result.corruptedFiles.length} corrupted files`);
+                    }
+                    showToast(`${dlc.name} verification failed: ${issues.join(', ')}`, 5000);
+                }
+            } else {
+                showToast(`Verification failed: ${result.error}`, 5000);
+            }
+        } catch (error) {
+            console.error('Error verifying DLC:', error);
+            showToast(`Error verifying DLC: ${error.message}`, 5000);
+        }
+    }
+    
+    // Expose DLC functions globally
+    window.loadDLCs = loadDLCs;
+    window.renderDLCs = renderDLCs;
     
     // This is the initial call that starts the launcher logic
     init();

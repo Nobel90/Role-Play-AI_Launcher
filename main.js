@@ -21,6 +21,105 @@ let verificationCancelled = false; // Flag to cancel verification
 let currentVerificationSender = null; // Track the sender for current verification
 
 const dataPath = path.join(app.getPath('userData'), 'launcher-data.json');
+const settingsPath = path.join(app.getPath('userData'), 'launcher-settings.json');
+
+// Build Type Management
+let currentBuildType = 'production'; // Default to production
+
+// Load build type from settings
+async function loadBuildType() {
+    try {
+        await fs.access(settingsPath);
+        const data = await fs.readFile(settingsPath, 'utf-8');
+        const settings = JSON.parse(data);
+        if (settings.buildType && (settings.buildType === 'production' || settings.buildType === 'staging')) {
+            currentBuildType = settings.buildType;
+            console.log(`Build type loaded: ${currentBuildType}`);
+        }
+    } catch (error) {
+        // Settings file doesn't exist, use default
+        console.log('Using default build type: production');
+    }
+}
+
+// Save build type to settings
+async function saveBuildType() {
+    try {
+        const settings = { buildType: currentBuildType };
+        await fs.writeFile(settingsPath, JSON.stringify(settings, null, 2));
+        console.log(`Build type saved: ${currentBuildType}`);
+    } catch (error) {
+        console.error('Error saving build type:', error);
+    }
+}
+
+// Initialize build type on app start
+loadBuildType();
+
+// DLC State Tracking - Per build type
+// Structure: dlcState[buildType][environments/characters]
+let dlcState = {
+    production: {
+        environments: {},
+        characters: {}
+    },
+    staging: {
+        environments: {},
+        characters: {}
+    }
+};
+
+// Load DLC state from disk
+async function loadDLCState() {
+    const dlcStatePath = path.join(app.getPath('userData'), 'dlc-state.json');
+    try {
+        await fs.access(dlcStatePath);
+        const data = await fs.readFile(dlcStatePath, 'utf-8');
+        const loadedState = JSON.parse(data);
+        
+        // Migrate old structure if needed
+        if (loadedState.environments || loadedState.characters) {
+            // Old structure - migrate to production
+            dlcState = {
+                production: {
+                    environments: loadedState.environments || {},
+                    characters: loadedState.characters || {}
+                },
+                staging: {
+                    environments: {},
+                    characters: {}
+                }
+            };
+            // Save migrated structure
+            await saveDLCState();
+        } else {
+            // New structure
+            dlcState = {
+                production: loadedState.production || { environments: {}, characters: {} },
+                staging: loadedState.staging || { environments: {}, characters: {} }
+            };
+        }
+    } catch (error) {
+        // File doesn't exist, use default empty state
+        dlcState = {
+            production: { environments: {}, characters: {} },
+            staging: { environments: {}, characters: {} }
+        };
+    }
+}
+
+// Save DLC state to disk
+async function saveDLCState() {
+    const dlcStatePath = path.join(app.getPath('userData'), 'dlc-state.json');
+    try {
+        await fs.writeFile(dlcStatePath, JSON.stringify(dlcState, null, 2));
+    } catch (error) {
+        console.error('Error saving DLC state:', error);
+    }
+}
+
+// Initialize DLC state on app start
+loadDLCState();
 
 let activeDownload = {
     request: null,
@@ -30,22 +129,52 @@ let activeDownload = {
 };
 const browserHeaders = { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36' };
 
-// R2 Configuration for Production Downloads
+// R2 Configuration - Dynamic based on build type
 // Public R2 URL for the bucket (configured for public read access)
 // Note: The public URL already points to the bucket, so we don't include bucket name in the path
-const R2_CONFIG = {
+function getR2Config() {
+    return {
     baseUrl: 'https://pub-f87e49b41fad4c0fad84e94d65ed13cc.r2.dev',
-    buildType: 'production',
+        get buildType() {
+            return currentBuildType;
+        },
+        get manifestUrl() {
+            // Base game manifest: {buildType}/roleplayai_manifest.json
+            return `${this.baseUrl}/${this.buildType}/roleplayai_manifest.json`;
+        },
     constructChunkUrl(relativePath) {
         // Handle both relative paths and full URLs
         if (relativePath.startsWith('http')) {
             return relativePath; // Already a full URL (backward compatibility)
         }
-        // Prepend base URL for relative paths (bucket name not needed in public URL)
-        // relativePath is already: production/[version]/chunks/[hash-prefix]/[chunk-hash]
+            // Prepend base URL for relative paths
+            // relativePath format: {buildType}/[version]/chunks/[hash-prefix]/[chunk-hash]
+            // or for DLCs: {buildType}/{dlcFolderName}/[version]/chunks/[hash-prefix]/[chunk-hash]
         return `${this.baseUrl}/${relativePath}`;
+        },
+        constructDLCManifestUrl(dlcFolderName, version) {
+            // DLC manifest: {buildType}/{dlcFolderName}/{version}/manifest.json
+            return `${this.baseUrl}/${this.buildType}/${dlcFolderName}/${version}/manifest.json`;
+        }
+    };
+}
+
+// Legacy R2_CONFIG for backward compatibility (will use current build type)
+const R2_CONFIG = new Proxy({}, {
+    get(target, prop) {
+        const config = getR2Config();
+        if (prop === 'manifestUrl') {
+            return config.manifestUrl;
+        }
+        if (prop === 'constructChunkUrl') {
+            return config.constructChunkUrl.bind(config);
+        }
+        if (prop === 'constructDLCManifestUrl') {
+            return config.constructDLCManifestUrl.bind(config);
+        }
+        return config[prop];
     }
-};
+});
 
 // Helper function to check if file is text-based (for debug purposes)
 function isTextFile(filename) {
@@ -275,6 +404,32 @@ autoUpdater.on('update-downloaded', (info) => {
 
 ipcMain.handle('get-app-version', () => {
     return app.getVersion();
+});
+
+// Build Type IPC Handlers
+ipcMain.handle('get-build-type', async () => {
+    return { success: true, buildType: currentBuildType };
+});
+
+ipcMain.handle('set-build-type', async (event, buildType) => {
+    if (buildType !== 'production' && buildType !== 'staging') {
+        return { success: false, error: 'Invalid build type. Must be "production" or "staging"' };
+    }
+    
+    const previousBuildType = currentBuildType;
+    currentBuildType = buildType;
+    await saveBuildType();
+    
+    // Invalidate catalog cache when build type changes
+    invalidateCatalogCache();
+    
+    // Notify renderer of build type change
+    if (mainWindow) {
+        mainWindow.webContents.send('build-type-changed', { buildType, previousBuildType });
+    }
+    
+    console.log(`Build type changed from ${previousBuildType} to ${buildType}`);
+    return { success: true, buildType: currentBuildType };
 });
 
 ipcMain.on('close-window', () => {
@@ -1330,7 +1485,10 @@ ipcMain.handle('check-version-only', async (event, { gameId, installPath, manife
                 serverVersion = versionResponse.data.version;
             } else {
                 // Fallback: get version from manifest
-                const manifestResponse = await axios.get(manifestUrl, { headers: browserHeaders });
+                // Use provided manifestUrl or fall back to R2 config for current build type
+                const finalManifestUrl = manifestUrl || getR2Config().manifestUrl;
+                console.log(`[Version Check] Using manifest URL: ${finalManifestUrl} (build type: ${currentBuildType})`);
+                const manifestResponse = await axios.get(finalManifestUrl, { headers: browserHeaders });
                 const { manifest: serverManifest } = parseManifest(manifestResponse.data);
                 serverVersion = serverManifest.version || 'N/A';
             }
@@ -1466,7 +1624,11 @@ ipcMain.on('cancel-verification', (event) => {
 
 ipcMain.handle('check-for-updates', async (event, { gameId, installPath, manifestUrl }) => {
     try {
-        const response = await axios.get(manifestUrl, { headers: browserHeaders });
+        // Use provided manifestUrl or fall back to current build type manifest
+        const finalManifestUrl = manifestUrl || getR2Config().manifestUrl;
+        console.log(`Checking for updates using manifest: ${finalManifestUrl} (build type: ${currentBuildType})`);
+        
+        const response = await axios.get(finalManifestUrl, { headers: browserHeaders });
         const serverManifestData = response.data;
         const { type, manifest: serverManifest } = parseManifest(serverManifestData);
         const serverVersion = serverManifest.version || 'N/A';
@@ -1864,3 +2026,463 @@ async function checkFileBasedUpdates(serverManifest, installPath, serverVersion,
             `Found ${filesToUpdate.length} files to update.`
     };
 }
+
+// ==================== Catalog Management ====================
+
+const CATALOG_URL = 'https://pub-f87e49b41fad4c0fad84e94d65ed13cc.r2.dev/catalog.json';
+let catalogCache = null;
+let catalogFetchTime = 0;
+const CATALOG_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+/**
+ * Fetch catalog.json from R2
+ */
+async function fetchCatalog() {
+    const now = Date.now();
+    
+    // Return cached catalog if still valid
+    if (catalogCache && (now - catalogFetchTime) < CATALOG_CACHE_DURATION) {
+        console.log('[Catalog] Using cached catalog');
+        return catalogCache;
+    }
+    
+    try {
+        console.log('[Catalog] Fetching from:', CATALOG_URL);
+        const response = await axios.get(CATALOG_URL, { 
+            headers: browserHeaders,
+            timeout: 10000 // 10 second timeout
+        });
+        
+        const catalog = response.data;
+        console.log('[Catalog] Fetched successfully:', {
+            version: catalog.catalogVersion,
+            lastUpdated: catalog.lastUpdated,
+            builds: Object.keys(catalog.builds || {})
+        });
+        
+        // Cache the catalog
+        catalogCache = catalog;
+        catalogFetchTime = now;
+        
+        return catalog;
+    } catch (error) {
+        console.error('[Catalog] Fetch error:', error.message);
+        return null;
+    }
+}
+
+/**
+ * Invalidate catalog cache
+ */
+function invalidateCatalogCache() {
+    catalogCache = null;
+    catalogFetchTime = 0;
+    console.log('[Catalog] Cache invalidated');
+}
+
+/**
+ * IPC handler: Fetch catalog
+ */
+ipcMain.handle('fetch-catalog', async () => {
+    try {
+        const catalog = await fetchCatalog();
+        return { success: true, catalog, buildType: currentBuildType };
+    } catch (error) {
+        console.error('Error fetching catalog:', error);
+        return { success: false, error: error.message, catalog: null };
+    }
+});
+
+/**
+ * IPC handler: Get base game info from catalog
+ */
+ipcMain.handle('get-catalog-base-game', async () => {
+    try {
+        const catalog = await fetchCatalog();
+        
+        if (catalog && catalog.builds && catalog.builds[currentBuildType]) {
+            const buildCatalog = catalog.builds[currentBuildType];
+            return {
+                success: true,
+                baseGame: buildCatalog.baseGame || null,
+                buildType: currentBuildType
+            };
+        }
+        
+        return { success: true, baseGame: null, buildType: currentBuildType };
+    } catch (error) {
+        console.error('Error getting base game info:', error);
+        return { success: false, error: error.message, baseGame: null };
+    }
+});
+
+/**
+ * IPC handler: Get DLCs from catalog
+ */
+ipcMain.handle('get-catalog-dlcs', async () => {
+    try {
+        const catalog = await fetchCatalog();
+        
+        if (catalog && catalog.builds && catalog.builds[currentBuildType]) {
+            const buildCatalog = catalog.builds[currentBuildType];
+            const dlcs = buildCatalog.dlcs || [];
+            
+            // Convert array to object keyed by ID
+            const dlcsMap = {};
+            for (const dlc of dlcs) {
+                if (dlc.enabled !== false) {
+                    dlcsMap[dlc.id] = dlc;
+                }
+            }
+            
+            return {
+                success: true,
+                dlcs: dlcsMap,
+                buildType: currentBuildType,
+                source: 'catalog'
+            };
+        }
+        
+        return { success: true, dlcs: {}, buildType: currentBuildType, source: 'catalog' };
+    } catch (error) {
+        console.error('Error getting catalog DLCs:', error);
+        return { success: false, error: error.message, dlcs: {} };
+    }
+});
+
+// ==================== DLC Management Functions ====================
+
+/**
+ * Get DLC installation path
+ * @param {string} gamePath - Base game installation path
+ * @param {string} dlcFolderName - DLC folder name (e.g., "DLC_Hospital")
+ * @returns {string} Full path to DLC installation directory
+ */
+function getDLCInstallPath(gamePath, dlcFolderName) {
+    // DLCs are installed in: {gamePath}/RolePlay_AI/Plugins/{dlcFolderName}/
+    return path.join(gamePath, 'RolePlay_AI', 'Plugins', dlcFolderName);
+}
+
+/**
+ * Validate DLC dependencies
+ * @param {Object} dlc - DLC object
+ * @param {Object} dlcList - All available DLCs
+ * @returns {Object} { valid: boolean, error?: string }
+ */
+function validateDLCDependencies(dlc, dlcList) {
+    if (dlc.type === 'character') {
+        if (!dlc.parentId) {
+            return { valid: false, error: 'Character DLC must have a parent Environment' };
+        }
+        
+        const parentDLC = dlcList[dlc.parentId];
+        if (!parentDLC) {
+            return { valid: false, error: `Parent Environment "${dlc.parentId}" not found` };
+        }
+        
+        if (parentDLC.type !== 'environment') {
+            return { valid: false, error: 'Parent DLC must be an Environment type' };
+        }
+        
+        // Check if parent is installed (for current build type)
+        const parentState = dlcState[currentBuildType].environments[dlc.parentId];
+        if (!parentState || !parentState.installed) {
+            return { valid: false, error: `Parent Environment "${parentDLC.name}" must be installed first` };
+        }
+    }
+    
+    return { valid: true };
+}
+
+/**
+ * Check if DLC is installed
+ * @param {string} installPath - DLC installation path
+ * @returns {Promise<boolean>}
+ */
+async function isDLCInstalled(installPath) {
+    try {
+        await fs.access(installPath);
+        const files = await fs.readdir(installPath);
+        // Consider installed if folder exists and has files
+        return files.length > 0;
+    } catch (error) {
+        return false;
+    }
+}
+
+// ==================== DLC IPC Handlers ====================
+
+/**
+ * Fetch DLC metadata from Firebase
+ */
+ipcMain.handle('get-dlcs', async (event, { appId }) => {
+    try {
+        // Initialize Firebase if not already done
+        if (!global.firebaseApp) {
+            const { initializeApp } = require('firebase/app');
+            const { getFirestore } = require('firebase/firestore');
+            
+            // Firebase config - same as renderer.js
+            const firebaseConfig = {
+                apiKey: "AIzaSyDigbqsTEMSRXz_JgqBAIJ1BKmr6Zb7DzQ",
+                authDomain: "vr-centre-7bdac.firebaseapp.com",
+                projectId: "vr-centre-7bdac",
+                storageBucket: "vr-centre-7bdac.firebasestorage.app",
+                messagingSenderId: "236273910700",
+                appId: "1:236273910700:web:10d6825337bfd26fb43009",
+                measurementId: "G-7P6X25QK1R"
+            };
+            
+            global.firebaseApp = initializeApp(firebaseConfig);
+            global.firestore = getFirestore(global.firebaseApp);
+        }
+        
+        const { doc: firestoreDoc, getDoc: firestoreGetDoc } = require('firebase/firestore');
+        const appDoc = firestoreDoc(global.firestore, 'apps', appId);
+        const appSnapshot = await firestoreGetDoc(appDoc);
+        
+        if (appSnapshot.exists()) {
+            const data = appSnapshot.data();
+            const dlcs = data.dlcs || {};
+            
+            // Filter only enabled DLCs and update manifest URLs based on current build type
+            const enabledDLCs = {};
+            const r2Config = getR2Config();
+            
+            for (const [dlcId, dlc] of Object.entries(dlcs)) {
+                if (dlc.enabled) {
+                    // Create a copy of the DLC to avoid modifying the original
+                    const dlcCopy = { ...dlc };
+                    
+                    // Update manifest URL to use current build type
+                    // DLC manifest URLs from Admin are: {baseUrl}/{buildType}/{dlcFolderName}/{version}/manifest.json
+                    // We need to replace the build type in the URL if it exists, or construct it if it doesn't
+                    if (dlc.manifestUrl) {
+                        // Extract version and dlcFolderName from existing manifestUrl or use stored values
+                        const version = dlc.version || '1.0.0';
+                        const dlcFolderName = dlc.folderName || dlc.id;
+                        
+                        // Construct new manifest URL with current build type
+                        dlcCopy.manifestUrl = r2Config.constructDLCManifestUrl(dlcFolderName, version);
+                    } else if (dlc.folderName && dlc.version) {
+                        // Construct manifest URL if not provided
+                        dlcCopy.manifestUrl = r2Config.constructDLCManifestUrl(dlc.folderName, dlc.version);
+                    }
+                    
+                    enabledDLCs[dlcId] = dlcCopy;
+                }
+            }
+            
+            return { success: true, dlcs: enabledDLCs, buildType: currentBuildType };
+        } else {
+            return { success: true, dlcs: {}, buildType: currentBuildType };
+        }
+    } catch (error) {
+        console.error('Error fetching DLCs:', error);
+        // Return empty DLCs on error (graceful degradation)
+        return { success: false, error: error.message, dlcs: {} };
+    }
+});
+
+/**
+ * Download and install a DLC
+ */
+ipcMain.handle('download-dlc', async (event, { dlcId, manifestUrl, gamePath, dlcFolderName, dlcList }) => {
+    try {
+        // Validate dependencies
+        const dlc = dlcList[dlcId];
+        if (!dlc) {
+            throw new Error(`DLC ${dlcId} not found`);
+        }
+        
+        const validation = validateDLCDependencies(dlc, dlcList);
+        if (!validation.valid) {
+            return { success: false, error: validation.error };
+        }
+        
+        // Validate install path
+        const fullInstallPath = getDLCInstallPath(gamePath, dlcFolderName);
+        
+        // Ensure Plugins directory exists
+        const pluginsPath = path.join(gamePath, 'RolePlay_AI', 'Plugins');
+        await fs.mkdir(pluginsPath, { recursive: true });
+        
+        // Ensure DLC directory exists
+        await fs.mkdir(fullInstallPath, { recursive: true });
+        
+        // Fetch manifest
+        const manifestResponse = await axios.get(manifestUrl, { headers: browserHeaders });
+        const manifestData = manifestResponse.data;
+        
+        // Parse manifest
+        const { type, manifest } = parseManifest(manifestData);
+        
+        if (type !== 'chunk-based') {
+            throw new Error('DLC must use chunk-based manifest');
+        }
+        
+        // Use existing download manager to download DLC
+        // We'll create a temporary download manager instance for DLC
+        const dlcDownloadManager = new DownloadManager(mainWindow, chunkManager);
+        
+        // Start download
+        await dlcDownloadManager.start(
+            `dlc_${dlcId}`,
+            fullInstallPath,
+            manifest,
+            manifest.version || '1.0.0'
+        );
+        
+        // Update DLC state (for current build type)
+        const dlcType = dlc.type === 'environment' ? 'environments' : 'characters';
+        dlcState[currentBuildType][dlcType][dlcId] = {
+            installed: true,
+            version: manifest.version || '1.0.0',
+            installPath: fullInstallPath
+        };
+        await saveDLCState();
+        
+        return { success: true };
+    } catch (error) {
+        console.error('Error downloading DLC:', error);
+        return { success: false, error: error.message };
+    }
+});
+
+/**
+ * Uninstall a DLC
+ */
+ipcMain.handle('uninstall-dlc', async (event, { dlcId, gamePath, dlcFolderName, dlcList }) => {
+    try {
+        const fullInstallPath = getDLCInstallPath(gamePath, dlcFolderName);
+        
+        // Check for dependencies
+        const dlc = dlcList[dlcId];
+        if (dlc && dlc.type === 'environment') {
+            // Check if any characters depend on this environment
+            const dependentCharacters = Object.values(dlcList).filter(
+                d => d.type === 'character' && d.parentId === dlcId
+            );
+            
+            if (dependentCharacters.length > 0) {
+                const installedDependent = dependentCharacters.filter(char => {
+                    const charState = dlcState[currentBuildType].characters[char.id];
+                    return charState && charState.installed;
+                });
+                
+                if (installedDependent.length > 0) {
+                    return {
+                        success: false,
+                        error: `Cannot uninstall: ${installedDependent.length} character DLC(s) depend on this environment. Uninstall them first.`,
+                        requiresConfirmation: true
+                    };
+                }
+            }
+        }
+        
+        // Delete DLC folder
+        try {
+            await fs.rm(fullInstallPath, { recursive: true, force: true });
+        } catch (error) {
+            // Folder might not exist, that's okay
+            console.log('DLC folder not found or already deleted:', error.message);
+        }
+        
+        // Update DLC state
+        const dlcType = dlc && dlc.type === 'environment' ? 'environments' : 'characters';
+        delete dlcState[currentBuildType][dlcType][dlcId];
+        await saveDLCState();
+        
+        return { success: true };
+    } catch (error) {
+        console.error('Error uninstalling DLC:', error);
+        return { success: false, error: error.message };
+    }
+});
+
+/**
+ * Verify DLC installation
+ */
+ipcMain.handle('verify-dlc', async (event, { dlcId, manifestUrl, installPath }) => {
+    try {
+        // Fetch manifest
+        const manifestResponse = await axios.get(manifestUrl, { headers: browserHeaders });
+        const manifestData = manifestResponse.data;
+        
+        // Parse manifest
+        const { type, manifest } = parseManifest(manifestData);
+        
+        if (type !== 'chunk-based') {
+            throw new Error('DLC must use chunk-based manifest');
+        }
+        
+        // Verify files
+        const missingFiles = [];
+        const corruptedFiles = [];
+        
+        for (const file of manifest.files) {
+            const filePath = path.join(installPath, file.filename);
+            
+            try {
+                await fs.access(filePath);
+                const stats = await fs.stat(filePath);
+                
+                // Check size
+                const expectedSize = file.chunks.reduce((sum, chunk) => sum + chunk.size, 0);
+                if (stats.size !== expectedSize) {
+                    corruptedFiles.push({ file: file.filename, expected: expectedSize, actual: stats.size });
+                }
+            } catch (error) {
+                missingFiles.push(file.filename);
+            }
+        }
+        
+        return {
+            success: true,
+            valid: missingFiles.length === 0 && corruptedFiles.length === 0,
+            missingFiles,
+            corruptedFiles
+        };
+    } catch (error) {
+        console.error('Error verifying DLC:', error);
+        return { success: false, error: error.message };
+    }
+});
+
+/**
+ * Get installed DLCs status
+ */
+ipcMain.handle('get-dlc-status', async (event, { gamePath }) => {
+    try {
+        // Refresh state by checking actual installations
+        const pluginsPath = path.join(gamePath, 'RolePlay_AI', 'Plugins');
+        
+        try {
+            await fs.access(pluginsPath);
+            const folders = await fs.readdir(pluginsPath);
+            
+            // Check each folder
+            for (const folder of folders) {
+                const folderPath = path.join(pluginsPath, folder);
+                const stats = await fs.stat(folderPath);
+                
+                if (stats.isDirectory()) {
+                    const installed = await isDLCInstalled(folderPath);
+                    // Try to find DLC ID from folder name (this is a simplified approach)
+                    // In production, you'd want to store a mapping or read metadata
+                    const dlcId = folder; // Simplified - should match with actual DLC IDs
+                    
+                    // Update state if found
+                    // This is a simplified check - in production, maintain proper mapping
+                }
+            }
+        } catch (error) {
+            // Plugins folder doesn't exist yet
+        }
+        
+        return { success: true, state: dlcState[currentBuildType] };
+    } catch (error) {
+        console.error('Error getting DLC status:', error);
+        return { success: false, error: error.message, state: dlcState };
+    }
+});

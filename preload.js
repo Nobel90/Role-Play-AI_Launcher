@@ -49,5 +49,27 @@ contextBridge.exposeInMainWorld('electronAPI', {
         ipcRenderer.removeAllListeners('chunk-check-complete');
         ipcRenderer.removeAllListeners('chunk-check-result');
         ipcRenderer.removeAllListeners('chunk-check-error');
+    },
+    
+    // --- DLC Management ---
+    getDLCs: (args) => ipcRenderer.invoke('get-dlcs', args),
+    downloadDLC: (args) => ipcRenderer.invoke('download-dlc', args),
+    uninstallDLC: (args) => ipcRenderer.invoke('uninstall-dlc', args),
+    verifyDLC: (args) => ipcRenderer.invoke('verify-dlc', args),
+    getDLCStatus: (args) => ipcRenderer.invoke('get-dlc-status', args),
+    
+    // --- Catalog Management ---
+    fetchCatalog: () => ipcRenderer.invoke('fetch-catalog'),
+    getCatalogBaseGame: () => ipcRenderer.invoke('get-catalog-base-game'),
+    getCatalogDLCs: () => ipcRenderer.invoke('get-catalog-dlcs'),
+    
+    // --- Build Type Management ---
+    getBuildType: () => ipcRenderer.invoke('get-build-type'),
+    setBuildType: (buildType) => ipcRenderer.invoke('set-build-type', buildType),
+    onBuildTypeChanged: (callback) => {
+        ipcRenderer.on('build-type-changed', (event, data) => callback(data));
+    },
+    removeBuildTypeListener: () => {
+        ipcRenderer.removeAllListeners('build-type-changed');
     }
 });

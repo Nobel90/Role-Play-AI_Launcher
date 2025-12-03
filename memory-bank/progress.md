@@ -34,6 +34,27 @@
 - **Verification**: Background file verification using Web Workers
 - **Download Optimization**: Only processes files that need updating
 
+### Build Type & DLC System (NEW - v1.1.0)
+- **Build Type Switching**: Production/Staging builds with separate install paths
+  - Header dropdown for quick switching
+  - Settings modal configuration
+  - Per-build game data persistence
+  - Build-type-specific DLC management
+- **DLC Hierarchy System**: Two-level DLC structure
+  - Level 1: Environment DLCs (e.g., DLC_Hospital)
+  - Level 2: Character DLCs (e.g., DLC_Hospital_Rachael)
+  - Parent-child dependency enforcement
+  - Visual hierarchy display with nested cards
+- **Catalog Integration**: R2-based catalog.json support
+  - Primary source for DLC discovery
+  - Firebase fallback for reliability
+  - Caching with 5-minute TTL
+  - Build-type-aware catalog fetching
+- **DLC Dependency Validation**:
+  - Blocks character install without parent environment
+  - Blocks environment uninstall with active children
+  - Version compatibility checking
+
 ### Recent Improvements (v1.0.7)
 - Signing system refactored for Electron-Builder v26+ compatibility
 - Reconstruction hang issues fixed
@@ -58,13 +79,17 @@
 - Chunk cache effectiveness monitoring
 - Reconstruction testing with various file change scenarios
 - Auto-updater testing in production builds
+- End-to-end DLC workflow testing
 
 ## Current Status
-- **Version**: 1.0.7
+- **Version**: 1.1.0 (with Build Type & DLC System)
 - **Build System**: Functional and signing correctly with Electron-Builder v26+
 - **Chunking**: Fully implemented and operational
 - **R2 Integration**: Production downloads configured and ready
 - **Signing**: USB token signing working correctly
+- **Build Types**: Production/Staging switching implemented
+- **DLC System**: Full hierarchy and dependency management
+- **Catalog Integration**: R2 catalog.json fetching with fallbacks
 - **Status**: Ready for deployment and testing
 
 ## Known Issues
@@ -79,8 +104,12 @@
 - ✅ Download optimization (v1.0.7)
 - ✅ Version display and UI state issues (v1.0.6)
 - ✅ `version.json` download errors (v1.0.6)
+- ✅ Build type switching (v1.1.0)
+- ✅ DLC hierarchy management (v1.1.0)
+- ✅ Catalog integration (v1.1.0)
 
 ## Version History
+- **v1.1.0**: Build type switching, DLC hierarchy, catalog integration, dependency validation
 - **v1.0.7**: Signing refactor, CDC implementation, R2 integration, path detection improvements
 - **v1.0.6**: Critical update bugs fixed, UI improvements, game status detection
 - **v1.0.5 and earlier**: Initial development, basic launcher functionality

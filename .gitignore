@@ -24,6 +24,9 @@ test-server-files/
 # VS Code
 .vscode/
 
+# Cursor files
+.cursor/
+
 # System files
 .DS_Store
 Thumbs.db

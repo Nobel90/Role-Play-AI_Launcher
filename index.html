@@ -180,6 +180,51 @@
             border-color: rgba(59, 130, 246, 0.6);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
         }
+        
+        /* Build Switcher Styles */
+        .build-type-option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .build-type-option:hover {
+            background: rgba(55, 65, 81, 0.8);
+        }
+        
+        .build-type-option.active {
+            background: rgba(59, 130, 246, 0.1);
+        }
+        
+        #build-switcher-dropdown.show {
+            display: block;
+            animation: fadeIn 0.2s ease-out;
+        }
+        
+        #build-switcher-toggle.open #build-switcher-arrow {
+            transform: rotate(180deg);
+        }
+        
+        /* DLC Hierarchy Styles */
+        .dlc-environment-card {
+            border-left: 3px solid #3b82f6;
+        }
+        
+        .dlc-character-card {
+            border-left: 3px solid #8b5cf6;
+        }
+        
+        .dlc-child-container {
+            border-left: 2px solid rgba(139, 92, 246, 0.3);
+            margin-left: 0.5rem;
+            padding-left: 1rem;
+        }
+        
+        .dlc-dependency-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #fbbf24;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white overflow-hidden h-screen">
@@ -307,6 +352,54 @@
                     <button class="nav-tab" data-view="apps">APPS</button>
                     <button class="nav-tab" data-view="shop">SHOP</button>
                 </nav>
+            </div>
+            
+            <!-- Center: Build Type Switcher -->
+            <div class="relative" id="build-switcher-container">
+                <button id="build-switcher-toggle" class="flex items-center gap-3 px-4 py-2 bg-gray-700/50 hover:bg-gray-700 rounded-lg border border-gray-600 transition-all">
+                    <span id="build-type-badge-header" class="px-2.5 py-0.5 rounded-full text-xs font-semibold"></span>
+                    <span id="build-switcher-label" class="text-sm font-medium text-gray-300">Production</span>
+                    <svg class="w-4 h-4 text-gray-400 transition-transform" id="build-switcher-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+                <!-- Build Switcher Dropdown -->
+                <div id="build-switcher-dropdown" class="logo-dropdown hidden" style="left: 50%; transform: translateX(-50%); min-width: 280px;">
+                    <div class="px-4 py-2 text-xs text-gray-500 uppercase border-b border-gray-700">Select Build Type</div>
+                    <div class="build-type-option dropdown-item" data-build-type="production">
+                        <div class="flex items-center gap-3 flex-1">
+                            <span class="w-3 h-3 rounded-full bg-green-500"></span>
+                            <div>
+                                <div class="font-medium text-white">Production</div>
+                                <div class="text-xs text-gray-400">Stable release for end users</div>
+                            </div>
+                        </div>
+                        <svg id="production-check" class="w-5 h-5 text-green-400 hidden" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="build-type-option dropdown-item" data-build-type="staging">
+                        <div class="flex items-center gap-3 flex-1">
+                            <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+                            <div>
+                                <div class="font-medium text-white">Staging</div>
+                                <div class="text-xs text-gray-400">Beta/Testing - Latest features</div>
+                            </div>
+                        </div>
+                        <svg id="staging-check" class="w-5 h-5 text-yellow-400 hidden" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="dropdown-separator"></div>
+                    <div class="px-4 py-3 text-xs text-gray-400 bg-gray-800/50">
+                        <div class="flex items-center gap-2 mb-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>Each build has separate install locations</span>
+                        </div>
+                    </div>
+                </div>
             </div>
             
             <!-- Right: User Info / Login -->
@@ -445,6 +538,17 @@
                         <div id="locate-game-container" class="mt-4 hidden">
                             <a href="#" id="locate-game-link" class="text-sm text-blue-400 hover:underline">Already Installed? Locate the game folder.</a>
                         </div>
+                        
+                        <!-- Additional Content (DLC) Section -->
+                        <div id="dlc-section" class="mt-8 hidden">
+                            <div class="flex items-center gap-3 mb-4">
+                                <h2 class="text-xl font-bold text-white">Additional Content</h2>
+                                <span id="dlc-build-type-badge" class="px-2 py-1 rounded-full text-xs font-semibold"></span>
+                            </div>
+                            <div id="dlc-container" class="space-y-4">
+                                <!-- DLC items will be inserted here -->
+                            </div>
+                        </div>
                     </div>
                 </div>
                 </div>
@@ -492,13 +596,26 @@
                 <h2 class="text-2xl font-bold">Settings</h2>
                 <button id="close-settings-button" class="text-gray-400 hover:text-white">&times;</button>
             </div>
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-lg font-semibold mb-2">Build Type</h3>
+                    <div class="flex items-center space-x-4">
+                        <select id="build-type-select" class="bg-gray-700 border border-gray-600 rounded-md px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="production">Production</option>
+                            <option value="staging">Staging</option>
+                        </select>
+                        <span id="build-type-badge" class="px-3 py-1 rounded-full text-sm font-semibold"></span>
+                    </div>
+                    <p class="text-sm text-gray-400 mt-2">Select which build type to download from. DLCs will use the same build type.</p>
+            </div>
             <div>
-                <h3 class="text-lg font-semibold mb-2">Installation Path</h3>
+                    <h3 class="text-lg font-semibold mb-2">Installation Path <span class="text-sm text-gray-400">({selectedBuildType})</span></h3>
                 <div class="flex items-center space-x-4">
                     <input type="text" id="install-path-display" class="bg-gray-700 border border-gray-600 rounded-md px-4 py-2 w-full" readonly>
                     <button id="change-path-button" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-2.5 px-5 rounded-lg transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800">Change</button>
+                    </div>
+                    <p class="text-sm text-gray-400 mt-2">This is where the {selectedBuildType} build files are currently located. Each build type has its own installation path.</p>
                 </div>
-                <p class="text-sm text-gray-400 mt-2">This is where the application files are currently located.</p>
             </div>
         </div>
     </div>
