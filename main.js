@@ -2243,7 +2243,13 @@ ipcMain.handle('get-dlcs', async (event, { appId }) => {
         
         if (appSnapshot.exists()) {
             const data = appSnapshot.data();
-            const dlcs = data.dlcs || {};
+            
+            // Read DLCs from buildTypes structure first (new), fallback to legacy dlcs
+            const buildTypes = data.buildTypes || {};
+            const buildTypeData = buildTypes[currentBuildType] || {};
+            const dlcs = buildTypeData.dlcs || data.dlcs || {};
+            
+            console.log(`[IPC get-dlcs] Loading DLCs for ${currentBuildType}, found ${Object.keys(dlcs).length} DLCs`);
             
             // Filter only enabled DLCs and update manifest URLs based on current build type
             const enabledDLCs = {};

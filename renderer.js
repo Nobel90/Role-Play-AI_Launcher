@@ -915,6 +915,7 @@ function initLauncher() {
           settingsButtonEl = document.getElementById('settings-button'),
           uninstallButtonEl = document.getElementById('uninstall-button'),
           checkUpdateButtonEl = document.getElementById('check-update-button'),
+          dlcButtonEl = document.getElementById('dlc-button'),
           progressContainerEl = document.getElementById('progress-container'),
           progressBarEl = document.getElementById('progress-bar'),
           progressTextEl = document.getElementById('progress-text'),
@@ -1105,6 +1106,7 @@ function initLauncher() {
         settingsButtonEl.classList.add('hidden');
         uninstallButtonEl.classList.add('hidden');
         checkUpdateButtonEl.classList.add('hidden');
+        if (dlcButtonEl) dlcButtonEl.classList.add('hidden');
         cancelButtonEl.classList.add('hidden'); // Hide cancel button by default
         progressContainerEl.style.display = 'none';
         locateGameContainerEl.classList.add('hidden');
@@ -1122,6 +1124,7 @@ function initLauncher() {
                 settingsButtonEl.classList.remove('hidden');
                 uninstallButtonEl.classList.remove('hidden');
                 checkUpdateButtonEl.classList.remove('hidden');
+                if (dlcButtonEl) dlcButtonEl.classList.remove('hidden');
                 // Re-enable buttons (in case they were disabled during sync)
                 settingsButtonEl.disabled = false;
                 uninstallButtonEl.disabled = false;
@@ -1138,6 +1141,7 @@ function initLauncher() {
                 gameStatusTextEl.innerText = `Update available!`;
                 settingsButtonEl.classList.remove('hidden');
                 uninstallButtonEl.classList.remove('hidden');
+                if (dlcButtonEl) dlcButtonEl.classList.remove('hidden');
                 // Re-enable buttons (in case they were disabled during sync)
                 settingsButtonEl.disabled = false;
                 uninstallButtonEl.disabled = false;
@@ -1154,6 +1158,7 @@ function initLauncher() {
                 gameStatusTextEl.innerText = 'Version mismatch detected. Click to sync files.';
                 settingsButtonEl.classList.remove('hidden');
                 uninstallButtonEl.classList.remove('hidden');
+                if (dlcButtonEl) dlcButtonEl.classList.remove('hidden');
                 // Re-enable buttons (in case they were disabled during sync)
                 settingsButtonEl.disabled = false;
                 uninstallButtonEl.disabled = false;
@@ -1548,6 +1553,24 @@ function initLauncher() {
                 // Reload DLCs for new build type
                 if (currentGameId) {
                     await loadDLCs(currentGameId);
+                }
+                
+                // Refresh DLC modal if it's open
+                const dlcModal = document.getElementById('dlc-modal');
+                if (dlcModal && dlcModal.classList.contains('show')) {
+                    await refreshDLCStatus();
+                    renderDLCs();
+                    // Update build type badge in modal
+                    const buildTypeBadge = document.getElementById('dlc-modal-build-type-badge');
+                    if (buildTypeBadge) {
+                        if (currentBuildType === 'production') {
+                            buildTypeBadge.textContent = 'Production';
+                            buildTypeBadge.className = 'px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-500/20 text-green-400';
+                        } else {
+                            buildTypeBadge.textContent = 'Staging';
+                            buildTypeBadge.className = 'px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-500/20 text-yellow-400';
+                        }
+                    }
                 }
                 
                 // Update UI
@@ -2184,6 +2207,9 @@ function initLauncher() {
         closeSettingsButtonEl.addEventListener('click', closeSettingsModal);
         }
         
+        // Setup DLC modal
+        setupDLCModal();
+        
         // Build type selector
         const buildTypeSelect = document.getElementById('build-type-select');
         if (buildTypeSelect) {
@@ -2572,37 +2598,57 @@ function initLauncher() {
     
     /**
      * Fetch catalog.json from R2
+     * @param {boolean} forceRefresh - If true, bypass cache and add cache-busting
      * @returns {Object|null} Catalog data or null if fetch fails
      */
-    async function fetchCatalog() {
+    async function fetchCatalog(forceRefresh = false) {
         const now = Date.now();
         
-        // Return cached catalog if still valid
-        if (catalogCache && (now - catalogFetchTime) < CATALOG_CACHE_DURATION) {
-            console.log('Using cached catalog');
+        // Return cached catalog if still valid (unless force refresh)
+        if (!forceRefresh && catalogCache && (now - catalogFetchTime) < CATALOG_CACHE_DURATION) {
+            console.log('[Catalog] Using cached catalog');
             return catalogCache;
         }
         
         try {
-            console.log('Fetching catalog from:', CATALOG_URL);
-            const response = await fetch(CATALOG_URL, {
-                cache: 'no-store', // Always fetch fresh
+            // Add cache-busting parameter to bypass CDN cache
+            const cacheBuster = `?t=${now}`;
+            const urlWithCacheBuster = CATALOG_URL + cacheBuster;
+            
+            console.log('[Catalog] Fetching fresh catalog from:', urlWithCacheBuster);
+            const response = await fetch(urlWithCacheBuster, {
+                cache: 'no-store', // Bypass browser cache
                 headers: {
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache'
                 }
             });
             
             if (!response.ok) {
-                console.warn('Catalog fetch failed:', response.status, response.statusText);
+                console.warn('[Catalog] Fetch failed:', response.status, response.statusText);
                 return null;
             }
             
             const catalog = await response.json();
-            console.log('Catalog fetched successfully:', {
-                version: catalog.catalogVersion,
-                lastUpdated: catalog.lastUpdated,
-                builds: Object.keys(catalog.builds || {})
-            });
+            
+            // Detailed logging of what we got
+            const prodDLCs = catalog.builds?.production?.dlcs?.length || 0;
+            const stagingDLCs = catalog.builds?.staging?.dlcs?.length || 0;
+            
+            console.log('[Catalog] Fetched successfully:');
+            console.log(`[Catalog]   Version: ${catalog.catalogVersion}`);
+            console.log(`[Catalog]   Last Updated: ${catalog.lastUpdated}`);
+            console.log(`[Catalog]   Generated By: ${catalog.generatedBy}`);
+            console.log(`[Catalog]   Production DLCs: ${prodDLCs}`);
+            console.log(`[Catalog]   Staging DLCs: ${stagingDLCs}`);
+            
+            if (prodDLCs > 0) {
+                console.log('[Catalog]   Production DLC list:', catalog.builds.production.dlcs.map(d => d.folderName));
+            }
+            if (stagingDLCs > 0) {
+                console.log('[Catalog]   Staging DLC list:', catalog.builds.staging.dlcs.map(d => d.folderName));
+            }
             
             // Cache the catalog
             catalogCache = catalog;
@@ -2610,7 +2656,7 @@ function initLauncher() {
             
             return catalog;
         } catch (error) {
-            console.error('Error fetching catalog:', error);
+            console.error('[Catalog] Error fetching:', error);
             return null;
         }
     }
@@ -2643,10 +2689,17 @@ function initLauncher() {
      * Priority: catalog.json (R2) → Firebase → IPC fallback
      */
     async function loadDLCs(appId) {
-        console.log(`[DLC] Loading DLCs for ${appId} (build type: ${currentBuildType})`);
+        console.log(`[DLC] ========================================`);
+        console.log(`[DLC] Loading DLCs for ${appId}`);
+        console.log(`[DLC] Current build type: ${currentBuildType}`);
+        console.log(`[DLC] ========================================`);
+        
+        // IMPORTANT: Clear existing DLCs to prevent mixing between build types
+        dlcList = {};
         
         // Strategy 1: Try catalog.json first (canonical source published by Admin)
-        const catalog = await fetchCatalog();
+        // Force refresh to ensure we get the latest catalog
+        const catalog = await fetchCatalog(true);
         
         console.log('[DLC] Catalog fetch result:', catalog ? 'SUCCESS' : 'FAILED');
         if (catalog) {
@@ -2654,30 +2707,40 @@ function initLauncher() {
             console.log('[DLC] Current build type:', currentBuildType);
         }
         
-        if (catalog && catalog.builds && catalog.builds[currentBuildType]) {
+        // IMPORTANT: If catalog was fetched successfully, USE IT as source of truth
+        // Even if it has 0 DLCs for this build type, that's the correct state from R2
+        if (catalog && catalog.builds) {
             const buildCatalog = catalog.builds[currentBuildType];
-            const catalogDLCs = buildCatalog.dlcs || [];
+            const catalogDLCs = buildCatalog?.dlcs || [];
             
-            console.log(`[DLC] DLCs in catalog for ${currentBuildType}:`, catalogDLCs.length, catalogDLCs.map(d => d.id));
+            console.log(`[DLC] Catalog fetched - ${currentBuildType} has ${catalogDLCs.length} DLCs`);
             
             if (catalogDLCs.length > 0) {
-                console.log(`[DLC] Found ${catalogDLCs.length} DLCs in catalog for ${currentBuildType}`);
-                
-                // Convert catalog DLCs to internal format
-                dlcList = {};
-                for (const dlcEntry of catalogDLCs) {
-                    if (dlcEntry.enabled !== false) { // Include if enabled or not specified
-                        dlcList[dlcEntry.id] = catalogDLCToInternal(dlcEntry);
-                    }
-                }
-                
-                await refreshDLCStatus();
-                renderDLCs();
-                return;
+                console.log(`[DLC] ✓ DLCs in catalog for ${currentBuildType}:`);
+                catalogDLCs.forEach(d => console.log(`[DLC]   - ${d.folderName} v${d.version}`));
             }
+            
+            // Convert catalog DLCs to internal format (may be empty - that's OK!)
+            dlcList = {};
+            for (const dlcEntry of catalogDLCs) {
+                if (dlcEntry.enabled !== false) {
+                    dlcList[dlcEntry.id] = catalogDLCToInternal(dlcEntry);
+                }
+            }
+            
+            console.log(`[DLC] ✓✓✓ SOURCE: CATALOG (R2) - ${Object.keys(dlcList).length} DLCs for ${currentBuildType}`);
+            
+            if (Object.keys(dlcList).length === 0) {
+                console.log(`[DLC] ℹ️ No DLCs available for ${currentBuildType} build. This is correct if none were uploaded.`);
+            }
+            
+            await refreshDLCStatus();
+            renderDLCs();
+            return; // ALWAYS return here if catalog was fetched - don't fall back to Firebase
         }
         
-        console.log('Catalog empty or unavailable, falling back to Firebase...');
+        console.log(`[DLC] ⚠️ Catalog fetch FAILED, falling back to Firebase...`);
+        console.log(`[DLC] ⚠️ WARNING: Firebase may have stale data! Consider using Uploader's "Rebuild Catalog" button.`);
         
         // Strategy 2: Fallback to Firebase
         try {
@@ -2686,7 +2749,13 @@ function initLauncher() {
             
             if (appSnapshot.exists()) {
                 const data = appSnapshot.data();
-                const allDlcs = data.dlcs || {};
+                
+                // Read from buildTypes structure first (new), fallback to legacy dlcs
+                const buildTypes = data.buildTypes || {};
+                const buildTypeData = buildTypes[currentBuildType] || {};
+                const allDlcs = buildTypeData.dlcs || data.dlcs || {};
+                
+                console.log(`[DLC] Firebase: Found ${Object.keys(allDlcs).length} DLCs in ${buildTypeData.dlcs ? 'buildTypes.' + currentBuildType : 'legacy'} location`);
                 
                 // Filter only enabled DLCs and update manifest URLs based on current build type
                 dlcList = {};
@@ -2705,24 +2774,26 @@ function initLauncher() {
                 }
                 
                 if (Object.keys(dlcList).length > 0) {
-                    console.log(`Found ${Object.keys(dlcList).length} DLCs in Firebase`);
+                    console.log(`[DLC] ⚠️⚠️⚠️ SOURCE: FIREBASE (FALLBACK) - Found ${Object.keys(dlcList).length} DLCs`);
+                    console.log(`[DLC] ⚠️ This data may be stale! Use Uploader's "Rebuild Catalog" to sync from R2.`);
                     await refreshDLCStatus();
                     renderDLCs();
                     return;
                 }
             }
         } catch (firebaseError) {
-            console.error('Firebase DLC fetch failed:', firebaseError);
+            console.error('[DLC] Firebase fetch failed:', firebaseError);
         }
         
-        console.log('Firebase empty or unavailable, trying IPC fallback...');
+        console.log('[DLC] Firebase empty or unavailable, trying IPC fallback...');
         
         // Strategy 3: Final fallback to IPC handler (main process Firebase)
         try {
             const result = await window.electronAPI.getDLCs({ appId });
             if (result.success && Object.keys(result.dlcs || {}).length > 0) {
                 dlcList = result.dlcs;
-                console.log(`Found ${Object.keys(dlcList).length} DLCs via IPC`);
+                console.log(`[DLC] ⚠️⚠️⚠️ SOURCE: IPC (FALLBACK) - Found ${Object.keys(dlcList).length} DLCs`);
+                console.log(`[DLC] ⚠️ This data may be stale! Use Uploader's "Rebuild Catalog" to sync from R2.`);
                 await refreshDLCStatus();
                 renderDLCs();
                 return;
@@ -2762,8 +2833,21 @@ function initLauncher() {
     function invalidateCatalogCache() {
         catalogCache = null;
         catalogFetchTime = 0;
-        console.log('Catalog cache invalidated');
+        console.log('[Catalog] Cache invalidated - will fetch fresh on next request');
     }
+    
+    /**
+     * Force refresh catalog from R2 (bypasses all caching)
+     */
+    async function forceRefreshCatalog() {
+        console.log('[Catalog] Force refreshing...');
+        catalogCache = null;
+        catalogFetchTime = 0;
+        return await fetchCatalog(true);
+    }
+    
+    // Expose for debugging
+    window.forceRefreshCatalog = forceRefreshCatalog;
     
     /**
      * Refresh DLC installation status
@@ -2790,15 +2874,14 @@ function initLauncher() {
      * Render DLCs in the UI
      */
     function renderDLCs() {
-        const dlcSection = document.getElementById('dlc-section');
-        const dlcContainer = document.getElementById('dlc-container');
+        // Target modal container instead of bottom section
+        const dlcContainer = document.getElementById('dlc-modal-container');
         
-        console.log('[DLC Render] dlcSection:', dlcSection ? 'found' : 'NOT FOUND');
         console.log('[DLC Render] dlcContainer:', dlcContainer ? 'found' : 'NOT FOUND');
         console.log('[DLC Render] dlcList:', dlcList);
         console.log('[DLC Render] dlcList keys:', Object.keys(dlcList));
         
-        if (!dlcSection || !dlcContainer) return;
+        if (!dlcContainer) return;
         
         // Clear container
         dlcContainer.innerHTML = '';
@@ -2809,12 +2892,10 @@ function initLauncher() {
         console.log('[DLC Render] enabledDLCs:', enabledDLCs);
         
         if (enabledDLCs.length === 0) {
-            dlcSection.classList.add('hidden');
-            console.log('[DLC Render] No enabled DLCs, hiding section');
+            // Show empty state message in modal
+            dlcContainer.innerHTML = '<div class="text-center py-12 text-gray-400"><p class="text-lg">No additional content available</p></div>';
             return;
         }
-        
-        dlcSection.classList.remove('hidden');
         
         // Separate environments and characters
         const environments = enabledDLCs.filter(dlc => dlc.type === 'environment');
@@ -3236,9 +3317,107 @@ function initLauncher() {
         }
     }
     
+    /**
+     * Show DLC modal
+     */
+    async function showDLCModal() {
+        const modal = document.getElementById('dlc-modal');
+        const modalContent = document.getElementById('dlc-modal-content');
+        const buildTypeBadge = document.getElementById('dlc-modal-build-type-badge');
+        
+        if (!modal || !modalContent) return;
+        
+        // Update build type badge
+        if (buildTypeBadge) {
+            if (currentBuildType === 'production') {
+                buildTypeBadge.textContent = 'Production';
+                buildTypeBadge.className = 'px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-500/20 text-green-400';
+            } else {
+                buildTypeBadge.textContent = 'Staging';
+                buildTypeBadge.className = 'px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-500/20 text-yellow-400';
+            }
+        }
+        
+        // Refresh DLC status and render
+        if (currentGameId) {
+            await refreshDLCStatus();
+            await loadDLCs(currentGameId);
+        }
+        
+        // Show modal with animation
+        modal.classList.remove('hidden');
+        modal.classList.add('show');
+        // Trigger reflow for animation
+        void modalContent.offsetWidth;
+        
+        // Focus management
+        const closeButton = document.getElementById('close-dlc-modal');
+        if (closeButton) {
+            closeButton.focus();
+        }
+    }
+    
+    /**
+     * Hide DLC modal
+     */
+    function hideDLCModal() {
+        const modal = document.getElementById('dlc-modal');
+        if (!modal) return;
+        
+        modal.classList.remove('show');
+        // Wait for animation to complete before hiding
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    }
+    
+    /**
+     * Setup DLC modal event listeners
+     */
+    function setupDLCModal() {
+        const dlcButton = document.getElementById('dlc-button');
+        const closeButton = document.getElementById('close-dlc-modal');
+        const modal = document.getElementById('dlc-modal');
+        
+        // Open modal on button click
+        if (dlcButton) {
+            dlcButton.addEventListener('click', () => {
+                showDLCModal();
+            });
+        }
+        
+        // Close modal on X button click
+        if (closeButton) {
+            closeButton.addEventListener('click', () => {
+                hideDLCModal();
+            });
+        }
+        
+        // Close modal on backdrop click
+        if (modal) {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    hideDLCModal();
+                }
+            });
+        }
+        
+        // Close modal on ESC key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('dlc-modal');
+                if (modal && modal.classList.contains('show')) {
+                    hideDLCModal();
+                }
+            }
+        });
+    }
+    
     // Expose DLC functions globally
     window.loadDLCs = loadDLCs;
     window.renderDLCs = renderDLCs;
+    window.showDLCModal = showDLCModal;
+    window.hideDLCModal = hideDLCModal;
     
     // This is the initial call that starts the launcher logic
     init();
