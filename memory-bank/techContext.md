@@ -9,7 +9,7 @@
   - Uses GitHub releases API
   - Repository: `Nobel90/Role-Play-AI_Launcher`
   - Configured via `package.json` publish section
-- **`firebase`**: For potential backend services (authentication, database)
+- **`firebase`**: For catalog fallback and DLC configuration (Firestore)
 - **`adm-zip`**: For handling zip files
 - **`electron-log`**: For logging throughout the application
 - **`electron-store`**: For persistent data storage (if used)
@@ -57,9 +57,14 @@
   - Base URL: `https://pub-f87e49b41fad4c0fad84e94d65ed13cc.r2.dev`
   - Public read access configured
   - Chunk-based downloads
+  - Catalog.json for DLC discovery
 - **Development**: Local test server (`test-server.js`)
   - Serves manifests and chunks for testing
   - Supports chunk downloads
+- **Firebase Integration**: 
+  - Catalog fallback when R2 catalog.json unavailable
+  - Firestore for DLC configuration
+  - Real-time settings sync from Admin dashboard
 
 ## Manifest System
 - **Format**: JSON manifest files containing file metadata

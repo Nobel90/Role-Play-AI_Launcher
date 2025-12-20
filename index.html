@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,76 +10,118 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #1f2937; }
-        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
-        .btn-glow { 
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+
+        .btn-glow {
             box-shadow: 0 0 20px rgba(123, 104, 238, 0.6), 0 0 8px rgba(123, 104, 238, 0.5);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
         .btn-glow:hover {
             box-shadow: 0 0 25px rgba(123, 104, 238, 0.8), 0 0 12px rgba(123, 104, 238, 0.6);
             transform: translateY(-2px);
         }
-        .game-logo-active { 
-            outline: 2px solid #7b68ee; 
+
+        .game-logo-active {
+            outline: 2px solid #7b68ee;
             outline-offset: 2px;
             transform: scale(1.1);
             box-shadow: 0 0 15px rgba(123, 104, 238, 0.5);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .hidden { display: none; }
+
+        .hidden {
+            display: none;
+        }
+
         body {
             -webkit-user-select: none;
             -ms-user-select: none;
             user-select: none;
         }
-        
+
         /* Update Indicator Animation */
         @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
         }
+
         @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
         }
+
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
+
         .animate-spin {
             animation: spin 1s linear infinite;
         }
+
         .animate-shimmer {
             animation: shimmer 2s infinite;
         }
+
         .animate-fade-in {
             animation: fadeIn 0.3s ease-out;
         }
-        
+
         /* Enhanced Text Styles */
         #game-title {
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
             letter-spacing: 0.05em;
         }
-        
+
         #game-tagline {
             text-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
         }
-        
+
         /* Button Enhancements */
         button:not(:disabled) {
             cursor: pointer;
         }
-        
+
         button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
-        
+
         /* Battle.net Style Header */
         .header-level1 {
             background: rgba(17, 24, 39, 0.95);
@@ -86,14 +129,14 @@
             border-bottom: 1px solid rgba(75, 85, 99, 0.3);
             height: 60px;
         }
-        
+
         .header-level2 {
             background: rgba(31, 41, 55, 0.95);
             backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(75, 85, 99, 0.3);
             height: 80px;
         }
-        
+
         .nav-tab {
             color: #9ca3af;
             font-weight: 600;
@@ -102,16 +145,16 @@
             transition: all 0.2s;
             border-bottom: 2px solid transparent;
         }
-        
+
         .nav-tab:hover {
             color: #ffffff;
         }
-        
+
         .nav-tab.active {
             color: #ffffff;
             border-bottom-color: #3b82f6;
         }
-        
+
         .logo-dropdown {
             position: absolute;
             top: 100%;
@@ -125,7 +168,7 @@
             z-index: 1000;
             margin-top: 4px;
         }
-        
+
         .dropdown-item {
             padding: 10px 16px;
             color: #d1d5db;
@@ -136,18 +179,18 @@
             transition: background 0.2s;
             cursor: pointer;
         }
-        
+
         .dropdown-item:hover {
             background: rgba(55, 65, 81, 0.8);
             color: #ffffff;
         }
-        
+
         .dropdown-separator {
             height: 1px;
             background: rgba(75, 85, 99, 0.5);
             margin: 4px 0;
         }
-        
+
         .app-favorite-icon {
             width: 64px;
             height: 64px;
@@ -156,17 +199,17 @@
             cursor: pointer;
             border: 2px solid transparent;
         }
-        
+
         .app-favorite-icon:hover {
             transform: scale(1.05);
             border-color: rgba(59, 130, 246, 0.5);
         }
-        
+
         .app-favorite-icon.selected {
             border-color: #3b82f6;
             box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
         }
-        
+
         .app-card {
             background: rgba(31, 41, 55, 0.8);
             border: 1px solid rgba(75, 85, 99, 0.5);
@@ -174,125 +217,135 @@
             transition: all 0.3s;
             cursor: pointer;
         }
-        
+
         .app-card:hover {
             transform: translateY(-4px);
             border-color: rgba(59, 130, 246, 0.6);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
         }
-        
+
         /* Build Switcher Styles */
         .build-type-option {
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
-        
+
         .build-type-option:hover {
             background: rgba(55, 65, 81, 0.8);
         }
-        
+
         .build-type-option.active {
             background: rgba(59, 130, 246, 0.1);
         }
-        
+
         #build-switcher-dropdown.show {
             display: block;
             animation: fadeIn 0.2s ease-out;
         }
-        
+
         #build-switcher-toggle.open #build-switcher-arrow {
             transform: rotate(180deg);
         }
-        
+
         /* DLC Hierarchy Styles */
         .dlc-environment-card {
             border-left: 3px solid #3b82f6;
         }
-        
+
         .dlc-character-card {
             border-left: 3px solid #8b5cf6;
         }
-        
+
         .dlc-child-container {
             border-left: 2px solid rgba(139, 92, 246, 0.3);
             margin-left: 0.5rem;
             padding-left: 1rem;
         }
-        
+
         .dlc-dependency-warning {
             background: rgba(245, 158, 11, 0.1);
             border: 1px solid rgba(245, 158, 11, 0.3);
             color: #fbbf24;
         }
-        
+
         /* DLC Modal Styles */
         #dlc-modal.show {
             display: flex;
         }
-        
+
         #dlc-modal.show #dlc-modal-content {
             opacity: 1;
             transform: scale(1);
         }
-        
+
         #dlc-modal:not(.show) {
             display: none;
         }
-        
+
         #dlc-modal-content {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
+
         #dlc-modal-container {
             scrollbar-width: thin;
             scrollbar-color: #4b5563 #1f2937;
         }
-        
+
         #dlc-modal-container::-webkit-scrollbar {
             width: 8px;
         }
-        
+
         #dlc-modal-container::-webkit-scrollbar-track {
             background: #1f2937;
         }
-        
+
         #dlc-modal-container::-webkit-scrollbar-thumb {
             background: #4b5563;
             border-radius: 4px;
         }
-        
+
         #dlc-modal-container::-webkit-scrollbar-thumb:hover {
             background: #6b7280;
         }
     </style>
 </head>
+
 <body class="bg-gray-900 text-white overflow-hidden h-screen">
 
     <!-- Login View -->
     <div id="login-view" class="hidden flex flex-col items-center justify-center h-screen">
         <div class="w-full max-w-xs">
             <div class="flex justify-start w-full mb-4">
-                <button id="back-to-launcher" class="text-sm text-gray-400 hover:text-white hover:underline focus:outline-none">
+                <button id="back-to-launcher"
+                    class="text-sm text-gray-400 hover:text-white hover:underline focus:outline-none">
                     &larr; Back to Launcher
                 </button>
             </div>
-            <h1 class="text-3xl font-black text-center mb-6 bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent drop-shadow-lg">Role-Play-AI Launcher Login</h1>
+            <h1
+                class="text-3xl font-black text-center mb-6 bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent drop-shadow-lg">
+                Role-Play-AI Launcher Login</h1>
             <form id="electron-login-form" class="bg-gray-800 shadow-xl rounded-lg px-8 pt-6 pb-8 mb-4">
                 <div class="mb-4">
                     <label class="block text-gray-400 text-sm font-bold mb-2" for="email">
                         Email
                     </label>
-                    <input class="shadow appearance-none border border-gray-700 rounded w-full py-2 px-3 text-gray-200 bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="email" type="email" placeholder="email@example.com" required>
+                    <input
+                        class="shadow appearance-none border border-gray-700 rounded w-full py-2 px-3 text-gray-200 bg-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        id="email" type="email" placeholder="email@example.com" required>
                 </div>
                 <div class="mb-6">
                     <label class="block text-gray-400 text-sm font-bold mb-2" for="password">
                         Password
                     </label>
-                    <input class="shadow appearance-none border border-gray-700 rounded w-full py-2 px-3 text-gray-200 bg-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" id="password" type="password" placeholder="******************" required>
+                    <input
+                        class="shadow appearance-none border border-gray-700 rounded w-full py-2 px-3 text-gray-200 bg-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                        id="password" type="password" placeholder="******************" required>
                 </div>
                 <div class="flex items-center justify-between">
-                    <button id="login-button" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 w-full transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl" type="submit">
+                    <button id="login-button"
+                        class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 w-full transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
+                        type="submit">
                         Log In
                     </button>
                 </div>
@@ -300,7 +353,7 @@
             </form>
         </div>
     </div>
-    
+
     <!-- Main Launcher View -->
     <div id="launcher-view" class="hidden flex flex-col h-screen w-screen">
         <!-- Header Level 1: Top Navigation Bar -->
@@ -308,49 +361,59 @@
             <!-- Left: Logo with Dropdown -->
             <div class="flex items-center gap-4 relative">
                 <div class="relative">
-                    <button id="logo-dropdown-toggle" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                    <button id="logo-dropdown-toggle"
+                        class="flex items-center gap-2 hover:opacity-80 transition-opacity">
                         <img src="assets/icon-white_s.png" alt="VR Centre" class="h-8 w-8">
                         <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
+                            </path>
                         </svg>
                     </button>
                     <!-- Dropdown Menu -->
                     <div id="logo-dropdown" class="logo-dropdown hidden">
                         <div class="dropdown-item">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
                             <span>Settings</span>
                         </div>
                         <div class="dropdown-item">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
                             <span>Account</span>
                             <svg class="w-3 h-3 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                             </svg>
                         </div>
                         <div class="dropdown-item">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             <span>Support</span>
                             <svg class="w-3 h-3 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                             </svg>
                         </div>
                         <div class="dropdown-separator"></div>
                         <div class="dropdown-item" id="dropdown-logout">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                             </svg>
                             <span>Log Out</span>
                         </div>
                         <div class="dropdown-item" id="dropdown-exit">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
                             </svg>
                             <span>Exit</span>
                         </div>
@@ -358,54 +421,65 @@
                         <div class="px-4 py-2 text-xs text-gray-500 uppercase">Social</div>
                         <div class="dropdown-item" id="social-linkedin">
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                                <path
+                                    d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                             </svg>
                             <span>LinkedIn</span>
                             <svg class="w-3 h-3 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                             </svg>
                         </div>
                         <div class="dropdown-item" id="social-instagram">
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                                <path
+                                    d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
                             </svg>
                             <span>Instagram</span>
                             <svg class="w-3 h-3 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                             </svg>
                         </div>
                         <div class="dropdown-item" id="social-facebook">
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                                <path
+                                    d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                             </svg>
                             <span>Facebook</span>
                             <svg class="w-3 h-3 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                             </svg>
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Navigation Tabs -->
                 <nav class="flex items-center gap-1">
                     <button class="nav-tab active" data-view="home">HOME</button>
                     <button class="nav-tab" data-view="apps">APPS</button>
+                    <button class="nav-tab" data-view="dashboard">DASHBOARD</button>
                     <button class="nav-tab" data-view="shop">SHOP</button>
                 </nav>
             </div>
-            
+
             <!-- Center: Build Type Switcher -->
             <div class="relative" id="build-switcher-container">
-                <button id="build-switcher-toggle" class="flex items-center gap-3 px-4 py-2 bg-gray-700/50 hover:bg-gray-700 rounded-lg border border-gray-600 transition-all">
+                <button id="build-switcher-toggle"
+                    class="flex items-center gap-3 px-4 py-2 bg-gray-700/50 hover:bg-gray-700 rounded-lg border border-gray-600 transition-all">
                     <span id="build-type-badge-header" class="px-2.5 py-0.5 rounded-full text-xs font-semibold"></span>
                     <span id="build-switcher-label" class="text-sm font-medium text-gray-300">Production</span>
-                    <svg class="w-4 h-4 text-gray-400 transition-transform" id="build-switcher-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 text-gray-400 transition-transform" id="build-switcher-arrow" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                     </svg>
                 </button>
                 <!-- Build Switcher Dropdown -->
-                <div id="build-switcher-dropdown" class="logo-dropdown hidden" style="left: 50%; transform: translateX(-50%); min-width: 280px;">
-                    <div class="px-4 py-2 text-xs text-gray-500 uppercase border-b border-gray-700">Select Build Type</div>
+                <div id="build-switcher-dropdown" class="logo-dropdown hidden"
+                    style="left: 50%; transform: translateX(-50%); min-width: 280px;">
+                    <div class="px-4 py-2 text-xs text-gray-500 uppercase border-b border-gray-700">Select Build Type
+                    </div>
                     <div class="build-type-option dropdown-item" data-build-type="production">
                         <div class="flex items-center gap-3 flex-1">
                             <span class="w-3 h-3 rounded-full bg-green-500"></span>
@@ -414,8 +488,11 @@
                                 <div class="text-xs text-gray-400">Stable release for end users</div>
                             </div>
                         </div>
-                        <svg id="production-check" class="w-5 h-5 text-green-400 hidden" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        <svg id="production-check" class="w-5 h-5 text-green-400 hidden" fill="currentColor"
+                            viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                clip-rule="evenodd" />
                         </svg>
                     </div>
                     <div class="build-type-option dropdown-item" data-build-type="staging">
@@ -426,51 +503,59 @@
                                 <div class="text-xs text-gray-400">Beta/Testing - Latest features</div>
                             </div>
                         </div>
-                        <svg id="staging-check" class="w-5 h-5 text-yellow-400 hidden" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        <svg id="staging-check" class="w-5 h-5 text-yellow-400 hidden" fill="currentColor"
+                            viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                clip-rule="evenodd" />
                         </svg>
                     </div>
                     <div class="dropdown-separator"></div>
                     <div class="px-4 py-3 text-xs text-gray-400 bg-gray-800/50">
                         <div class="flex items-center gap-2 mb-1">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             <span>Each build has separate install locations</span>
                         </div>
                     </div>
                 </div>
             </div>
-            
+
             <!-- Right: User Info / Login -->
             <div class="flex items-center space-x-4">
                 <!-- User Info: Shown when logged in -->
                 <div id="user-info" class="hidden items-center space-x-4">
                     <span id="username-display" class="text-sm font-medium">PlayerOne</span>
-                    <img src="https://placehold.co/40x40/1f2937/ffffff?text=P" class="rounded-full w-10 h-10 border-2 border-gray-600">
+                    <img src="https://placehold.co/40x40/1f2937/ffffff?text=P"
+                        class="rounded-full w-10 h-10 border-2 border-gray-600">
                 </div>
                 <!-- Guest Info: Shown when logged out -->
                 <div id="guest-info" class="hidden">
-                    <button id="show-login-button" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300">
+                    <button id="show-login-button"
+                        class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300">
                         Login
                     </button>
                 </div>
             </div>
         </header>
-        
+
         <!-- Header Level 2: App Favorites Bar -->
         <div class="header-level2 flex items-center px-6 gap-4 relative z-40 overflow-x-auto">
             <span class="text-sm font-semibold text-gray-400 uppercase whitespace-nowrap">FAVORITES</span>
             <div id="app-favorites-container" class="flex items-center gap-3 flex-1">
                 <!-- App icons will be inserted here -->
             </div>
-            <button id="add-favorite-button" class="w-12 h-12 rounded-lg bg-gray-700/50 hover:bg-gray-700 border border-gray-600 hover:border-gray-500 flex items-center justify-center transition-all" title="Add App to Favorites">
+            <button id="add-favorite-button"
+                class="w-12 h-12 rounded-lg bg-gray-700/50 hover:bg-gray-700 border border-gray-600 hover:border-gray-500 flex items-center justify-center transition-all"
+                title="Add App to Favorites">
                 <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
             </button>
         </div>
-        
+
         <!-- Main Content Area -->
         <div id="launcher" class="flex-1 overflow-hidden">
             <!-- View Containers -->
@@ -488,15 +573,17 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Apps View -->
                 <div id="apps-view" class="hidden h-full w-full bg-gray-900 p-8 overflow-y-auto">
                     <div class="max-w-7xl mx-auto">
                         <div class="flex justify-between items-center mb-6">
                             <h1 class="text-3xl font-bold">My Apps</h1>
-                            <button id="add-favorite-button-apps-view" class="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl flex items-center gap-2">
+                            <button id="add-favorite-button-apps-view"
+                                class="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl flex items-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4v16m8-8H4" />
                                 </svg>
                                 Add to Favorites
                             </button>
@@ -506,7 +593,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Shop View -->
                 <div id="shop-view" class="hidden h-full w-full bg-gray-900 p-8 overflow-y-auto">
                     <div class="max-w-7xl mx-auto flex items-center justify-center h-full">
@@ -516,116 +603,189 @@
                         </div>
                     </div>
                 </div>
-                
-                        <!-- Toast Notification -->
-                        <div id="toast-notification" class="hidden fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-yellow-600/90 text-white px-6 py-3 text-sm font-medium flex items-center justify-center rounded-lg backdrop-blur-sm shadow-lg transition-all duration-300 opacity-0 -translate-y-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                            </svg>
-                            <span id="toast-message"></span>
-                        </div>
-                        
-                        <!-- App Detail View (Existing Game View) -->
-                        <div id="app-detail-view" class="h-full w-full relative">
-                            <div class="absolute inset-0 w-full h-full z-0">
-                        <img id="game-background" src="" class="w-full h-full object-cover transition-opacity duration-1000" style="object-position: center bottom; height: calc(100% - 100px);" alt="Game Background">
-                        <img id="game-background-next" src="" class="w-full h-full object-cover transition-opacity duration-1000 absolute inset-0 opacity-0" style="object-position: center bottom; height: calc(100% - 100px);" alt="Game Background Next">
+
+                <!-- Dashboard View (Embedded Website) -->
+                <div id="dashboard-view" class="hidden h-full w-full bg-gray-900">
+                    <iframe id="dashboard-iframe" src="https://vrcentre-roleplayai-website.web.app"
+                        class="w-full h-full border-0" allow="clipboard-read; clipboard-write"></iframe>
+                </div>
+
+                <!-- Toast Notification -->
+                <div id="toast-notification"
+                    class="hidden fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-yellow-600/90 text-white px-6 py-3 text-sm font-medium flex items-center justify-center rounded-lg backdrop-blur-sm shadow-lg transition-all duration-300 opacity-0 -translate-y-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20"
+                        fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    <span id="toast-message"></span>
+                </div>
+
+                <!-- App Detail View (Existing Game View) -->
+                <div id="app-detail-view" class="h-full w-full relative">
+                    <div class="absolute inset-0 w-full h-full z-0">
+                        <img id="game-background" src=""
+                            class="w-full h-full object-cover transition-opacity duration-1000"
+                            style="object-position: center bottom; height: calc(100% - 100px);" alt="Game Background">
+                        <img id="game-background-next" src=""
+                            class="w-full h-full object-cover transition-opacity duration-1000 absolute inset-0 opacity-0"
+                            style="object-position: center bottom; height: calc(100% - 100px);"
+                            alt="Game Background Next">
                         <div class="absolute inset-0 bg-black/70"></div>
-                        <div class="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-gray-900/90 to-transparent"></div>
-                        <div class="absolute top-0 left-0 right-0 h-1/3 bg-gradient-to-b from-gray-900/80 to-transparent"></div>
+                        <div
+                            class="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-gray-900/90 to-transparent">
+                        </div>
+                        <div
+                            class="absolute top-0 left-0 right-0 h-1/3 bg-gradient-to-b from-gray-900/80 to-transparent">
+                        </div>
                     </div>
                     <div class="relative z-10 flex flex-col h-full p-8 md:p-12">
                         <!-- News Bar -->
-                        <div id="news-bar" class="hidden bg-blue-600/90 text-white px-4 py-2 text-sm font-medium flex items-center justify-center animate-pulse mb-4 rounded-lg backdrop-blur-sm shadow-lg">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                        <div id="news-bar"
+                            class="hidden bg-blue-600/90 text-white px-4 py-2 text-sm font-medium flex items-center justify-center animate-pulse mb-4 rounded-lg backdrop-blur-sm shadow-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                    clip-rule="evenodd" />
                             </svg>
                             <span id="news-text"></span>
                         </div>
-                <div class="flex-grow flex items-end">
-                    <div class="w-full">
-                        <h1 id="game-title" class="text-2xl md:text-3xl font-black uppercase tracking-wider transition-opacity duration-500 drop-shadow-2xl"></h1>
-                        <p id="game-tagline" class="text-gray-300 mt-2 text-lg font-medium drop-shadow-lg"></p>
-                        <div class="mt-8 flex items-center space-x-6">
-                            <button id="action-button" class="px-12 py-4 text-xl font-bold rounded-lg transition-all duration-300 flex items-center justify-center min-w-[200px] bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900"></button>
-                            <div id="download-controls" class="hidden items-center space-x-4">
-                                <button id="pause-resume-button" class="px-6 py-4 text-lg font-bold rounded-lg bg-gray-600/90 hover:bg-gray-700 text-white transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-900">Pause</button>
-                                <button id="cancel-button" class="px-6 py-4 text-lg font-bold rounded-lg bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-900">Cancel</button>
-                            </div>
-                            <button id="settings-button" class="hidden p-4 rounded-lg bg-gray-600/50 hover:bg-gray-700/50 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-900 border-2 border-transparent hover:border-gray-400 hover:shadow-[0_0_15px_rgba(156,163,175,0.5)]" title="Settings">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                            </button>
-                            <button id="uninstall-button" class="hidden p-4 rounded-lg bg-red-800/50 hover:bg-red-700/50 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-900 border-2 border-transparent hover:border-red-400 hover:shadow-[0_0_15px_rgba(248,113,113,0.6)]" title="Uninstall App">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg>
-                            </button>
-                             <button id="check-update-button" class="hidden p-4 rounded-lg bg-blue-800/50 hover:bg-blue-700/50 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 border-2 border-transparent hover:border-blue-400 hover:shadow-[0_0_15px_rgba(96,165,250,0.6)]" title="Check for Updates">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M15.549 10.214a.75.75 0 01.902 1.06l-4.5 4.25a.75.75 0 01-1.012-.064l-4.25-4.5a.75.75 0 111.124-.99l3.438 3.654 3.998-3.754a.75.75 0 011.06-.06z" clip-rule="evenodd" /><path fill-rule="evenodd" d="M4.451 9.786a.75.75 0 01-.902-1.06l4.5-4.25a.75.75 0 011.012.064l4.25 4.5a.75.75 0 11-1.124.99L8.75 6.346l-3.998 3.754a.75.75 0 01-1.06.06z" clip-rule="evenodd" /></svg>
-                            </button>
-                            <button id="dlc-button" class="hidden p-4 rounded-lg bg-purple-800/50 hover:bg-purple-700/50 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900 border-2 border-transparent hover:border-purple-400 hover:shadow-[0_0_15px_rgba(168,85,247,0.6)]" title="Additional Content (DLC)">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                                </svg>
-                            </button>
-                            <div class="text-sm text-gray-400 font-medium">
-                                <div class="font-semibold"><span id="game-version"></span></div>
-                                <div id="game-status-text" class="text-gray-300"></div>
-                                <div id="download-speed" class="text-xs text-gray-400 font-normal"></div>
-                            </div>
-                        </div>
-                        <div id="progress-container" class="mt-4 w-full max-w-lg hidden">
-                            <div class="w-full bg-gray-700/50 rounded-full h-3 overflow-hidden shadow-inner">
-                                <div id="progress-bar" class="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 h-3 rounded-full transition-all duration-300 ease-out relative overflow-hidden" style="width: 0%">
-                                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
+                        <div class="flex-grow flex items-end">
+                            <div class="w-full">
+                                <h1 id="game-title"
+                                    class="text-2xl md:text-3xl font-black uppercase tracking-wider transition-opacity duration-500 drop-shadow-2xl">
+                                </h1>
+                                <p id="game-tagline" class="text-gray-300 mt-2 text-lg font-medium drop-shadow-lg"></p>
+                                <div class="mt-8 flex items-center space-x-6">
+                                    <button id="action-button"
+                                        class="px-12 py-4 text-xl font-bold rounded-lg transition-all duration-300 flex items-center justify-center min-w-[200px] bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900"></button>
+                                    <div id="download-controls" class="hidden items-center space-x-4">
+                                        <button id="pause-resume-button"
+                                            class="px-6 py-4 text-lg font-bold rounded-lg bg-gray-600/90 hover:bg-gray-700 text-white transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-900">Pause</button>
+                                        <button id="cancel-button"
+                                            class="px-6 py-4 text-lg font-bold rounded-lg bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-900">Cancel</button>
+                                    </div>
+                                    <button id="settings-button"
+                                        class="hidden p-4 rounded-lg bg-gray-600/50 hover:bg-gray-700/50 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-900 border-2 border-transparent hover:border-gray-400 hover:shadow-[0_0_15px_rgba(156,163,175,0.5)]"
+                                        title="Settings">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                    </button>
+                                    <button id="uninstall-button"
+                                        class="hidden p-4 rounded-lg bg-red-800/50 hover:bg-red-700/50 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-900 border-2 border-transparent hover:border-red-400 hover:shadow-[0_0_15px_rgba(248,113,113,0.6)]"
+                                        title="Uninstall App">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20"
+                                            fill="currentColor">
+                                            <path fill-rule="evenodd"
+                                                d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z"
+                                                clip-rule="evenodd" />
+                                        </svg>
+                                    </button>
+                                    <button id="check-update-button"
+                                        class="hidden p-4 rounded-lg bg-blue-800/50 hover:bg-blue-700/50 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 border-2 border-transparent hover:border-blue-400 hover:shadow-[0_0_15px_rgba(96,165,250,0.6)]"
+                                        title="Check for Updates">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20"
+                                            fill="currentColor">
+                                            <path fill-rule="evenodd"
+                                                d="M15.549 10.214a.75.75 0 01.902 1.06l-4.5 4.25a.75.75 0 01-1.012-.064l-4.25-4.5a.75.75 0 111.124-.99l3.438 3.654 3.998-3.754a.75.75 0 011.06-.06z"
+                                                clip-rule="evenodd" />
+                                            <path fill-rule="evenodd"
+                                                d="M4.451 9.786a.75.75 0 01-.902-1.06l4.5-4.25a.75.75 0 011.012.064l4.25 4.5a.75.75 0 11-1.124.99L8.75 6.346l-3.998 3.754a.75.75 0 01-1.06.06z"
+                                                clip-rule="evenodd" />
+                                        </svg>
+                                    </button>
+                                    <button id="dlc-button"
+                                        class="hidden p-4 rounded-lg bg-purple-800/50 hover:bg-purple-700/50 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900 border-2 border-transparent hover:border-purple-400 hover:shadow-[0_0_15px_rgba(168,85,247,0.6)]"
+                                        title="Additional Content (DLC)">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                        </svg>
+                                    </button>
+                                    <div class="text-sm text-gray-400 font-medium">
+                                        <div class="font-semibold"><span id="game-version"></span></div>
+                                        <div id="game-status-text" class="text-gray-300"></div>
+                                        <div id="download-speed" class="text-xs text-gray-400 font-normal"></div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div id="progress-text" class="mt-2 text-sm text-gray-300 font-medium"></div>
-                        </div>
-                        <div id="locate-game-container" class="mt-4 hidden">
-                            <a href="#" id="locate-game-link" class="text-sm text-blue-400 hover:underline">Already Installed? Locate the game folder.</a>
-                        </div>
-                        
-                        <!-- Additional Content (DLC) Section - Hidden, replaced by modal -->
-                        <div id="dlc-section" class="mt-8 hidden" style="display: none !important;">
-                            <div class="flex items-center gap-3 mb-4">
-                                <h2 class="text-xl font-bold text-white">Additional Content</h2>
-                                <span id="dlc-build-type-badge" class="px-2 py-1 rounded-full text-xs font-semibold"></span>
-                            </div>
-                            <div id="dlc-container" class="space-y-4">
-                                <!-- DLC items will be inserted here -->
+                                <div id="progress-container" class="mt-4 w-full max-w-lg hidden">
+                                    <div class="w-full bg-gray-700/50 rounded-full h-3 overflow-hidden shadow-inner">
+                                        <div id="progress-bar"
+                                            class="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 h-3 rounded-full transition-all duration-300 ease-out relative overflow-hidden"
+                                            style="width: 0%">
+                                            <div
+                                                class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="progress-text" class="mt-2 text-sm text-gray-300 font-medium"></div>
+                                </div>
+                                <div id="locate-game-container" class="mt-4 hidden">
+                                    <a href="#" id="locate-game-link"
+                                        class="text-sm text-blue-400 hover:underline">Already Installed? Locate the game
+                                        folder.</a>
+                                </div>
+
+                                <!-- Additional Content (DLC) Section - Hidden, replaced by modal -->
+                                <div id="dlc-section" class="mt-8 hidden" style="display: none !important;">
+                                    <div class="flex items-center gap-3 mb-4">
+                                        <h2 class="text-xl font-bold text-white">Additional Content</h2>
+                                        <span id="dlc-build-type-badge"
+                                            class="px-2 py-1 rounded-full text-xs font-semibold"></span>
+                                    </div>
+                                    <div id="dlc-container" class="space-y-4">
+                                        <!-- DLC items will be inserted here -->
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                </div>
             </main>
         </div>
     </div>
     <div id="launcher-version" class="absolute bottom-2 right-4 text-xs text-gray-600 flex items-center gap-2">
         <span id="launcher-version-text"></span>
         <div id="update-indicator" class="hidden flex items-center gap-1">
-            <svg id="update-spinner" class="animate-spin h-4 w-4 text-blue-500 drop-shadow-lg" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <svg id="update-spinner" class="animate-spin h-4 w-4 text-blue-500 drop-shadow-lg"
+                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                </path>
             </svg>
             <span id="update-status-text" class="text-blue-400 text-xs"></span>
         </div>
     </div>
 
     <!-- App Selector Modal -->
-    <div id="app-selector-modal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
-        <div class="bg-gray-800 rounded-xl shadow-2xl w-full max-w-3xl max-h-[85vh] overflow-hidden flex flex-col border border-gray-700 transform transition-all duration-300 scale-95 opacity-0" id="app-selector-modal-content">
-            <div class="flex justify-between items-center p-6 border-b border-gray-700 bg-gradient-to-r from-gray-800 to-gray-750">
+    <div id="app-selector-modal"
+        class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+        <div class="bg-gray-800 rounded-xl shadow-2xl w-full max-w-3xl max-h-[85vh] overflow-hidden flex flex-col border border-gray-700 transform transition-all duration-300 scale-95 opacity-0"
+            id="app-selector-modal-content">
+            <div
+                class="flex justify-between items-center p-6 border-b border-gray-700 bg-gradient-to-r from-gray-800 to-gray-750">
                 <div>
                     <h2 class="text-2xl font-bold text-white mb-1">Add App to Favorites</h2>
                     <p class="text-sm text-gray-400">Select an app to add it to your favorites bar</p>
                 </div>
-                <button id="close-app-selector" class="text-gray-400 hover:text-white transition-colors p-2 hover:bg-gray-700 rounded-lg">
+                <button id="close-app-selector"
+                    class="text-gray-400 hover:text-white transition-colors p-2 hover:bg-gray-700 rounded-lg">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
-            <div id="app-selector-list" class="flex-1 overflow-y-auto p-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div id="app-selector-list"
+                class="flex-1 overflow-y-auto p-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 <!-- Apps will be inserted here -->
             </div>
             <div class="p-4 border-t border-gray-700 bg-gray-800/50">
@@ -645,37 +805,49 @@
                 <div>
                     <h3 class="text-lg font-semibold mb-2">Build Type</h3>
                     <div class="flex items-center space-x-4">
-                        <select id="build-type-select" class="bg-gray-700 border border-gray-600 rounded-md px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <select id="build-type-select"
+                            class="bg-gray-700 border border-gray-600 rounded-md px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                             <option value="production">Production</option>
                             <option value="staging">Staging</option>
                         </select>
                         <span id="build-type-badge" class="px-3 py-1 rounded-full text-sm font-semibold"></span>
                     </div>
-                    <p class="text-sm text-gray-400 mt-2">Select which build type to download from. DLCs will use the same build type.</p>
-            </div>
-            <div>
-                    <h3 class="text-lg font-semibold mb-2">Installation Path <span class="text-sm text-gray-400">({selectedBuildType})</span></h3>
-                <div class="flex items-center space-x-4">
-                    <input type="text" id="install-path-display" class="bg-gray-700 border border-gray-600 rounded-md px-4 py-2 w-full" readonly>
-                    <button id="change-path-button" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-2.5 px-5 rounded-lg transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800">Change</button>
+                    <p class="text-sm text-gray-400 mt-2">Select which build type to download from. DLCs will use the
+                        same build type.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-2">Installation Path <span
+                            class="text-sm text-gray-400">({selectedBuildType})</span></h3>
+                    <div class="flex items-center space-x-4">
+                        <input type="text" id="install-path-display"
+                            class="bg-gray-700 border border-gray-600 rounded-md px-4 py-2 w-full" readonly>
+                        <button id="change-path-button"
+                            class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-2.5 px-5 rounded-lg transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800">Change</button>
                     </div>
-                    <p class="text-sm text-gray-400 mt-2">This is where the {selectedBuildType} build files are currently located. Each build type has its own installation path.</p>
+                    <p class="text-sm text-gray-400 mt-2">This is where the {selectedBuildType} build files are
+                        currently located. Each build type has its own installation path.</p>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- DLC Modal -->
-    <div id="dlc-modal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
-        <div class="bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col border border-gray-700 transform transition-all duration-300 scale-95 opacity-0" id="dlc-modal-content">
-            <div class="flex justify-between items-center p-6 border-b border-gray-700 bg-gradient-to-r from-gray-800 to-gray-750">
+    <div id="dlc-modal"
+        class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+        <div class="bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col border border-gray-700 transform transition-all duration-300 scale-95 opacity-0"
+            id="dlc-modal-content">
+            <div
+                class="flex justify-between items-center p-6 border-b border-gray-700 bg-gradient-to-r from-gray-800 to-gray-750">
                 <div class="flex items-center gap-3">
                     <h2 class="text-2xl font-bold text-white">Additional Content</h2>
-                    <span id="dlc-modal-build-type-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold"></span>
+                    <span id="dlc-modal-build-type-badge"
+                        class="px-2.5 py-0.5 rounded-full text-xs font-semibold"></span>
                 </div>
-                <button id="close-dlc-modal" class="text-gray-400 hover:text-white transition-colors p-2 hover:bg-gray-700 rounded-lg">
+                <button id="close-dlc-modal"
+                    class="text-gray-400 hover:text-white transition-colors p-2 hover:bg-gray-700 rounded-lg">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
@@ -690,4 +862,5 @@
 
     <script src="./renderer.js" type="module"></script>
 </body>
+
 </html>

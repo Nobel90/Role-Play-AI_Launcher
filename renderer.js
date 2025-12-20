@@ -98,29 +98,29 @@ function isFavorite(appId) {
 function showToast(message, duration = 3000) {
     const toast = document.getElementById('toast-notification');
     const toastMessage = document.getElementById('toast-message');
-    
+
     if (!toast || !toastMessage) return;
-    
+
     toastMessage.textContent = message;
-    
+
     // Remove hidden class and reset to initial state
     toast.classList.remove('hidden');
     toast.classList.add('opacity-0', '-translate-y-2');
-    
+
     // Force reflow to ensure initial state is applied
     void toast.offsetHeight;
-    
+
     // Animate in
     setTimeout(() => {
         toast.classList.remove('opacity-0', '-translate-y-2');
         toast.classList.add('opacity-100', 'translate-y-0');
     }, 10);
-    
+
     // Auto-dismiss after duration
     setTimeout(() => {
         toast.classList.remove('opacity-100', 'translate-y-0');
         toast.classList.add('opacity-0', '-translate-y-2');
-        
+
         setTimeout(() => {
             toast.classList.add('hidden');
         }, 300); // Wait for fade-out animation
@@ -132,7 +132,7 @@ let backgroundSlideshowInterval = null;
 let currentBackgroundIndex = 0;
 
 // Global function to trigger UI updates (will be assigned inside initLauncher)
-let triggerUIUpdate = () => {};
+let triggerUIUpdate = () => { };
 
 // Helper function to update launcherSettings from app data
 function updateLauncherSettingsFromApp(data) {
@@ -162,13 +162,13 @@ const appsQuery = query(collection(db, "apps"));
 onSnapshot(appsQuery, (querySnapshot) => {
     let hasRolePlayAI = false;
     let hasAnyApps = false;
-    
+
     // Process all document changes
     querySnapshot.docChanges().forEach((change) => {
         const appId = change.doc.id;
         const data = change.doc.data();
         hasAnyApps = true;
-        
+
         if (change.type === 'added' || change.type === 'modified') {
             // Add or update app in library
             appsLibrary[appId] = {
@@ -177,11 +177,11 @@ onSnapshot(appsQuery, (querySnapshot) => {
                 ui: data.ui || {},
                 news: data.news || { active: false, text: '' }
             };
-            
+
             if (appId === 'RolePlayAI') {
                 hasRolePlayAI = true;
             }
-            
+
             // If this is the current app, update launcherSettings
             if (appId === currentGameId || (!currentGameId && appId === 'RolePlayAI')) {
                 updateLauncherSettingsFromApp(data);
@@ -196,7 +196,7 @@ onSnapshot(appsQuery, (querySnapshot) => {
             }
         }
     });
-    
+
     // Check if we have any apps (for fallback logic)
     if (querySnapshot.empty === false) {
         querySnapshot.forEach((docSnapshot) => {
@@ -205,7 +205,7 @@ onSnapshot(appsQuery, (querySnapshot) => {
             }
         });
     }
-    
+
     // Update UI after processing all changes
     if (typeof renderAppFavorites === 'function') {
         renderAppFavorites();
@@ -213,7 +213,7 @@ onSnapshot(appsQuery, (querySnapshot) => {
     if (typeof renderAppsGrid === 'function') {
         renderAppsGrid();
     }
-    
+
     // Fallback to legacy if no apps found
     if (!hasAnyApps) {
         console.log('No apps found in collection, trying legacy launcher document');
@@ -227,7 +227,7 @@ onSnapshot(appsQuery, (querySnapshot) => {
                     ui: data.ui || {},
                     news: data.news || { active: false, text: '' }
                 };
-                
+
                 // Update launcherSettings if RolePlayAI is current
                 if (currentGameId === 'RolePlayAI' || !currentGameId) {
                     updateLauncherSettingsFromApp(data);
@@ -236,7 +236,7 @@ onSnapshot(appsQuery, (querySnapshot) => {
                         triggerUIUpdate();
                     }
                 }
-                
+
                 if (typeof renderAppFavorites === 'function') {
                     renderAppFavorites();
                 }
@@ -261,7 +261,7 @@ onSnapshot(appsQuery, (querySnapshot) => {
                 ui: data.ui || {},
                 news: data.news || { active: false, text: '' }
             };
-            
+
             // Update launcherSettings if RolePlayAI is current
             if (currentGameId === 'RolePlayAI' || !currentGameId) {
                 updateLauncherSettingsFromApp(data);
@@ -270,7 +270,7 @@ onSnapshot(appsQuery, (querySnapshot) => {
                     triggerUIUpdate();
                 }
             }
-            
+
             if (typeof renderAppFavorites === 'function') {
                 renderAppFavorites();
             }
@@ -333,7 +333,7 @@ loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    
+
     errorMessage.textContent = '';
     loginButton.disabled = true;
     loginButton.textContent = 'Signing In...';
@@ -352,9 +352,9 @@ loginForm.addEventListener('submit', async (e) => {
 
 // Logout button handler (if it exists - new design uses dropdown)
 if (logoutButton) {
-logoutButton.addEventListener('click', () => {
-    signOut(auth);
-});
+    logoutButton.addEventListener('click', () => {
+        signOut(auth);
+    });
 }
 
 showLoginButton.addEventListener('click', () => {
@@ -384,13 +384,13 @@ function showLauncher(userData) {
         userInfo.classList.remove('flex');
         // guestInfo.classList.remove('hidden');
     }
-    
+
     loginView.classList.add('hidden');
     launcherVIew.classList.remove('hidden');
-    
+
     // Initialize the launcher logic only once
     if (!launcherInitialized) {
-        initLauncher(); 
+        initLauncher();
         launcherInitialized = true;
     }
 }
@@ -409,6 +409,7 @@ let gameLibrary = null; // Will be set in initLauncher
 const homeView = document.getElementById('home-view');
 const appsView = document.getElementById('apps-view');
 const shopView = document.getElementById('shop-view');
+const dashboardView = document.getElementById('dashboard-view');
 const appDetailView = document.getElementById('app-detail-view');
 const navTabs = document.querySelectorAll('.nav-tab');
 const logoDropdown = document.getElementById('logo-dropdown');
@@ -422,11 +423,12 @@ function switchView(viewName) {
     homeView.classList.add('hidden');
     appsView.classList.add('hidden');
     shopView.classList.add('hidden');
+    if (dashboardView) dashboardView.classList.add('hidden');
     appDetailView.classList.add('hidden');
-    
+
     // Remove active class from all tabs
     navTabs.forEach(tab => tab.classList.remove('active'));
-    
+
     // Show selected view
     if (viewName === 'home') {
         homeView.classList.remove('hidden');
@@ -441,6 +443,10 @@ function switchView(viewName) {
         shopView.classList.remove('hidden');
         document.querySelector('.nav-tab[data-view="shop"]')?.classList.add('active');
         currentView = 'shop';
+    } else if (viewName === 'dashboard') {
+        if (dashboardView) dashboardView.classList.remove('hidden');
+        document.querySelector('.nav-tab[data-view="dashboard"]')?.classList.add('active');
+        currentView = 'dashboard';
     } else if (viewName === 'app-detail') {
         appDetailView.classList.remove('hidden');
         currentView = 'app-detail';
@@ -459,21 +465,21 @@ function selectApp(gameId) {
     console.log('selectApp called with:', gameId);
     console.log('gameLibrary:', gameLibrary);
     console.log('appsLibrary:', appsLibrary);
-    
+
     if (!gameId) {
         console.error('selectApp called with invalid gameId');
         return;
     }
-    
+
     // Check if game exists
     if (!gameLibrary || !gameLibrary[gameId]) {
         console.error('Game not found in gameLibrary:', gameId, 'Available games:', gameLibrary ? Object.keys(gameLibrary) : 'gameLibrary is null');
         return;
     }
-    
+
     currentSelectedApp = gameId;
     currentGameId = gameId;
-    
+
     // Load app settings from appsLibrary
     if (appsLibrary[gameId]) {
         const appData = appsLibrary[gameId];
@@ -484,20 +490,20 @@ function selectApp(gameId) {
             launcherSettings.news = { ...launcherSettings.news, ...appData.news };
         }
     }
-    
+
     console.log('Switching to app-detail view for:', gameId);
     switchView('app-detail');
-    
+
     if (renderGame && typeof renderGame === 'function') {
         console.log('Calling renderGame for:', gameId);
         renderGame(gameId);
     } else {
         console.warn('renderGame not yet initialized');
     }
-    
+
     // Update favorites bar selection
     updateFavoritesSelection(gameId);
-    
+
     // Trigger UI update
     if (typeof triggerUIUpdate === 'function') {
         triggerUIUpdate();
@@ -507,9 +513,9 @@ function selectApp(gameId) {
 // Render apps grid
 function renderAppsGrid() {
     if (!appsGrid) return;
-    
+
     appsGrid.innerHTML = '';
-    
+
     // Combine apps from appsLibrary and gameLibrary
     const allAppIds = new Set();
     if (appsLibrary) {
@@ -518,24 +524,24 @@ function renderAppsGrid() {
     if (gameLibrary) {
         Object.keys(gameLibrary).forEach(id => allAppIds.add(id));
     }
-    
+
     const favorites = getFavorites();
-    
+
     allAppIds.forEach((appId) => {
         const appData = appsLibrary[appId];
         const gameData = gameLibrary && gameLibrary[appId];
-        
+
         const appName = appData?.name || gameData?.name || appId;
         const tagline = appData?.ui?.tagline || gameData?.tagline || '';
         const status = gameData?.status || 'uninstalled';
         const statusBadge = getStatusBadge(status);
         const logoUrl = (appData?.ui?.logoUrl) || (gameData?.logoUrl) || 'assets/icon-white_s.png';
         const isFav = isFavorite(appId);
-        
+
         const card = document.createElement('div');
         card.className = 'app-card p-6 relative cursor-pointer';
         card.dataset.appId = appId; // Store app ID for easier access
-        
+
         card.innerHTML = `
             <div class="flex flex-col items-center text-center">
                 <div class="relative w-24 h-24 mb-4">
@@ -552,7 +558,7 @@ function renderAppsGrid() {
                 ${statusBadge}
             </div>
         `;
-        
+
         // Add click handler for the card (but not for the favorite button)
         card.addEventListener('click', (e) => {
             // Don't trigger if clicking the favorite button
@@ -560,7 +566,7 @@ function renderAppsGrid() {
             console.log('App card clicked:', appId);
             selectApp(appId);
         });
-        
+
         // Add click handler for the favorite button
         const favoriteButton = card.querySelector('.favorite-toggle');
         if (favoriteButton) {
@@ -568,22 +574,22 @@ function renderAppsGrid() {
                 e.stopPropagation(); // Prevent card click
                 const appIdToToggle = favoriteButton.dataset.appId;
                 const isCurrentlyFavorite = favoriteButton.dataset.isFavorite === 'true';
-                
+
                 if (isCurrentlyFavorite) {
                     removeFromFavorites(appIdToToggle);
                 } else {
                     addToFavorites(appIdToToggle);
                 }
-                
+
                 // Re-render to update UI
                 renderAppFavorites();
                 renderAppsGrid();
             });
         }
-        
+
         appsGrid.appendChild(card);
     });
-    
+
     // Make functions available globally for onclick handlers
     if (typeof window !== 'undefined') {
         window.addToFavorites = addToFavorites;
@@ -611,43 +617,43 @@ function getStatusBadge(status) {
 // Render app favorites bar
 function renderAppFavorites() {
     if (!appFavoritesContainer) return;
-    
+
     appFavoritesContainer.innerHTML = '';
-    
+
     const favorites = getFavorites();
-    
+
     // Only show favorited apps
     favorites.forEach((appId) => {
         // Check if app exists in appsLibrary or gameLibrary
         const appData = appsLibrary[appId];
         const gameData = gameLibrary && gameLibrary[appId];
-        
+
         if (!appData && !gameData) return; // Skip if app doesn't exist
-        
+
         const appName = appData?.name || gameData?.name || appId;
         const logoUrl = (appData?.ui?.logoUrl) || (gameData?.logoUrl) || 'assets/icon-white_s.png';
-        
+
         const icon = document.createElement('div');
         icon.className = `app-favorite-icon ${currentSelectedApp === appId ? 'selected' : ''} cursor-pointer`;
         icon.dataset.appId = appId; // Add data attribute for easier identification
         icon.title = appName;
-        
+
         const img = document.createElement('img');
         img.src = logoUrl;
         img.alt = appName;
         img.className = 'w-full h-full object-cover rounded-lg';
-        
+
         icon.appendChild(img);
-        
+
         // Add click handler after creating the element
         icon.addEventListener('click', () => {
             console.log('Favorite icon clicked:', appId);
             selectApp(appId);
         });
-        
+
         appFavoritesContainer.appendChild(icon);
     });
-    
+
     // Update selection highlight
     if (currentSelectedApp) {
         updateFavoritesSelection(currentSelectedApp);
@@ -658,7 +664,7 @@ function renderAppFavorites() {
 function updateFavoritesSelection(gameId) {
     if (!appFavoritesContainer) return;
     const icons = appFavoritesContainer.querySelectorAll('.app-favorite-icon');
-    
+
     icons.forEach((icon) => {
         // Use data attribute to identify the app
         if (icon.dataset.appId === gameId) {
@@ -683,7 +689,7 @@ if (logoDropdownToggle && logoDropdown) {
         e.stopPropagation();
         logoDropdown.classList.toggle('hidden');
     });
-    
+
     // Close dropdown when clicking outside
     document.addEventListener('click', (e) => {
         if (!logoDropdownToggle.contains(e.target) && !logoDropdown.contains(e.target)) {
@@ -772,7 +778,7 @@ function initLauncher() {
     // Assign the global trigger function
     triggerUIUpdate = () => {
         console.log('triggerUIUpdate called with settings:', launcherSettings);
-        
+
         // Update News Bar
         const newsBar = document.getElementById('news-bar');
         const newsText = document.getElementById('news-text');
@@ -790,7 +796,7 @@ function initLauncher() {
         } else {
             console.warn('News bar elements not found:', { newsBar, newsText });
         }
-        
+
         // Update Header Links
         const headerLinksContainer = document.getElementById('header-links-container');
         if (headerLinksContainer) {
@@ -823,14 +829,14 @@ function initLauncher() {
                 headerLinksContainer.appendChild(defaultWebsite);
             }
         }
-        
+
         // Sidebar removed - no longer updating sidebar elements
-        
+
         // Restart slideshow if settings changed
         if (typeof startBackgroundSlideshow === 'function') {
             startBackgroundSlideshow();
         }
-        
+
         // Update game UI if launcher is initialized
         if (typeof currentGameId !== 'undefined' && typeof renderGame === 'function') {
             console.log('Calling renderGame for:', currentGameId);
@@ -849,18 +855,18 @@ function initLauncher() {
     gameLibrary = {
         'RolePlayAI': {
             production: {
-            name: 'Role Play AI',
-            tagline: 'SYNTHETIC SCENES™ – Avatar-Led Role Play Platform',
-            version: '1.0.0',
-            status: 'uninstalled',
-            logoUrl: 'assets/icon-white_s.png',
-            backgroundUrl: 'assets/BG.png',
-            installPath: null,
-            executable: 'RolePlay_AI.exe',
+                name: 'Role Play AI',
+                tagline: 'SYNTHETIC SCENES™ – Avatar-Led Role Play Platform',
+                version: '1.0.0',
+                status: 'uninstalled',
+                logoUrl: 'assets/icon-white_s.png',
+                backgroundUrl: 'assets/BG.png',
+                installPath: null,
+                executable: 'RolePlay_AI.exe',
                 manifestUrl: '', // Will be set by updateManifestUrls()
-            filesToUpdate: [],
-            isPaused: false,
-        },
+                filesToUpdate: [],
+                isPaused: false,
+            },
             staging: {
                 name: 'Role Play AI',
                 tagline: 'SYNTHETIC SCENES™ – Avatar-Led Role Play Platform',
@@ -876,11 +882,11 @@ function initLauncher() {
             }
         },
     };
-    
+
     // Migration function to convert old structure to new structure
     function migrateGameLibrary(oldLibrary) {
         if (!oldLibrary || typeof oldLibrary !== 'object') return oldLibrary;
-        
+
         const migrated = {};
         for (const [gameId, gameData] of Object.entries(oldLibrary)) {
             // Check if already migrated (has production/staging keys)
@@ -904,28 +910,28 @@ function initLauncher() {
 
     // --- DOM Elements ---
     const gameBgEl = document.getElementById('game-background'),
-          gameTitleEl = document.getElementById('game-title'),
-          gameTaglineEl = document.getElementById('game-tagline'),
-          gameVersionEl = document.getElementById('game-version'),
-          gameStatusTextEl = document.getElementById('game-status-text'),
-          actionButtonEl = document.getElementById('action-button'),
-          downloadControlsEl = document.getElementById('download-controls'),
-          pauseResumeButtonEl = document.getElementById('pause-resume-button'),
-          cancelButtonEl = document.getElementById('cancel-button'),
-          settingsButtonEl = document.getElementById('settings-button'),
-          uninstallButtonEl = document.getElementById('uninstall-button'),
-          checkUpdateButtonEl = document.getElementById('check-update-button'),
-          dlcButtonEl = document.getElementById('dlc-button'),
-          progressContainerEl = document.getElementById('progress-container'),
-          progressBarEl = document.getElementById('progress-bar'),
-          progressTextEl = document.getElementById('progress-text'),
-          downloadSpeedEl = document.getElementById('download-speed'),
-          locateGameContainerEl = document.getElementById('locate-game-container'),
-          settingsModalEl = document.getElementById('settings-modal'),
-          closeSettingsButtonEl = document.getElementById('close-settings-button'),
-          installPathDisplayEl = document.getElementById('install-path-display'),
-          changePathButtonEl = document.getElementById('change-path-button'),
-          locateGameLinkEl = document.getElementById('locate-game-link');
+        gameTitleEl = document.getElementById('game-title'),
+        gameTaglineEl = document.getElementById('game-tagline'),
+        gameVersionEl = document.getElementById('game-version'),
+        gameStatusTextEl = document.getElementById('game-status-text'),
+        actionButtonEl = document.getElementById('action-button'),
+        downloadControlsEl = document.getElementById('download-controls'),
+        pauseResumeButtonEl = document.getElementById('pause-resume-button'),
+        cancelButtonEl = document.getElementById('cancel-button'),
+        settingsButtonEl = document.getElementById('settings-button'),
+        uninstallButtonEl = document.getElementById('uninstall-button'),
+        checkUpdateButtonEl = document.getElementById('check-update-button'),
+        dlcButtonEl = document.getElementById('dlc-button'),
+        progressContainerEl = document.getElementById('progress-container'),
+        progressBarEl = document.getElementById('progress-bar'),
+        progressTextEl = document.getElementById('progress-text'),
+        downloadSpeedEl = document.getElementById('download-speed'),
+        locateGameContainerEl = document.getElementById('locate-game-container'),
+        settingsModalEl = document.getElementById('settings-modal'),
+        closeSettingsButtonEl = document.getElementById('close-settings-button'),
+        installPathDisplayEl = document.getElementById('install-path-display'),
+        changePathButtonEl = document.getElementById('change-path-button'),
+        locateGameLinkEl = document.getElementById('locate-game-link');
 
     function formatBytes(bytes, decimals = 2) {
         if (!bytes || bytes === 0) return '0 Bytes';
@@ -945,15 +951,15 @@ function initLauncher() {
             clearInterval(backgroundSlideshowInterval);
             backgroundSlideshowInterval = null;
         }
-        
+
         const gameBgEl = document.getElementById('game-background');
         const gameBgNextEl = document.getElementById('game-background-next');
-        
+
         if (!gameBgEl) {
             console.warn('Background element not found, skipping slideshow');
             return;
         }
-        
+
         const images = launcherSettings.ui.backgroundImages || [];
         if (images.length === 0) {
             // No slideshow images, use single background URL or default
@@ -964,7 +970,7 @@ function initLauncher() {
             }
             return;
         }
-        
+
         // Filter out empty URLs and sort by order
         const validImages = images.filter(img => img.url && img.url.trim() !== '').sort((a, b) => (a.order || 0) - (b.order || 0));
         if (validImages.length === 0) {
@@ -975,61 +981,61 @@ function initLauncher() {
             }
             return;
         }
-        
+
         const transitionTime = launcherSettings.ui.backgroundTransitionTime || 1000;
         const displayTime = launcherSettings.ui.backgroundDisplayTime || 5000;
         currentBackgroundIndex = 0;
-        
+
         // Set initial image
         if (validImages[0]) {
             gameBgEl.src = validImages[0].url;
             gameBgEl.style.opacity = '1';
             gameBgEl.style.transition = `opacity ${transitionTime}ms ease-in-out`;
         }
-        
+
         // If only one image, no need for slideshow
         if (validImages.length === 1) return;
-        
+
         // Start slideshow
         backgroundSlideshowInterval = setInterval(() => {
             const bgEl = document.getElementById('game-background');
             const bgNextEl = document.getElementById('game-background-next');
-            
+
             if (!bgEl) {
                 console.warn('Background element not found in slideshow interval');
                 return;
             }
-            
+
             // Skip transition during active operations
             const game = getCurrentGame();
             const activeStates = ['downloading', 'paused', 'syncing', 'verifying', 'checking_update', 'moving'];
             if (game && activeStates.includes(game.status)) {
                 return;
             }
-            
+
             currentBackgroundIndex = (currentBackgroundIndex + 1) % validImages.length;
             const nextImage = validImages[currentBackgroundIndex];
-            
+
             // Crossfade: fade out current, fade in next
             if (bgNextEl) {
                 // Set next image
                 bgNextEl.src = nextImage.url;
                 bgNextEl.style.opacity = '0';
                 bgNextEl.style.transition = `opacity ${transitionTime}ms ease-in-out`;
-                
+
                 // Fade in next, fade out current
                 setTimeout(() => {
                     bgNextEl.style.opacity = '1';
                     bgEl.style.opacity = '0';
                 }, 50);
-                
+
                 // Swap after transition
                 setTimeout(() => {
                     bgEl.src = nextImage.url;
                     bgEl.style.opacity = '1';
                     bgNextEl.style.opacity = '0';
                 }, transitionTime);
-        } else {
+            } else {
                 // Fallback if next element doesn't exist - simple fade
                 bgEl.style.opacity = '0';
                 setTimeout(() => {
@@ -1041,17 +1047,17 @@ function initLauncher() {
     }
 
     // Assign renderGame to global variable so selectApp can access it
-    renderGame = function(gameId) {
+    renderGame = function (gameId) {
         const game = gameLibrary[gameId]?.[currentBuildType] || gameLibrary[gameId];
         if (!game) {
             console.warn('Game not found in gameLibrary:', gameId);
             return;
         }
-        
+
         // Don't update background during active operations to prevent flashing
         const activeStates = ['downloading', 'paused', 'syncing', 'verifying', 'checking_update', 'moving'];
         const isActiveOperation = activeStates.includes(game.status);
-        
+
         // Handle background: slideshow if configured, otherwise single image or default
         if (!isActiveOperation) {
             const hasSlideshowImages = launcherSettings.ui.backgroundImages && launcherSettings.ui.backgroundImages.length > 0;
@@ -1062,11 +1068,11 @@ function initLauncher() {
                 // No slideshow, use single background URL or default
                 const newBackgroundUrl = launcherSettings.ui.backgroundImageUrl || game.backgroundUrl;
                 if (gameBgEl.src !== newBackgroundUrl && gameBgEl.src !== '') {
-        gameBgEl.style.opacity = '0';
-        setTimeout(() => {
+                    gameBgEl.style.opacity = '0';
+                    setTimeout(() => {
                         gameBgEl.src = newBackgroundUrl;
-            gameBgEl.onload = () => { gameBgEl.style.opacity = '1'; };
-        }, 500);
+                        gameBgEl.onload = () => { gameBgEl.style.opacity = '1'; };
+                    }, 500);
                 } else if (gameBgEl.src === '' && newBackgroundUrl) {
                     // Initial load
                     gameBgEl.src = newBackgroundUrl;
@@ -1074,10 +1080,10 @@ function initLauncher() {
                 }
             }
         }
-        
+
         gameTitleEl.innerText = launcherSettings.ui.gameTitle || game.name;
         gameTaglineEl.innerText = launcherSettings.ui.tagline || game.tagline;
-        
+
         // Enhanced version display: show current and latest if update available
         const currentVersion = game.localVersion || game.version || 'N/A';
         const latestVersion = game.version || 'N/A';
@@ -1086,18 +1092,18 @@ function initLauncher() {
         } else {
             gameVersionEl.innerText = `v${currentVersion}`;
         }
-        
+
         updateButtonAndStatus(game);
         document.querySelectorAll('.game-logo').forEach(logo => {
             logo.classList.toggle('game-logo-active', logo.dataset.gameId === gameId);
         });
-        
+
         // Load DLCs for this app
         if (typeof window.loadDLCs === 'function') {
             window.loadDLCs(gameId);
         }
     }
-    
+
     function updateButtonAndStatus(game) {
         actionButtonEl.className = 'px-12 py-4 text-xl font-bold rounded-lg transition-all duration-300 flex items-center justify-center min-w-[200px]';
         actionButtonEl.disabled = false;
@@ -1110,12 +1116,12 @@ function initLauncher() {
         cancelButtonEl.classList.add('hidden'); // Hide cancel button by default
         progressContainerEl.style.display = 'none';
         locateGameContainerEl.classList.add('hidden');
-        
+
         // Reset button styles to defaults
         settingsButtonEl.style.cursor = '';
         uninstallButtonEl.style.cursor = '';
         cancelButtonEl.style.cursor = '';
-        
+
         switch (game.status) {
             case 'installed':
                 actionButtonEl.innerText = launcherSettings.ui.buttons.installed || 'LAUNCH';
@@ -1320,7 +1326,7 @@ function initLauncher() {
 
     // Build Type Management
     let currentBuildType = 'production';
-    
+
     // Helper function to get current game data (with build type)
     function getCurrentGame(gameId = currentGameId) {
         if (!gameId || !gameLibrary[gameId]) return null;
@@ -1332,7 +1338,7 @@ function initLauncher() {
         // Old structure - return as-is for backward compatibility during migration
         return gameData;
     }
-    
+
     // Helper function to set current game data
     function setCurrentGame(gameId, data) {
         if (!gameId || !gameLibrary[gameId]) {
@@ -1350,7 +1356,7 @@ function initLauncher() {
         // Set data for current build type
         gameLibrary[gameId][currentBuildType] = { ...gameLibrary[gameId][currentBuildType], ...data };
     }
-    
+
     async function loadBuildType() {
         try {
             const result = await window.electronAPI.getBuildType();
@@ -1363,7 +1369,7 @@ function initLauncher() {
             console.error('Error loading build type:', error);
         }
     }
-    
+
     function updateBuildTypeUI() {
         const buildTypeSelect = document.getElementById('build-type-select');
         const buildTypeBadge = document.getElementById('build-type-badge');
@@ -1372,38 +1378,37 @@ function initLauncher() {
         const buildSwitcherLabel = document.getElementById('build-switcher-label');
         const productionCheck = document.getElementById('production-check');
         const stagingCheck = document.getElementById('staging-check');
-        
+
         if (buildTypeSelect) {
             buildTypeSelect.value = currentBuildType;
         }
-        
-        const badgeClass = `px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-            currentBuildType === 'production' 
-                ? 'bg-green-600/30 text-green-300' 
+
+        const badgeClass = `px-2.5 py-0.5 rounded-full text-xs font-semibold ${currentBuildType === 'production'
+                ? 'bg-green-600/30 text-green-300'
                 : 'bg-yellow-600/30 text-yellow-300'
-        }`;
+            }`;
         const badgeText = currentBuildType.charAt(0).toUpperCase() + currentBuildType.slice(1);
-        
+
         if (buildTypeBadge) {
             buildTypeBadge.textContent = badgeText;
             buildTypeBadge.className = badgeClass.replace('text-xs', 'text-sm');
         }
-        
+
         if (buildTypeBadgeHeader) {
             buildTypeBadgeHeader.textContent = badgeText;
             buildTypeBadgeHeader.className = badgeClass;
         }
-        
+
         if (dlcBuildTypeBadge) {
             dlcBuildTypeBadge.textContent = `(${badgeText})`;
             dlcBuildTypeBadge.className = badgeClass;
         }
-        
+
         // Update build switcher dropdown
         if (buildSwitcherLabel) {
             buildSwitcherLabel.textContent = badgeText;
         }
-        
+
         // Update checkmarks in dropdown
         if (productionCheck) {
             productionCheck.classList.toggle('hidden', currentBuildType !== 'production');
@@ -1411,31 +1416,31 @@ function initLauncher() {
         if (stagingCheck) {
             stagingCheck.classList.toggle('hidden', currentBuildType !== 'staging');
         }
-        
+
         // Update active state on options
         document.querySelectorAll('.build-type-option').forEach(opt => {
             const isActive = opt.dataset.buildType === currentBuildType;
             opt.classList.toggle('active', isActive);
         });
     }
-    
+
     // Build Switcher Dropdown Toggle
     function initBuildSwitcher() {
         const buildSwitcherToggle = document.getElementById('build-switcher-toggle');
         const buildSwitcherDropdown = document.getElementById('build-switcher-dropdown');
-        
+
         if (buildSwitcherToggle && buildSwitcherDropdown) {
             // Toggle dropdown
             buildSwitcherToggle.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const isOpen = buildSwitcherDropdown.classList.contains('show');
-                
+
                 // Close all other dropdowns
                 document.querySelectorAll('.logo-dropdown').forEach(dd => {
                     dd.classList.remove('show');
                     dd.classList.add('hidden');
                 });
-                
+
                 if (!isOpen) {
                     buildSwitcherDropdown.classList.remove('hidden');
                     buildSwitcherDropdown.classList.add('show');
@@ -1446,7 +1451,7 @@ function initLauncher() {
                     buildSwitcherToggle.classList.remove('open');
                 }
             });
-            
+
             // Build type option clicks
             document.querySelectorAll('.build-type-option').forEach(opt => {
                 opt.addEventListener('click', async () => {
@@ -1460,7 +1465,7 @@ function initLauncher() {
                     buildSwitcherToggle.classList.remove('open');
                 });
             });
-            
+
             // Close on outside click
             document.addEventListener('click', (e) => {
                 if (!buildSwitcherToggle.contains(e.target) && !buildSwitcherDropdown.contains(e.target)) {
@@ -1471,47 +1476,47 @@ function initLauncher() {
             });
         }
     }
-    
+
     async function updateManifestUrls() {
         // Update manifest URLs for all games based on current build type
         const r2BaseUrl = 'https://pub-f87e49b41fad4c0fad84e94d65ed13cc.r2.dev';
-        
+
         for (const gameId in gameLibrary) {
             const game = gameLibrary[gameId]?.[currentBuildType] || gameLibrary[gameId];
             // Update manifest URL to use current build type
             game.manifestUrl = `${r2BaseUrl}/${currentBuildType}/roleplayai_manifest.json`;
         }
-        
+
         // Reload DLCs to update their manifest URLs
         if (currentGameId) {
             await loadDLCs(currentGameId);
         }
-        
+
         // Trigger UI update
         if (typeof renderGame === 'function' && currentGameId) {
             renderGame(currentGameId);
         }
     }
-    
+
     async function handleBuildTypeChange(newBuildType) {
         if (newBuildType === currentBuildType) return;
-        
+
         try {
             // Save current build type's state before switching
             if (currentGameId && gameLibrary[currentGameId]) {
                 await window.electronAPI.saveGameData(gameLibrary);
             }
-            
+
             const result = await window.electronAPI.setBuildType(newBuildType);
             if (result.success) {
                 const previousBuildType = currentBuildType;
                 currentBuildType = newBuildType;
-                
+
                 // Invalidate catalog cache to fetch fresh data for new build type
                 if (typeof invalidateCatalogCache === 'function') {
                     invalidateCatalogCache();
                 }
-                
+
                 // Ensure build type structure exists for all games
                 for (const gameId in gameLibrary) {
                     const gameData = gameLibrary[gameId];
@@ -1530,7 +1535,7 @@ function initLauncher() {
                         gameLibrary[gameId].staging = { ...gameLibrary[gameId].production, installPath: null, status: 'uninstalled' };
                     }
                 }
-                
+
                 // Reload game data to get the new build type's state
                 const loadedData = await window.electronAPI.loadGameData();
                 if (loadedData && Object.keys(loadedData).length > 0) {
@@ -1546,15 +1551,15 @@ function initLauncher() {
                     }
                     Object.assign(gameLibrary, loadedData);
                 }
-                
+
                 updateBuildTypeUI();
                 await updateManifestUrls();
-                
+
                 // Reload DLCs for new build type
                 if (currentGameId) {
                     await loadDLCs(currentGameId);
                 }
-                
+
                 // Refresh DLC modal if it's open
                 const dlcModal = document.getElementById('dlc-modal');
                 if (dlcModal && dlcModal.classList.contains('show')) {
@@ -1572,12 +1577,12 @@ function initLauncher() {
                         }
                     }
                 }
-                
+
                 // Update UI
                 if (typeof renderGame === 'function' && currentGameId) {
                     renderGame(currentGameId);
                 }
-                
+
                 showToast(`Build type changed to ${newBuildType}`, 3000);
             } else {
                 showToast(`Error: ${result.error}`, 3000);
@@ -1587,7 +1592,7 @@ function initLauncher() {
             showToast(`Error changing build type: ${error.message}`, 3000);
         }
     }
-    
+
     // Listen for build type changes from main process
     window.electronAPI.onBuildTypeChanged((data) => {
         currentBuildType = data.buildType;
@@ -1606,7 +1611,7 @@ function initLauncher() {
     function closeSettingsModal() {
         settingsModalEl.classList.add('hidden');
     }
-    
+
     async function handleActionButtonClick() {
         const game = getCurrentGame();
         if (!game) {
@@ -1614,7 +1619,7 @@ function initLauncher() {
             return;
         }
         console.log(`Action button clicked for ${currentGameId}, status: ${game.status}`);
-        
+
         switch (game.status) {
             case 'uninstalled':
                 console.log('Game is uninstalled, selecting install directory...');
@@ -1638,43 +1643,43 @@ function initLauncher() {
                 await syncFiles(currentGameId);
                 break;
             case 'needs_update':
-                 gameStatusTextEl.innerText = 'Preparing to download...';
-                 actionButtonEl.disabled = true;
+                gameStatusTextEl.innerText = 'Preparing to download...';
+                actionButtonEl.disabled = true;
 
-                 // For file-based manifests, fetch file sizes
-                 if (game.manifestType !== 'chunk-based') {
-                     const promises = game.filesToUpdate.map((file, index) => {
-                         return window.electronAPI.getFileSize(file.url).then(size => {
-                             file.size = size;
-                             gameStatusTextEl.innerText = `Preparing to download... (Checked ${index + 1}/${game.filesToUpdate.length} files)`;
-                         });
-                     });
-                     await Promise.all(promises);
-                 }
-                 
-                 await window.electronAPI.saveGameData(gameLibrary);
+                // For file-based manifests, fetch file sizes
+                if (game.manifestType !== 'chunk-based') {
+                    const promises = game.filesToUpdate.map((file, index) => {
+                        return window.electronAPI.getFileSize(file.url).then(size => {
+                            file.size = size;
+                            gameStatusTextEl.innerText = `Preparing to download... (Checked ${index + 1}/${game.filesToUpdate.length} files)`;
+                        });
+                    });
+                    await Promise.all(promises);
+                }
 
-                 // Pass manifest for chunk-based, files for file-based
-                 const downloadPayload = {
-                     gameId: currentGameId,
-                     installPath: game.installPath,
-                     latestVersion: game.version,
-                 };
+                await window.electronAPI.saveGameData(gameLibrary);
 
-                 if (game.manifestType === 'chunk-based' && game.manifest) {
-                     downloadPayload.manifest = game.manifest;
-                     // For chunk-based, also pass filesToUpdate so only those files' chunks are downloaded
-                     if (game.filesToUpdate && game.filesToUpdate.length > 0) {
-                         downloadPayload.filesToUpdate = game.filesToUpdate;
-                     }
-                 } else {
-                     downloadPayload.files = game.filesToUpdate;
-                 }
+                // Pass manifest for chunk-based, files for file-based
+                const downloadPayload = {
+                    gameId: currentGameId,
+                    installPath: game.installPath,
+                    latestVersion: game.version,
+                };
 
-                 window.electronAPI.handleDownloadAction({
-                     type: 'START',
-                     payload: downloadPayload
-                 });
+                if (game.manifestType === 'chunk-based' && game.manifest) {
+                    downloadPayload.manifest = game.manifest;
+                    // For chunk-based, also pass filesToUpdate so only those files' chunks are downloaded
+                    if (game.filesToUpdate && game.filesToUpdate.length > 0) {
+                        downloadPayload.filesToUpdate = game.filesToUpdate;
+                    }
+                } else {
+                    downloadPayload.files = game.filesToUpdate;
+                }
+
+                window.electronAPI.handleDownloadAction({
+                    type: 'START',
+                    payload: downloadPayload
+                });
                 break;
             case 'installed':
                 const currentGame = getCurrentGame();
@@ -1700,7 +1705,7 @@ function initLauncher() {
     async function checkVersionOnly(gameId) {
         const game = gameLibrary[gameId]?.[currentBuildType] || gameLibrary[gameId];
         console.log(`Fast version check for ${gameId}, installPath: ${game.installPath}`);
-        
+
         if (!game.installPath) {
             game.status = 'uninstalled';
             renderGame(gameId);
@@ -1747,7 +1752,7 @@ function initLauncher() {
     async function syncFiles(gameId) {
         const game = gameLibrary[gameId]?.[currentBuildType] || gameLibrary[gameId];
         console.log(`Syncing files for ${gameId}`);
-        
+
         if (!game.installPath) {
             game.status = 'uninstalled';
             renderGame(gameId);
@@ -1762,20 +1767,20 @@ function initLauncher() {
             console.log('Progress update received:', progress);
             const percentage = Math.round((progress.checked / progress.total) * 100);
             const message = progress.message || `Verifying ${progress.checked}/${progress.total} files...`;
-            
+
             // Update status text
             gameStatusTextEl.innerText = `Syncing files... ${percentage}% (${progress.checked}/${progress.total})`;
-            
+
             // Update progress bar
             if (progressBarEl) {
                 progressBarEl.style.width = `${percentage}%`;
             }
-            
+
             // Update progress text
             if (progressTextEl) {
                 progressTextEl.innerText = message;
             }
-            
+
             // Ensure progress container is visible
             if (progressContainerEl) {
                 progressContainerEl.style.display = 'block';
@@ -1785,7 +1790,7 @@ function initLauncher() {
         const resultHandler = (result) => {
             // Final result received - process it
             console.log('Sync result received:', result);
-            
+
             if (result.error) {
                 game.status = 'needs_sync';
                 gameStatusTextEl.innerText = `Sync error: ${result.error}`;
@@ -1795,7 +1800,7 @@ function initLauncher() {
                 game.manifest = result.manifest;
                 game.manifestType = result.manifestType || 'chunk-based';
                 game.version = result.latestVersion;
-                
+
                 if (result.executableMissing) {
                     gameStatusTextEl.innerText = result.message || `Main executable missing. Will download ${game.filesToUpdate.length} files including the executable.`;
                 } else {
@@ -1812,10 +1817,10 @@ function initLauncher() {
                 game.version = result.latestVersion;
                 gameStatusTextEl.innerText = 'Files are up to date!';
             }
-            
+
             window.electronAPI.saveGameData(gameLibrary);
             renderGame(gameId);
-            
+
             // Clean up listeners
             if (window.electronAPI.removeChunkCheckListeners) {
                 window.electronAPI.removeChunkCheckListeners();
@@ -1832,7 +1837,7 @@ function initLauncher() {
                 game.status = 'needs_sync';
             }
             renderGame(gameId);
-            
+
             // Clean up listeners
             if (window.electronAPI.removeChunkCheckListeners) {
                 window.electronAPI.removeChunkCheckListeners();
@@ -1843,7 +1848,7 @@ function initLauncher() {
         if (window.electronAPI.removeChunkCheckListeners) {
             window.electronAPI.removeChunkCheckListeners();
         }
-        
+
         // Set up listeners for chunk verification progress
         if (window.electronAPI.onChunkCheckProgress) {
             window.electronAPI.onChunkCheckProgress(progressHandler);
@@ -1870,7 +1875,7 @@ function initLauncher() {
                 game.version = result.latestVersion;
                 return; // Exit early, result will come via event
             }
-            
+
             // For file-based or immediate results, process normally
             if (result.error) {
                 game.status = 'needs_sync';
@@ -1885,12 +1890,12 @@ function initLauncher() {
                 game.status = 'installed';
                 game.version = result.latestVersion;
             }
-            
+
             // Clean up listeners if not waiting for async result
             if (window.electronAPI.removeChunkCheckListeners) {
                 window.electronAPI.removeChunkCheckListeners();
             }
-            
+
             window.electronAPI.saveGameData(gameLibrary);
             renderGame(gameId);
         } catch (error) {
@@ -1898,7 +1903,7 @@ function initLauncher() {
             game.status = 'needs_sync';
             gameStatusTextEl.innerText = `Sync failed: ${error.message}`;
             renderGame(gameId);
-            
+
             // Clean up listeners
             if (window.electronAPI.removeChunkCheckListeners) {
                 window.electronAPI.removeChunkCheckListeners();
@@ -1909,13 +1914,13 @@ function initLauncher() {
     async function checkForUpdates(gameId) {
         const game = gameLibrary[gameId]?.[currentBuildType] || gameLibrary[gameId];
         console.log(`Checking for updates for ${gameId}, status: ${game.status}, installPath: ${game.installPath}`);
-        
+
         if (!game.installPath && game.status !== 'uninstalled') {
             game.status = 'uninstalled';
             renderGame(gameId);
             return;
         }
-        
+
         game.status = 'checking_update';
         renderGame(gameId);
 
@@ -1925,20 +1930,20 @@ function initLauncher() {
                 console.log('Verification progress update received:', progress);
                 const percentage = Math.round((progress.checked / progress.total) * 100);
                 const message = progress.message || `Verifying ${progress.checked}/${progress.total} files...`;
-                
+
                 // Update status text
                 gameStatusTextEl.innerText = `Verifying files... ${percentage}% (${progress.checked}/${progress.total})`;
-                
+
                 // Update progress bar
                 if (progressBarEl) {
                     progressBarEl.style.width = `${percentage}%`;
                 }
-                
+
                 // Update progress text
                 if (progressTextEl) {
                     progressTextEl.innerText = message;
                 }
-                
+
                 // Ensure progress container is visible
                 if (progressContainerEl) {
                     progressContainerEl.style.display = 'block';
@@ -1950,7 +1955,7 @@ function initLauncher() {
         const resultHandler = (result) => {
             // Final result received - process it
             console.log('Chunk check result received:', result);
-            
+
             if (result.error) {
                 if (result.needsReinstall) {
                     game.status = 'uninstalled';
@@ -1966,7 +1971,7 @@ function initLauncher() {
                 game.manifest = result.manifest;
                 game.manifestType = result.manifestType || 'chunk-based';
                 game.version = result.latestVersion;
-                
+
                 if (result.executableMissing) {
                     gameStatusTextEl.innerText = result.message || `Main executable missing. Will download ${game.filesToUpdate.length} files including the executable.`;
                 } else {
@@ -1981,10 +1986,10 @@ function initLauncher() {
                 game.status = 'installed';
                 game.version = result.latestVersion;
             }
-            
+
             window.electronAPI.saveGameData(gameLibrary);
             renderGame(gameId);
-            
+
             // Clean up listeners
             if (window.electronAPI.removeChunkCheckListeners) {
                 window.electronAPI.removeChunkCheckListeners();
@@ -2001,7 +2006,7 @@ function initLauncher() {
                 game.status = 'installed';
             }
             renderGame(gameId);
-            
+
             // Clean up listeners
             if (window.electronAPI.removeChunkCheckListeners) {
                 window.electronAPI.removeChunkCheckListeners();
@@ -2022,7 +2027,7 @@ function initLauncher() {
         console.log(`Calling checkForUpdates with manifestUrl: ${game.manifestUrl}`);
         const result = await window.electronAPI.checkForUpdates({ gameId, installPath: game.installPath, manifestUrl: game.manifestUrl });
         console.log('checkForUpdates result:', result);
-        
+
         // If result indicates checking is in progress, wait for async result
         if (result.isChecking) {
             // Don't process result here - wait for chunk-check-result event
@@ -2031,7 +2036,7 @@ function initLauncher() {
             game.version = result.latestVersion;
             return; // Exit early, result will come via event
         }
-        
+
         // For file-based or immediate results, process normally
         if (result.error) {
             if (result.needsReinstall) {
@@ -2048,7 +2053,7 @@ function initLauncher() {
             game.manifest = result.manifest;
             game.manifestType = result.manifestType || 'file-based';
             game.version = result.latestVersion;
-            
+
             if (result.executableMissing) {
                 gameStatusTextEl.innerText = result.message || `Main executable missing. Will download ${game.filesToUpdate.length} files including the executable.`;
             } else {
@@ -2063,31 +2068,31 @@ function initLauncher() {
             game.status = 'installed';
             game.version = result.latestVersion;
         }
-        
+
         // Clean up listeners if not waiting for async result
         if (window.electronAPI.removeChunkCheckListeners) {
             window.electronAPI.removeChunkCheckListeners();
         }
-        
+
         window.electronAPI.saveGameData(gameLibrary);
         renderGame(gameId);
     }
 
     async function init() {
         if (!window.electronAPI) { console.error("Fatal Error: window.electronAPI is not defined."); return; }
-        
+
         const launcherVersionTextEl = document.getElementById('launcher-version-text');
         const updateIndicatorEl = document.getElementById('update-indicator');
         const updateStatusTextEl = document.getElementById('update-status-text');
         const appVersion = await window.electronAPI.getAppVersion();
         launcherVersionTextEl.innerText = `Launcher Version: v${appVersion}`;
-        
+
         let updateDownloaded = false; // Track if update was successfully downloaded
-        
+
         // Set up auto-updater status listener
         window.electronAPI.onAutoUpdaterStatus((statusData) => {
             const { status, progress, error } = statusData;
-            
+
             switch (status) {
                 case 'checking':
                     updateDownloaded = false; // Reset flag
@@ -2181,35 +2186,35 @@ function initLauncher() {
         // Sidebar removed - game list no longer rendered in sidebar
         // Attach event listeners to buttons
         if (actionButtonEl) {
-        actionButtonEl.addEventListener('click', handleActionButtonClick);
+            actionButtonEl.addEventListener('click', handleActionButtonClick);
         }
         if (pauseResumeButtonEl) {
-        pauseResumeButtonEl.addEventListener('click', handlePauseResumeClick);
+            pauseResumeButtonEl.addEventListener('click', handlePauseResumeClick);
         }
         if (cancelButtonEl) {
-        cancelButtonEl.addEventListener('click', () => {
-            const game = getCurrentGame();
-            if (game.status === 'downloading' || game.status === 'paused') {
-                // Cancel download
-                window.electronAPI.handleDownloadAction({ type: 'CANCEL' });
-            } else if (game.status === 'checking_update' || game.status === 'verifying' || game.status === 'syncing') {
-                // Cancel verification
-                if (window.electronAPI.cancelVerification) {
-                    window.electronAPI.cancelVerification();
+            cancelButtonEl.addEventListener('click', () => {
+                const game = getCurrentGame();
+                if (game.status === 'downloading' || game.status === 'paused') {
+                    // Cancel download
+                    window.electronAPI.handleDownloadAction({ type: 'CANCEL' });
+                } else if (game.status === 'checking_update' || game.status === 'verifying' || game.status === 'syncing') {
+                    // Cancel verification
+                    if (window.electronAPI.cancelVerification) {
+                        window.electronAPI.cancelVerification();
+                    }
                 }
-            }
-        });
+            });
         }
         if (settingsButtonEl) {
-        settingsButtonEl.addEventListener('click', openSettingsModal);
+            settingsButtonEl.addEventListener('click', openSettingsModal);
         }
         if (closeSettingsButtonEl) {
-        closeSettingsButtonEl.addEventListener('click', closeSettingsModal);
+            closeSettingsButtonEl.addEventListener('click', closeSettingsModal);
         }
-        
+
         // Setup DLC modal
         setupDLCModal();
-        
+
         // Build type selector
         const buildTypeSelect = document.getElementById('build-type-select');
         if (buildTypeSelect) {
@@ -2217,7 +2222,7 @@ function initLauncher() {
                 handleBuildTypeChange(e.target.value);
             });
         }
-        
+
         // Load build type on initialization and update manifest URLs
         loadBuildType().then(() => {
             // Manifest URLs will be updated by loadBuildType -> updateManifestUrls
@@ -2226,18 +2231,18 @@ function initLauncher() {
         }).catch(err => {
             console.error('Error loading build type:', err);
         });
-        
+
         // Render app favorites bar
         renderAppFavorites();
-        
+
         // Initialize view - show app detail view by default with RolePlayAI or first favorite
         // Always show RolePlayAI by default since gameLibrary is initialized with it
         const favorites = getFavorites();
         const defaultAppId = 'RolePlayAI'; // Always default to RolePlayAI since it's in gameLibrary
-        
+
         console.log('Initializing launcher view. gameLibrary:', gameLibrary);
         console.log('Default app ID:', defaultAppId);
-        
+
         if (gameLibrary && gameLibrary[defaultAppId]) {
             console.log('Selecting default app:', defaultAppId);
             currentGameId = defaultAppId;
@@ -2253,7 +2258,7 @@ function initLauncher() {
             console.warn('No games available in gameLibrary, showing home view');
             switchView('home');
         }
-        
+
         // App selector modal handlers
         const addFavoriteButton = document.getElementById('add-favorite-button');
         const addFavoriteButtonAppsView = document.getElementById('add-favorite-button-apps-view');
@@ -2261,26 +2266,26 @@ function initLauncher() {
         const appSelectorModalContent = document.getElementById('app-selector-modal-content');
         const closeAppSelector = document.getElementById('close-app-selector');
         const appSelectorList = document.getElementById('app-selector-list');
-        
+
         // Function to open the app selector modal
         function openAppSelectorModal() {
             if (!appSelectorModal || !appSelectorList) return;
-            
+
             // Populate app selector list
             appSelectorList.innerHTML = '';
             const favorites = getFavorites();
             const allAppIds = new Set();
             if (appsLibrary) Object.keys(appsLibrary).forEach(id => allAppIds.add(id));
             if (gameLibrary) Object.keys(gameLibrary).forEach(id => allAppIds.add(id));
-            
+
             allAppIds.forEach((appId) => {
                 if (favorites.includes(appId)) return; // Skip already favorited
-                
+
                 const appData = appsLibrary[appId];
                 const gameData = gameLibrary && gameLibrary[appId];
                 const appName = appData?.name || gameData?.name || appId;
                 const logoUrl = (appData?.ui?.logoUrl) || (gameData?.logoUrl) || 'assets/icon-white_s.png';
-                
+
                 const appCard = document.createElement('div');
                 appCard.className = 'bg-gray-700/50 rounded-lg p-4 cursor-pointer hover:bg-gray-700 transition-all border border-gray-600 hover:border-blue-500 hover:scale-105 transform duration-200';
                 appCard.innerHTML = `
@@ -2299,7 +2304,7 @@ function initLauncher() {
                 });
                 appSelectorList.appendChild(appCard);
             });
-            
+
             if (appSelectorList.children.length === 0) {
                 // Show message if no apps available
                 appSelectorList.innerHTML = `
@@ -2311,7 +2316,7 @@ function initLauncher() {
                     </div>
                 `;
             }
-            
+
             // Show modal with animation
             appSelectorModal.classList.remove('hidden');
             appSelectorModal.classList.add('animate-fade-in');
@@ -2325,37 +2330,37 @@ function initLauncher() {
                 }, 10);
             });
         }
-        
+
         // Function to close the app selector modal
         function closeAppSelectorModal() {
             if (!appSelectorModal) return;
-            
+
             // Trigger close animation
             if (appSelectorModalContent) {
                 appSelectorModalContent.classList.remove('scale-100', 'opacity-100');
                 appSelectorModalContent.classList.add('scale-95', 'opacity-0');
             }
             appSelectorModal.classList.remove('animate-fade-in');
-            
+
             setTimeout(() => {
                 appSelectorModal.classList.add('hidden');
             }, 300);
         }
-        
+
         // Add event listeners for opening modal
         if (addFavoriteButton) {
             addFavoriteButton.addEventListener('click', openAppSelectorModal);
         }
-        
+
         if (addFavoriteButtonAppsView) {
             addFavoriteButtonAppsView.addEventListener('click', openAppSelectorModal);
         }
-        
+
         // Close modal handlers
         if (closeAppSelector) {
             closeAppSelector.addEventListener('click', closeAppSelectorModal);
         }
-        
+
         // Close modal on outside click
         if (appSelectorModal) {
             appSelectorModal.addEventListener('click', (e) => {
@@ -2364,7 +2369,7 @@ function initLauncher() {
                 }
             });
         }
-        
+
         // Close modal on ESC key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && appSelectorModal && !appSelectorModal.classList.contains('hidden')) {
@@ -2373,12 +2378,12 @@ function initLauncher() {
         });
 
         if (uninstallButtonEl) {
-        uninstallButtonEl.addEventListener('click', () => {
-            const game = getCurrentGame();
-            if (game.installPath) {
-                window.electronAPI.uninstallGame(game.installPath);
-            }
-        });
+            uninstallButtonEl.addEventListener('click', () => {
+                const game = getCurrentGame();
+                if (game.installPath) {
+                    window.electronAPI.uninstallGame(game.installPath);
+                }
+            });
         }
 
         // Add a manual reset function for debugging
@@ -2421,7 +2426,7 @@ function initLauncher() {
         };
 
         if (checkUpdateButtonEl) {
-        checkUpdateButtonEl.addEventListener('click', () => checkForUpdates(currentGameId));
+            checkUpdateButtonEl.addEventListener('click', () => checkForUpdates(currentGameId));
         }
 
         changePathButtonEl.addEventListener('click', async () => {
@@ -2464,21 +2469,21 @@ function initLauncher() {
             await checkForUpdates(currentGameId);
         });
 
-    window.electronAPI.onGameLaunched(() => {
-        setCurrentGame(currentGameId, { status: 'running' });
-        actionButtonEl.innerText = 'Running...';
-        actionButtonEl.disabled = true;
-        actionButtonEl.classList.add('bg-green-800', 'cursor-not-allowed');
-        actionButtonEl.classList.remove('bg-green-600', 'hover:bg-green-500', 'hover:shadow-lg', 'hover:shadow-green-500/50');
-    });
+        window.electronAPI.onGameLaunched(() => {
+            setCurrentGame(currentGameId, { status: 'running' });
+            actionButtonEl.innerText = 'Running...';
+            actionButtonEl.disabled = true;
+            actionButtonEl.classList.add('bg-green-800', 'cursor-not-allowed');
+            actionButtonEl.classList.remove('bg-green-600', 'hover:bg-green-500', 'hover:shadow-lg', 'hover:shadow-green-500/50');
+        });
 
-    window.electronAPI.onGameClosed(() => {
-        const game = getCurrentGame();
-        if (game && game.status === 'running') {
-            setCurrentGame(currentGameId, { status: 'installed' });
-        }
-        renderGame(currentGameId);
-    });
+        window.electronAPI.onGameClosed(() => {
+            const game = getCurrentGame();
+            if (game && game.status === 'running') {
+                setCurrentGame(currentGameId, { status: 'installed' });
+            }
+            renderGame(currentGameId);
+        });
 
         window.electronAPI.onDownloadStateUpdate((state) => {
             const game = getCurrentGame();
@@ -2488,7 +2493,7 @@ function initLauncher() {
             switch (state.status) {
                 case 'downloading':
                     progressBarEl.style.width = `${state.progress.toFixed(2)}%`;
-                    
+
                     // Display different messages based on operation type
                     if (state.currentOperation === 'reconstructing') {
                         progressTextEl.innerText = `Reconstructing: ${state.currentFileName || 'files'}...`;
@@ -2513,7 +2518,7 @@ function initLauncher() {
                             gameStatusTextEl.innerText = `Downloading update... (${state.filesDownloaded}/${state.totalFiles} files)`;
                         }
                     }
-                    
+
                     downloadSpeedEl.innerText = `Speed: ${formatBytes(state.downloadSpeed)}/s`;
                     pauseResumeButtonEl.innerText = 'Pause';
                     break;
@@ -2532,12 +2537,12 @@ function initLauncher() {
                 case 'error':
                     game.status = 'needs_update';
                     renderGame(currentGameId);
-                    
+
                     // Enhanced error display with debug information
                     let errorMessage = `Error: ${state.error}`;
                     if (state.debugInfo) {
                         errorMessage += `\n\n🔍 Debug Info (${state.debugInfo.method}):`;
-                        
+
                         if (state.debugInfo.method === 'size_verification') {
                             errorMessage += `\n📋 Expected size: ${state.debugInfo.expectedSize} bytes`;
                             errorMessage += `\n💾 Actual size:   ${state.debugInfo.actualSize} bytes`;
@@ -2546,10 +2551,10 @@ function initLauncher() {
                             errorMessage += `\n📏 File size: ${state.debugInfo.actualSize} bytes`;
                             errorMessage += `\n⚠️  No size info in manifest - using basic verification`;
                         }
-                        
+
                         errorMessage += `\n📁 File: ${state.debugInfo.fileName}`;
                     }
-                    
+
                     gameStatusTextEl.innerText = errorMessage;
                     downloadSpeedEl.innerText = '';
                     break;
@@ -2575,27 +2580,27 @@ function initLauncher() {
         });
 
         renderGame(currentGameId);
-        
+
         // Start slideshow after UI is initialized
         startBackgroundSlideshow();
-        
+
         // Trigger UI update after initialization to apply any loaded settings
         if (typeof triggerUIUpdate === 'function') {
             triggerUIUpdate();
         }
     }
-    
+
     // ==================== DLC Management Functions ====================
-    
+
     let dlcList = {};
     let dlcStatus = { environments: {}, characters: {} };
     let catalogCache = null; // Cache the catalog to avoid repeated fetches
     let catalogFetchTime = 0;
     const CATALOG_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache
-    
+
     const R2_BASE_URL = 'https://pub-f87e49b41fad4c0fad84e94d65ed13cc.r2.dev';
     const CATALOG_URL = `${R2_BASE_URL}/catalog.json`;
-    
+
     /**
      * Fetch catalog.json from R2
      * @param {boolean} forceRefresh - If true, bypass cache and add cache-busting
@@ -2603,18 +2608,18 @@ function initLauncher() {
      */
     async function fetchCatalog(forceRefresh = false) {
         const now = Date.now();
-        
+
         // Return cached catalog if still valid (unless force refresh)
         if (!forceRefresh && catalogCache && (now - catalogFetchTime) < CATALOG_CACHE_DURATION) {
             console.log('[Catalog] Using cached catalog');
             return catalogCache;
         }
-        
+
         try {
             // Add cache-busting parameter to bypass CDN cache
             const cacheBuster = `?t=${now}`;
             const urlWithCacheBuster = CATALOG_URL + cacheBuster;
-            
+
             console.log('[Catalog] Fetching fresh catalog from:', urlWithCacheBuster);
             const response = await fetch(urlWithCacheBuster, {
                 cache: 'no-store', // Bypass browser cache
@@ -2624,43 +2629,43 @@ function initLauncher() {
                     'Pragma': 'no-cache'
                 }
             });
-            
+
             if (!response.ok) {
                 console.warn('[Catalog] Fetch failed:', response.status, response.statusText);
                 return null;
             }
-            
+
             const catalog = await response.json();
-            
+
             // Detailed logging of what we got
             const prodDLCs = catalog.builds?.production?.dlcs?.length || 0;
             const stagingDLCs = catalog.builds?.staging?.dlcs?.length || 0;
-            
+
             console.log('[Catalog] Fetched successfully:');
             console.log(`[Catalog]   Version: ${catalog.catalogVersion}`);
             console.log(`[Catalog]   Last Updated: ${catalog.lastUpdated}`);
             console.log(`[Catalog]   Generated By: ${catalog.generatedBy}`);
             console.log(`[Catalog]   Production DLCs: ${prodDLCs}`);
             console.log(`[Catalog]   Staging DLCs: ${stagingDLCs}`);
-            
+
             if (prodDLCs > 0) {
                 console.log('[Catalog]   Production DLC list:', catalog.builds.production.dlcs.map(d => d.folderName));
             }
             if (stagingDLCs > 0) {
                 console.log('[Catalog]   Staging DLC list:', catalog.builds.staging.dlcs.map(d => d.folderName));
             }
-            
+
             // Cache the catalog
             catalogCache = catalog;
             catalogFetchTime = now;
-            
+
             return catalog;
         } catch (error) {
             console.error('[Catalog] Error fetching:', error);
             return null;
         }
     }
-    
+
     /**
      * Convert catalog DLC entry to internal DLC format
      */
@@ -2683,7 +2688,7 @@ function initLauncher() {
             enabled: dlcEntry.enabled !== false // Default to true
         };
     }
-    
+
     /**
      * Load DLCs for the current app
      * Priority: catalog.json (R2) → Firebase → IPC fallback
@@ -2693,33 +2698,33 @@ function initLauncher() {
         console.log(`[DLC] Loading DLCs for ${appId}`);
         console.log(`[DLC] Current build type: ${currentBuildType}`);
         console.log(`[DLC] ========================================`);
-        
+
         // IMPORTANT: Clear existing DLCs to prevent mixing between build types
         dlcList = {};
-        
+
         // Strategy 1: Try catalog.json first (canonical source published by Admin)
         // Force refresh to ensure we get the latest catalog
         const catalog = await fetchCatalog(true);
-        
+
         console.log('[DLC] Catalog fetch result:', catalog ? 'SUCCESS' : 'FAILED');
         if (catalog) {
             console.log('[DLC] Catalog builds available:', Object.keys(catalog.builds || {}));
             console.log('[DLC] Current build type:', currentBuildType);
         }
-        
+
         // IMPORTANT: If catalog was fetched successfully, USE IT as source of truth
         // Even if it has 0 DLCs for this build type, that's the correct state from R2
         if (catalog && catalog.builds) {
             const buildCatalog = catalog.builds[currentBuildType];
             const catalogDLCs = buildCatalog?.dlcs || [];
-            
+
             console.log(`[DLC] Catalog fetched - ${currentBuildType} has ${catalogDLCs.length} DLCs`);
-            
+
             if (catalogDLCs.length > 0) {
                 console.log(`[DLC] ✓ DLCs in catalog for ${currentBuildType}:`);
                 catalogDLCs.forEach(d => console.log(`[DLC]   - ${d.folderName} v${d.version}`));
             }
-            
+
             // Convert catalog DLCs to internal format (may be empty - that's OK!)
             dlcList = {};
             for (const dlcEntry of catalogDLCs) {
@@ -2727,52 +2732,52 @@ function initLauncher() {
                     dlcList[dlcEntry.id] = catalogDLCToInternal(dlcEntry);
                 }
             }
-            
+
             console.log(`[DLC] ✓✓✓ SOURCE: CATALOG (R2) - ${Object.keys(dlcList).length} DLCs for ${currentBuildType}`);
-            
+
             if (Object.keys(dlcList).length === 0) {
                 console.log(`[DLC] ℹ️ No DLCs available for ${currentBuildType} build. This is correct if none were uploaded.`);
             }
-            
+
             await refreshDLCStatus();
             renderDLCs();
             return; // ALWAYS return here if catalog was fetched - don't fall back to Firebase
         }
-        
+
         console.log(`[DLC] ⚠️ Catalog fetch FAILED, falling back to Firebase...`);
         console.log(`[DLC] ⚠️ WARNING: Firebase may have stale data! Consider using Uploader's "Rebuild Catalog" button.`);
-        
+
         // Strategy 2: Fallback to Firebase
         try {
             const appDoc = doc(db, 'apps', appId);
             const appSnapshot = await getDoc(appDoc);
-            
+
             if (appSnapshot.exists()) {
                 const data = appSnapshot.data();
-                
+
                 // Read from buildTypes structure first (new), fallback to legacy dlcs
                 const buildTypes = data.buildTypes || {};
                 const buildTypeData = buildTypes[currentBuildType] || {};
                 const allDlcs = buildTypeData.dlcs || data.dlcs || {};
-                
+
                 console.log(`[DLC] Firebase: Found ${Object.keys(allDlcs).length} DLCs in ${buildTypeData.dlcs ? 'buildTypes.' + currentBuildType : 'legacy'} location`);
-                
+
                 // Filter only enabled DLCs and update manifest URLs based on current build type
                 dlcList = {};
-                
+
                 for (const [dlcId, dlc] of Object.entries(allDlcs)) {
                     if (dlc.enabled) {
                         const dlcCopy = { ...dlc };
-                        
+
                         // Update manifest URL to use current build type
                         if (dlc.folderName && dlc.version) {
                             dlcCopy.manifestUrl = `${R2_BASE_URL}/${currentBuildType}/${dlc.folderName}/${dlc.version}/manifest.json`;
                         }
-                        
+
                         dlcList[dlcId] = dlcCopy;
                     }
                 }
-                
+
                 if (Object.keys(dlcList).length > 0) {
                     console.log(`[DLC] ⚠️⚠️⚠️ SOURCE: FIREBASE (FALLBACK) - Found ${Object.keys(dlcList).length} DLCs`);
                     console.log(`[DLC] ⚠️ This data may be stale! Use Uploader's "Rebuild Catalog" to sync from R2.`);
@@ -2784,9 +2789,9 @@ function initLauncher() {
         } catch (firebaseError) {
             console.error('[DLC] Firebase fetch failed:', firebaseError);
         }
-        
+
         console.log('[DLC] Firebase empty or unavailable, trying IPC fallback...');
-        
+
         // Strategy 3: Final fallback to IPC handler (main process Firebase)
         try {
             const result = await window.electronAPI.getDLCs({ appId });
@@ -2801,19 +2806,19 @@ function initLauncher() {
         } catch (ipcError) {
             console.error('IPC DLC fetch failed:', ipcError);
         }
-        
+
         // No DLCs found from any source
         console.log('No DLCs found from any source');
         dlcList = {};
         renderDLCs();
     }
-    
+
     /**
      * Get base game info from catalog
      */
     async function getBaseGameInfoFromCatalog() {
         const catalog = await fetchCatalog();
-        
+
         if (catalog && catalog.builds && catalog.builds[currentBuildType]) {
             const buildCatalog = catalog.builds[currentBuildType];
             return {
@@ -2823,10 +2828,10 @@ function initLauncher() {
                 lastUpdated: buildCatalog.baseGame?.lastUpdated || null
             };
         }
-        
+
         return null;
     }
-    
+
     /**
      * Invalidate catalog cache (call after build type change)
      */
@@ -2835,7 +2840,7 @@ function initLauncher() {
         catalogFetchTime = 0;
         console.log('[Catalog] Cache invalidated - will fetch fresh on next request');
     }
-    
+
     /**
      * Force refresh catalog from R2 (bypasses all caching)
      */
@@ -2845,10 +2850,10 @@ function initLauncher() {
         catalogFetchTime = 0;
         return await fetchCatalog(true);
     }
-    
+
     // Expose for debugging
     window.forceRefreshCatalog = forceRefreshCatalog;
-    
+
     /**
      * Refresh DLC installation status
      */
@@ -2859,7 +2864,7 @@ function initLauncher() {
             dlcStatus = { environments: {}, characters: {} };
             return;
         }
-        
+
         try {
             const result = await window.electronAPI.getDLCStatus({ gamePath: game.installPath });
             if (result.success) {
@@ -2869,40 +2874,40 @@ function initLauncher() {
             console.error('Error refreshing DLC status:', error);
         }
     }
-    
+
     /**
      * Render DLCs in the UI
      */
     function renderDLCs() {
         // Target modal container instead of bottom section
         const dlcContainer = document.getElementById('dlc-modal-container');
-        
+
         console.log('[DLC Render] dlcContainer:', dlcContainer ? 'found' : 'NOT FOUND');
         console.log('[DLC Render] dlcList:', dlcList);
         console.log('[DLC Render] dlcList keys:', Object.keys(dlcList));
-        
+
         if (!dlcContainer) return;
-        
+
         // Clear container
         dlcContainer.innerHTML = '';
-        
+
         // Check if there are any DLCs
         const enabledDLCs = Object.values(dlcList).filter(dlc => dlc.enabled);
         console.log('[DLC Render] enabledDLCs count:', enabledDLCs.length);
         console.log('[DLC Render] enabledDLCs:', enabledDLCs);
-        
+
         if (enabledDLCs.length === 0) {
             // Show empty state message in modal
             dlcContainer.innerHTML = '<div class="text-center py-12 text-gray-400"><p class="text-lg">No additional content available</p></div>';
             return;
         }
-        
+
         // Separate environments and characters
         const environments = enabledDLCs.filter(dlc => dlc.type === 'environment');
         const characters = enabledDLCs.filter(dlc => dlc.type === 'character');
         console.log('[DLC Render] environments:', environments.length, environments.map(e => e.id));
         console.log('[DLC Render] characters:', characters.length, characters.map(c => c.id));
-        
+
         // Group characters by parent
         const charactersByParent = {};
         characters.forEach(char => {
@@ -2912,7 +2917,7 @@ function initLauncher() {
             }
             charactersByParent[parentId].push(char);
         });
-        
+
         // Render Base App info
         console.log('[DLC Render] Creating Base App card...');
         try {
@@ -2928,7 +2933,7 @@ function initLauncher() {
         } catch (e) {
             console.error('[DLC Render] Error creating Base App card:', e);
         }
-        
+
         // Render environments with their characters
         console.log('[DLC Render] Creating environment cards...');
         environments.forEach((env, idx) => {
@@ -2941,7 +2946,7 @@ function initLauncher() {
                 console.error(`[DLC Render] Error creating env card ${idx}:`, e);
             }
         });
-        
+
         // Render orphaned characters
         if (charactersByParent['orphaned']) {
             console.log('[DLC Render] Creating orphaned character cards...');
@@ -2956,59 +2961,59 @@ function initLauncher() {
                 }
             });
         }
-        
+
         console.log('[DLC Render] Rendering complete. dlcContainer children:', dlcContainer.children.length);
     }
-    
+
     /**
      * Create a DLC card element
      */
     function createDLCCard(dlc, childCharacters = []) {
         const card = document.createElement('div');
-        
+
         // Determine card styling based on type
-        const cardClass = dlc.type === 'environment' 
+        const cardClass = dlc.type === 'environment'
             ? 'bg-gray-800/80 backdrop-blur-xl border border-gray-700/50 rounded-lg p-4 dlc-environment-card'
             : dlc.type === 'character'
-            ? 'bg-gray-800/80 backdrop-blur-xl border border-gray-700/50 rounded-lg p-4 dlc-character-card'
-            : 'bg-gray-800/80 backdrop-blur-xl border border-gray-700/50 rounded-lg p-4';
+                ? 'bg-gray-800/80 backdrop-blur-xl border border-gray-700/50 rounded-lg p-4 dlc-character-card'
+                : 'bg-gray-800/80 backdrop-blur-xl border border-gray-700/50 rounded-lg p-4';
         card.className = cardClass;
-        
-        const isInstalled = dlc.type === 'base' || 
+
+        const isInstalled = dlc.type === 'base' ||
             (dlc.type === 'environment' && dlcStatus.environments[dlc.id]?.installed) ||
             (dlc.type === 'character' && dlcStatus.characters[dlc.id]?.installed);
-        
+
         // Check if parent environment is installed (for characters)
         const parentInstalled = dlc.parentId ? dlcStatus.environments[dlc.parentId]?.installed : true;
-        
+
         // Check version compatibility
-        const parentVersionOk = !dlc.parentVersion || 
+        const parentVersionOk = !dlc.parentVersion ||
             !dlcStatus.environments[dlc.parentId]?.version ||
             dlcStatus.environments[dlc.parentId]?.version >= dlc.parentVersion;
-        
+
         const canInstall = dlc.type === 'base' ? false :
             dlc.type === 'environment' ? true :
-            dlc.type === 'character' ? (parentInstalled && parentVersionOk) : false;
-        
+                dlc.type === 'character' ? (parentInstalled && parentVersionOk) : false;
+
         // Get level display
-        const levelBadge = dlc.level === 1 
+        const levelBadge = dlc.level === 1
             ? '<span class="px-1.5 py-0.5 text-[10px] bg-blue-500/20 text-blue-400 rounded">L1</span>'
-            : dlc.level === 2 
-            ? '<span class="px-1.5 py-0.5 text-[10px] bg-purple-500/20 text-purple-400 rounded">L2</span>'
-            : '';
-        
+            : dlc.level === 2
+                ? '<span class="px-1.5 py-0.5 text-[10px] bg-purple-500/20 text-purple-400 rounded">L2</span>'
+                : '';
+
         // Build metadata display
         const metadataItems = [];
         if (dlc.version) metadataItems.push(`v${dlc.version}`);
         if (dlc.folderName) metadataItems.push(dlc.folderName);
         if (dlc.requiredBaseVersion) metadataItems.push(`Base ≥${dlc.requiredBaseVersion}`);
         if (dlc.parentVersion) metadataItems.push(`Parent ≥${dlc.parentVersion}`);
-        
+
         // Count installed children for environment
-        const installedChildrenCount = dlc.type === 'environment' 
-            ? childCharacters.filter(c => dlcStatus.characters[c.id]?.installed).length 
+        const installedChildrenCount = dlc.type === 'environment'
+            ? childCharacters.filter(c => dlcStatus.characters[c.id]?.installed).length
             : 0;
-        
+
         card.innerHTML = `
             <div class="flex justify-between items-start">
                 <div class="flex-1">
@@ -3069,12 +3074,12 @@ function initLauncher() {
                         Characters (${childCharacters.length})
                     </div>
                     ${childCharacters.map(char => {
-                        const charInstalled = dlcStatus.characters[char.id]?.installed;
-                        const charMetadata = [];
-                        if (char.version) charMetadata.push(`v${char.version}`);
-                        if (char.folderName) charMetadata.push(char.folderName);
-                        
-                        return `
+            const charInstalled = dlcStatus.characters[char.id]?.installed;
+            const charMetadata = [];
+            if (char.version) charMetadata.push(`v${char.version}`);
+            if (char.folderName) charMetadata.push(char.folderName);
+
+            return `
                             <div class="bg-gray-700/50 rounded-lg p-3 flex justify-between items-center hover:bg-gray-700/70 transition-colors">
                                 <div class="flex items-center gap-3">
                                     <span class="px-1.5 py-0.5 text-[10px] bg-purple-500/20 text-purple-400 rounded">L2</span>
@@ -3107,11 +3112,11 @@ function initLauncher() {
                                 </div>
                             </div>
                         `;
-                    }).join('')}
+        }).join('')}
                 </div>
             ` : ''}
         `;
-        
+
         // Add event listeners for all install/uninstall buttons
         card.querySelectorAll('.dlc-install-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -3119,13 +3124,13 @@ function initLauncher() {
                 handleDLCInstall(btn.dataset.dlcId);
             });
         });
-        
+
         card.querySelectorAll('.dlc-uninstall-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const dlcId = btn.dataset.dlcId;
                 const hasChildren = btn.dataset.hasChildren === 'true';
-                
+
                 if (hasChildren) {
                     // Show warning about dependent children
                     handleDLCUninstallWithDependents(dlcId);
@@ -3134,32 +3139,32 @@ function initLauncher() {
                 }
             });
         });
-        
+
         card.querySelectorAll('.dlc-verify-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 handleDLCVerify(btn.dataset.dlcId);
             });
         });
-        
+
         return card;
     }
-    
+
     /**
      * Handle DLC uninstall with dependency check
      */
     async function handleDLCUninstallWithDependents(dlcId) {
         const dlc = dlcList[dlcId];
         if (!dlc) return;
-        
+
         // Find all installed children
         const installedChildren = Object.values(dlcList)
             .filter(d => d.type === 'character' && d.parentId === dlcId && dlcStatus.characters[d.id]?.installed);
-        
+
         if (installedChildren.length > 0) {
             const childNames = installedChildren.map(c => c.name || c.folderName).join(', ');
             const confirmMsg = `This environment has ${installedChildren.length} installed character(s): ${childNames}\n\nYou must uninstall these characters first before removing the environment.\n\nWould you like to uninstall all characters first?`;
-            
+
             if (confirm(confirmMsg)) {
                 // Uninstall all children first
                 for (const child of installedChildren) {
@@ -3174,7 +3179,7 @@ function initLauncher() {
             handleDLCUninstall(dlcId);
         }
     }
-    
+
     /**
      * Handle DLC installation
      */
@@ -3184,19 +3189,19 @@ function initLauncher() {
             showToast('DLC not found', 3000);
             return;
         }
-        
+
         // IMPORTANT: Use build-type-specific game data for correct install path
         const game = gameLibrary[currentGameId]?.[currentBuildType] || gameLibrary[currentGameId];
         console.log(`[DLC Install] Using game path for ${currentBuildType}:`, game?.installPath);
-        
+
         if (!game || !game.installPath) {
             showToast('Game must be installed first', 3000);
             return;
         }
-        
+
         try {
             showToast(`Installing ${dlc.name}...`, 3000);
-            
+
             const result = await window.electronAPI.downloadDLC({
                 dlcId: dlc.id,
                 manifestUrl: dlc.manifestUrl,
@@ -3204,7 +3209,7 @@ function initLauncher() {
                 dlcFolderName: dlc.folderName,
                 dlcList: dlcList
             });
-            
+
             if (result.success) {
                 showToast(`${dlc.name} installed successfully!`, 3000);
                 await refreshDLCStatus();
@@ -3217,7 +3222,7 @@ function initLauncher() {
             showToast(`Error installing DLC: ${error.message}`, 5000);
         }
     }
-    
+
     /**
      * Handle DLC uninstallation
      */
@@ -3227,30 +3232,30 @@ function initLauncher() {
             showToast('DLC not found', 3000);
             return;
         }
-        
+
         // IMPORTANT: Use build-type-specific game data for correct install path
         const game = gameLibrary[currentGameId]?.[currentBuildType] || gameLibrary[currentGameId];
         console.log(`[DLC Uninstall] Using game path for ${currentBuildType}:`, game?.installPath);
-        
+
         if (!game || !game.installPath) {
             showToast('Game path not found', 3000);
             return;
         }
-        
+
         if (!confirm(`Are you sure you want to uninstall ${dlc.name}?`)) {
             return;
         }
-        
+
         try {
             showToast(`Uninstalling ${dlc.name}...`, 3000);
-            
+
             const result = await window.electronAPI.uninstallDLC({
                 dlcId: dlc.id,
                 gamePath: game.installPath,
                 dlcFolderName: dlc.folderName,
                 dlcList: dlcList
             });
-            
+
             if (result.success) {
                 showToast(`${dlc.name} uninstalled successfully!`, 3000);
                 await refreshDLCStatus();
@@ -3263,7 +3268,7 @@ function initLauncher() {
             showToast(`Error uninstalling DLC: ${error.message}`, 5000);
         }
     }
-    
+
     /**
      * Handle DLC verification
      */
@@ -3273,28 +3278,28 @@ function initLauncher() {
             showToast('DLC not found', 3000);
             return;
         }
-        
+
         // IMPORTANT: Use build-type-specific game data for correct install path
         const game = gameLibrary[currentGameId]?.[currentBuildType] || gameLibrary[currentGameId];
         console.log(`[DLC Verify] Using game path for ${currentBuildType}:`, game?.installPath);
-        
+
         if (!game || !game.installPath) {
             showToast('Game path not found', 3000);
             return;
         }
-        
+
         // Construct install path (path.join is not available in browser, use string concatenation)
         const installPath = `${game.installPath.replace(/\\/g, '/')}/RolePlay_AI/Plugins/${dlc.folderName}`;
-        
+
         try {
             showToast(`Verifying ${dlc.name}...`, 3000);
-            
+
             const result = await window.electronAPI.verifyDLC({
                 dlcId: dlc.id,
                 manifestUrl: dlc.manifestUrl,
                 installPath: installPath
             });
-            
+
             if (result.success) {
                 if (result.valid) {
                     showToast(`${dlc.name} verification passed!`, 3000);
@@ -3316,7 +3321,7 @@ function initLauncher() {
             showToast(`Error verifying DLC: ${error.message}`, 5000);
         }
     }
-    
+
     /**
      * Show DLC modal
      */
@@ -3324,9 +3329,9 @@ function initLauncher() {
         const modal = document.getElementById('dlc-modal');
         const modalContent = document.getElementById('dlc-modal-content');
         const buildTypeBadge = document.getElementById('dlc-modal-build-type-badge');
-        
+
         if (!modal || !modalContent) return;
-        
+
         // Update build type badge
         if (buildTypeBadge) {
             if (currentBuildType === 'production') {
@@ -3337,40 +3342,40 @@ function initLauncher() {
                 buildTypeBadge.className = 'px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-500/20 text-yellow-400';
             }
         }
-        
+
         // Refresh DLC status and render
         if (currentGameId) {
             await refreshDLCStatus();
             await loadDLCs(currentGameId);
         }
-        
+
         // Show modal with animation
         modal.classList.remove('hidden');
         modal.classList.add('show');
         // Trigger reflow for animation
         void modalContent.offsetWidth;
-        
+
         // Focus management
         const closeButton = document.getElementById('close-dlc-modal');
         if (closeButton) {
             closeButton.focus();
         }
     }
-    
+
     /**
      * Hide DLC modal
      */
     function hideDLCModal() {
         const modal = document.getElementById('dlc-modal');
         if (!modal) return;
-        
+
         modal.classList.remove('show');
         // Wait for animation to complete before hiding
         setTimeout(() => {
             modal.classList.add('hidden');
         }, 300);
     }
-    
+
     /**
      * Setup DLC modal event listeners
      */
@@ -3378,21 +3383,21 @@ function initLauncher() {
         const dlcButton = document.getElementById('dlc-button');
         const closeButton = document.getElementById('close-dlc-modal');
         const modal = document.getElementById('dlc-modal');
-        
+
         // Open modal on button click
         if (dlcButton) {
             dlcButton.addEventListener('click', () => {
                 showDLCModal();
             });
         }
-        
+
         // Close modal on X button click
         if (closeButton) {
             closeButton.addEventListener('click', () => {
                 hideDLCModal();
             });
         }
-        
+
         // Close modal on backdrop click
         if (modal) {
             modal.addEventListener('click', (e) => {
@@ -3401,7 +3406,7 @@ function initLauncher() {
                 }
             });
         }
-        
+
         // Close modal on ESC key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
@@ -3412,13 +3417,13 @@ function initLauncher() {
             }
         });
     }
-    
+
     // Expose DLC functions globally
     window.loadDLCs = loadDLCs;
     window.renderDLCs = renderDLCs;
     window.showDLCModal = showDLCModal;
     window.hideDLCModal = hideDLCModal;
-    
+
     // This is the initial call that starts the launcher logic
     init();
 }

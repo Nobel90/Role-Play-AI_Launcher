@@ -20,6 +20,9 @@ This project is a launcher and updater for VRC's Role-Play-AI App. It provides a
 - Pause/resume/cancel download support
 - Game launcher functionality
 - Auto-updating launcher
+- Build type switching (Production/Staging)
+- DLC management with hierarchy support
+- Catalog-based DLC discovery
 
 ### Technical Requirements
 - Electron-based desktop application
@@ -37,6 +40,9 @@ This project is a launcher and updater for VRC's Role-Play-AI App. It provides a
 - Build and signing automation
 - Manifest generation and management
 - Integration with R2 bucket for production downloads
+- Build type system (Production/Staging)
+- DLC hierarchy management
+- Catalog integration for DLC discovery
 
 ## Success Criteria
 - Users can easily install and update the game
