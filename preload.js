@@ -63,6 +63,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getCatalogBaseGame: () => ipcRenderer.invoke('get-catalog-base-game'),
     getCatalogDLCs: () => ipcRenderer.invoke('get-catalog-dlcs'),
     
+    // --- Session (UE App Auth Bridge) ---
+    setSession: (sessionData) => ipcRenderer.invoke('set-session', sessionData),
+    clearSession: () => ipcRenderer.invoke('clear-session'),
+    logError: (msg) => ipcRenderer.invoke('log-error', msg),
+
     // --- Build Type Management ---
     getBuildType: () => ipcRenderer.invoke('get-build-type'),
     setBuildType: (buildType) => ipcRenderer.invoke('set-build-type', buildType),

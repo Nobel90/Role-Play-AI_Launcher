@@ -1,18 +1,18 @@
 // Import Firebase modules. The 'type="module"' in the HTML script tag makes this possible.
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, getMultiFactorResolver, TotpMultiFactorGenerator } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { getFirestore, doc, getDoc, onSnapshot, collection, query, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 // --- FIREBASE CONFIGURATION ---
 // Use the same configuration from your web dashboard
 const firebaseConfig = {
-    apiKey: "AIzaSyDigbqsTEMSRXz_JgqBAIJ1BKmr6Zb7DzQ",
-    authDomain: "vr-centre-7bdac.firebaseapp.com",
-    projectId: "vr-centre-7bdac",
-    storageBucket: "vr-centre-7bdac.firebasestorage.app",
-    messagingSenderId: "236273910700",
-    appId: "1:236273910700:web:10d6825337bfd26fb43009",
-    measurementId: "G-7P6X25QK1R"
+    apiKey: "AIzaSyDgXMCkVl-ne68k6_SwQDr9yakNNomVttM",
+    authDomain: "vrcentre-roleplayai-website.firebaseapp.com",
+    projectId: "vrcentre-roleplayai-website",
+    storageBucket: "vrcentre-roleplayai-website.firebasestorage.app",
+    messagingSenderId: "594002655240",
+    appId: "1:594002655240:web:cf661f2cba121d8aa179bd",
+    measurementId: "G-CGZDF7355G"
 };
 
 // Initialize Firebase
@@ -295,36 +295,122 @@ const logoutButton = document.getElementById('logout-button'); // Old logout but
 const userInfo = document.getElementById('user-info');
 const guestInfo = document.getElementById('guest-info');
 const showLoginButton = document.getElementById('show-login-button');
-const backToLauncherButton = document.getElementById('back-to-launcher');
 // Header links are now dynamically rendered - no static references needed
 
 // --- AUTHENTICATION LOGIC ---
 
+// --- SESSION MANAGEMENT ---
+// Holds the active MFA resolver while waiting for TOTP code entry
+let pendingMfaResolver = null;
+// Stores current user's data (profile + license) after login
+let currentUserData = null;
+
+async function fetchUserSession(user) {
+    let userDoc;
+    try {
+        userDoc = await getDoc(doc(db, "users", user.uid));
+    } catch (err) {
+        console.error('Firestore read failed:', err);
+        errorMessage.textContent = 'Could not load account data. Check your connection.';
+        showLogin();
+        return;
+    }
+
+    // Build userData — fall back to Firebase Auth fields if no Firestore doc
+    let userData = {};
+    if (userDoc && userDoc.exists()) {
+        userData = userDoc.data();
+
+        // Reject accounts with an explicitly blocked role
+        const allowedRoles = ['user', 'admin'];
+        if (userData.role && !allowedRoles.includes(userData.role)) {
+            const msg = `fetchUserSession: role '${userData.role}' not allowed`;
+            console.error(msg);
+            window.electronAPI.logError(msg).catch(() => {});
+            errorMessage.textContent = 'This account does not have launcher access.';
+            await signOut(auth);
+            showLogin(false);
+            return;
+        }
+    } else {
+        // No Firestore doc — allow through with basic auth info (no license)
+        console.warn(`fetchUserSession: no Firestore doc for uid=${user.uid}, proceeding with auth-only data`);
+        userData = {
+            displayName: user.displayName || user.email,
+            email: user.email,
+            role: 'user',
+        };
+    }
+
+    // Fetch organization name if user belongs to one
+    let organizationName = null;
+    if (userData.organizationId) {
+        try {
+            const orgDoc = await getDoc(doc(db, "organizations", userData.organizationId));
+            if (orgDoc.exists()) organizationName = orgDoc.data().name || null;
+        } catch (err) {
+            console.warn('Could not fetch organization:', err);
+        }
+    }
+
+    // Fetch license if one is allocated
+    let licenseData = null;
+    console.log(`fetchUserSession: allocatedLicenseId=${userData.allocatedLicenseId}, organizationId=${userData.organizationId}`);
+    window.electronAPI.logError(`fetchUserSession: allocatedLicenseId=${userData.allocatedLicenseId}, organizationId=${userData.organizationId}`).catch(() => {});
+    if (userData.allocatedLicenseId && userData.organizationId) {
+        try {
+            const licenseRef = doc(db, "organizations", userData.organizationId, "licenses", userData.allocatedLicenseId);
+            const licenseDoc = await getDoc(licenseRef);
+            if (licenseDoc.exists()) {
+                licenseData = licenseDoc.data();
+                console.log('License fetched:', JSON.stringify(licenseData));
+            } else {
+                console.warn('License doc does not exist at path:', licenseRef.path);
+                window.electronAPI.logError(`License doc missing: ${licenseRef.path}`).catch(() => {});
+            }
+        } catch (err) {
+            console.warn('Could not fetch license:', err);
+            window.electronAPI.logError(`License fetch error: ${err.message}`).catch(() => {});
+        }
+    } else {
+        // Try to find the license another way: search org licenses where allocatedToUserId == user.uid
+        console.warn('Missing allocatedLicenseId or organizationId on user doc — cannot fetch license');
+        window.electronAPI.logError(`Missing license fields. userData keys: ${Object.keys(userData).join(', ')}`).catch(() => {});
+    }
+
+    // Get a fresh ID token and push session to main process (for UE app HTTP server)
+    try {
+        const idToken = await user.getIdToken();
+        await window.electronAPI.setSession({
+            uid: user.uid,
+            email: user.email,
+            displayName: userData.displayName || user.email,
+            idToken,
+            license: licenseData ? {
+                licenseId: userData.allocatedLicenseId,
+                environments: licenseData.environments || [],
+                characters: licenseData.characters || [],
+                dlcAccess: licenseData.dlcAccess || [],
+                isActive: licenseData.isActive ?? true,
+                startDate: licenseData.startDate || null,
+                endDate: licenseData.endDate || null,
+            } : null,
+        });
+    } catch (err) {
+        console.warn('Could not push session to main process:', err);
+    }
+
+    showLauncher({ ...userData, licenseData, organizationName });
+}
+
 // Listen for auth state changes to handle automatic login
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        // User is signed in, now let's verify them against our Firestore database
-        const userDocRef = doc(db, "users", user.uid);
-        const userDoc = await getDoc(userDocRef);
-
-        if (userDoc.exists() && userDoc.data().isVerified) {
-            // User is verified, show the launcher
-            showLauncher(userDoc.data());
-        } else {
-            // User is not verified or doesn't exist in Firestore, so sign them out and show login
-            if (userDoc.exists() && !userDoc.data().isVerified) {
-                console.log('User is not verified.');
-                errorMessage.textContent = 'Account has not been verified by an administrator.';
-            } else {
-                console.log('User document does not exist.');
-                errorMessage.textContent = 'Account not found in user records.';
-            }
-            await signOut(auth);
-            showLauncher(null);
-        }
+        await fetchUserSession(user);
     } else {
-        // User is signed out, show the launcher screen
-        showLauncher(null);
+        // Clear session in main process on logout
+        try { await window.electronAPI.clearSession(); } catch (_) {}
+        showLogin();
     }
 });
 
@@ -339,16 +425,79 @@ loginForm.addEventListener('submit', async (e) => {
     loginButton.textContent = 'Signing In...';
 
     try {
-        // signInWithEmailAndPassword will trigger the onAuthStateChanged listener if successful
         await signInWithEmailAndPassword(auth, email, password);
+        // onAuthStateChanged handles the rest on success
     } catch (error) {
-        console.error("Login failed:", error);
-        errorMessage.textContent = "Login failed. Please check your credentials.";
+        if (error.code === 'auth/multi-factor-auth-required') {
+            // MFA required — show TOTP input
+            try {
+                pendingMfaResolver = getMultiFactorResolver(auth, error);
+                showMfaPrompt();
+            } catch (mfaErr) {
+                console.error('showMfaPrompt failed:', mfaErr);
+                errorMessage.textContent = 'MFA setup error. Please restart and try again.';
+            }
+        } else {
+            console.error("Login failed:", error);
+            errorMessage.textContent = error.code === 'auth/too-many-requests'
+                ? 'Too many attempts. Please try again later.'
+                : 'Login failed. Please check your credentials.';
+        }
     } finally {
         loginButton.disabled = false;
-        loginButton.textContent = 'Log In';
+        loginButton.textContent = 'Sign In';
     }
 });
+
+// --- MFA TOTP FLOW ---
+function showMfaPrompt() {
+    const loginStep = document.getElementById('login-step');
+    const mfaStep = document.getElementById('mfa-step');
+    const mfaInput = document.getElementById('mfa-code-input');
+    const mfaBtn = document.getElementById('mfa-submit-btn');
+    const mfaError = document.getElementById('mfa-error-message');
+    const mfaBack = document.getElementById('mfa-back-btn');
+
+    loginStep.classList.add('hidden');
+    mfaStep.classList.remove('hidden');
+    mfaInput.value = '';
+    mfaError.textContent = '';
+    mfaInput.focus();
+
+    mfaBack.onclick = () => {
+        pendingMfaResolver = null;
+        mfaStep.classList.add('hidden');
+        loginStep.classList.remove('hidden');
+        mfaInput.value = '';
+        mfaError.textContent = '';
+        errorMessage.textContent = '';
+    };
+
+    mfaBtn.onclick = submitMfa;
+    mfaInput.onkeydown = (e) => { if (e.key === 'Enter') submitMfa(); };
+
+    async function submitMfa() {
+        const code = mfaInput.value.trim();
+        if (code.length !== 6) return;
+        mfaBtn.disabled = true;
+        mfaBtn.textContent = 'Verifying...';
+        try {
+            const hint = pendingMfaResolver.hints[0];
+            const assertion = TotpMultiFactorGenerator.assertionForSignIn(hint.uid, code);
+            await pendingMfaResolver.resolveSignIn(assertion);
+            pendingMfaResolver = null;
+        } catch (err) {
+            console.error('MFA verification error:', err);
+            mfaBtn.disabled = false;
+            mfaBtn.textContent = 'Verify';
+            mfaInput.value = '';
+            mfaInput.focus();
+            mfaError.textContent = err.code === 'auth/invalid-verification-code'
+                ? 'Invalid code. Please try again.'
+                : `Verification failed: ${err.message}`;
+        }
+    }
+}
 
 // Logout button handler (if it exists - new design uses dropdown)
 if (logoutButton) {
@@ -361,10 +510,6 @@ showLoginButton.addEventListener('click', () => {
     showLogin();
 });
 
-backToLauncherButton.addEventListener('click', () => {
-    showLauncher(null);
-});
-
 // Header links are now dynamically rendered in triggerUIUpdate()
 
 
@@ -372,18 +517,27 @@ backToLauncherButton.addEventListener('click', () => {
 let launcherInitialized = false;
 
 function showLauncher(userData) {
-    if (userData) {
-        // User is logged in
-        usernameDisplay.textContent = userData.username || 'PlayerOne';
-        userInfo.classList.remove('hidden');
-        userInfo.classList.add('flex');
-        guestInfo.classList.add('hidden');
-    } else {
-        // User is logged out or anonymous
-        userInfo.classList.add('hidden');
-        userInfo.classList.remove('flex');
-        // guestInfo.classList.remove('hidden');
+    if (!userData) {
+        showLogin();
+        return;
     }
+
+    currentUserData = userData;
+
+    // User is logged in — update header
+    const displayName = userData.displayName || userData.email || 'User';
+    if (usernameDisplay) usernameDisplay.textContent = displayName;
+    const initialsEl = document.getElementById('user-avatar-initials');
+    if (initialsEl) {
+        initialsEl.textContent = displayName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    }
+    userInfo.classList.remove('hidden');
+    userInfo.classList.add('flex');
+    guestInfo.classList.add('hidden');
+
+    // Avatar button navigates to account
+    const avatarBtn = document.getElementById('user-avatar-btn');
+    if (avatarBtn) avatarBtn.onclick = () => switchView('account');
 
     loginView.classList.add('hidden');
     launcherVIew.classList.remove('hidden');
@@ -395,21 +549,30 @@ function showLauncher(userData) {
     }
 }
 
-function showLogin() {
+function showLogin(clearError = true) {
     loginView.classList.remove('hidden');
     launcherVIew.classList.add('hidden');
-    errorMessage.textContent = '';
+    if (clearError) errorMessage.textContent = '';
+    // Reset MFA step if visible
+    document.getElementById('mfa-step')?.classList.add('hidden');
+    document.getElementById('login-step')?.classList.remove('hidden');
+    // Populate version label
+    const versionEl = document.getElementById('login-version');
+    if (versionEl && !versionEl.textContent) {
+        window.electronAPI.getAppVersion().then(v => { versionEl.textContent = `v${v} · VR Centre Pty Ltd`; }).catch(() => {});
+    }
 }
 
 // --- VIEW MANAGEMENT SYSTEM ---
-let currentView = 'home'; // 'home', 'apps', 'shop', 'app-detail'
+let currentView = 'home';
 let currentSelectedApp = null;
 let gameLibrary = null; // Will be set in initLauncher
 
 const homeView = document.getElementById('home-view');
 const appsView = document.getElementById('apps-view');
 const shopView = document.getElementById('shop-view');
-const dashboardView = document.getElementById('dashboard-view');
+const storeView = document.getElementById('store-view');
+const accountView = document.getElementById('account-view');
 const appDetailView = document.getElementById('app-detail-view');
 const navTabs = document.querySelectorAll('.nav-tab');
 const logoDropdown = document.getElementById('logo-dropdown');
@@ -417,40 +580,35 @@ const logoDropdownToggle = document.getElementById('logo-dropdown-toggle');
 const appFavoritesContainer = document.getElementById('app-favorites-container');
 const appsGrid = document.getElementById('apps-grid');
 
+function hideAllViews() {
+    [homeView, appsView, shopView, storeView, accountView, appDetailView].forEach(v => v?.classList.add('hidden'));
+    navTabs.forEach(tab => tab.classList.remove('active'));
+}
+
 // Switch between views
 function switchView(viewName) {
-    // Hide all views
-    homeView.classList.add('hidden');
-    appsView.classList.add('hidden');
-    shopView.classList.add('hidden');
-    if (dashboardView) dashboardView.classList.add('hidden');
-    appDetailView.classList.add('hidden');
+    hideAllViews();
 
-    // Remove active class from all tabs
-    navTabs.forEach(tab => tab.classList.remove('active'));
-
-    // Show selected view
     if (viewName === 'home') {
-        homeView.classList.remove('hidden');
+        // Home goes directly to app detail
         document.querySelector('.nav-tab[data-view="home"]')?.classList.add('active');
         currentView = 'home';
-    } else if (viewName === 'apps') {
-        appsView.classList.remove('hidden');
-        document.querySelector('.nav-tab[data-view="apps"]')?.classList.add('active');
-        currentView = 'apps';
-        renderAppsGrid();
-    } else if (viewName === 'shop') {
-        shopView.classList.remove('hidden');
-        document.querySelector('.nav-tab[data-view="shop"]')?.classList.add('active');
-        currentView = 'shop';
-    } else if (viewName === 'dashboard') {
-        if (dashboardView) dashboardView.classList.remove('hidden');
-        document.querySelector('.nav-tab[data-view="dashboard"]')?.classList.add('active');
-        currentView = 'dashboard';
+        selectApp('RolePlayAI');
+        return;
+    } else if (viewName === 'account') {
+        if (accountView) accountView.classList.remove('hidden');
+        document.querySelector('.nav-tab[data-view="account"]')?.classList.add('active');
+        currentView = 'account';
+        renderAccountView(currentUserData);
+    } else if (viewName === 'store') {
+        if (storeView) storeView.classList.remove('hidden');
+        document.querySelector('.nav-tab[data-view="store"]')?.classList.add('active');
+        currentView = 'store';
+        renderStoreView();
     } else if (viewName === 'app-detail') {
         appDetailView.classList.remove('hidden');
+        document.querySelector('.nav-tab[data-view="home"]')?.classList.add('active');
         currentView = 'app-detail';
-        console.log('Switched to app-detail view');
     }
 }
 
@@ -508,6 +666,499 @@ function selectApp(gameId) {
     if (typeof triggerUIUpdate === 'function') {
         triggerUIUpdate();
     }
+}
+
+// ─── Account View ───────────────────────────────────────────────────────────
+
+let cachedSessions = null; // cached after first fetch
+
+async function fetchUserSessions(uid) {
+    if (cachedSessions) return cachedSessions;
+    try {
+        const { collection: col, query: q, orderBy: ob, getDocs: gd } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+        const sessionsRef = col(db, "users", uid, "sessions");
+        const snap = await gd(q(sessionsRef, ob("timestamp", "desc")));
+        cachedSessions = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        return cachedSessions;
+    } catch (err) {
+        console.warn('Could not fetch sessions:', err);
+        return [];
+    }
+}
+
+function renderAccountView(userData, activeTab = 'overview') {
+    const container = document.getElementById('account-view');
+    if (!container) return;
+
+    if (!userData) {
+        container.innerHTML = `<div class="flex items-center justify-center h-full text-sm" style="color:var(--text-muted);">Sign in to view your account</div>`;
+        return;
+    }
+
+    const license = userData.licenseData;
+    const initials = (userData.displayName || userData.email || 'U')
+        .split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+
+    const fmt = (val) => {
+        if (!val) return '—';
+        const d = val.toDate ? val.toDate() : new Date(val);
+        return d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
+    };
+
+    const pill = (arr, color = '#93c5fd', border = 'rgba(59,130,246,0.18)') => arr && arr.length
+        ? arr.map(e => `<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;background:rgba(59,130,246,0.08);border:1px solid ${border};border-radius:var(--radius);font-size:0.75rem;color:${color};">✓ ${e}</span>`).join('')
+        : `<span class="text-xs" style="color:var(--text-muted);">None allocated</span>`;
+
+    const tabs = [
+        { id: 'overview', label: 'Overview' },
+        { id: 'sessions', label: 'Sessions' },
+        { id: 'license', label: 'License' },
+        { id: 'profile', label: 'Profile' },
+    ];
+
+    container.innerHTML = `
+    <div class="flex flex-col h-full">
+      <!-- Sub-Nav -->
+      <div style="border-bottom:1px solid var(--border);background:rgba(10,10,10,0.6);backdrop-filter:blur(12px);flex-shrink:0;">
+        <div class="flex items-center px-6 gap-1 max-w-4xl mx-auto w-full">
+          ${tabs.map(t => `<button class="sub-nav-tab ${activeTab === t.id ? 'active' : ''}" data-account-tab="${t.id}">${t.label}</button>`).join('')}
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="flex-1 overflow-y-auto p-6">
+        <div class="max-w-4xl mx-auto animate-fade-in" id="account-tab-content">
+          ${renderAccountTabContent(activeTab, userData, license, initials, fmt, pill)}
+        </div>
+      </div>
+    </div>`;
+
+    // Wire sub-nav clicks
+    container.querySelectorAll('[data-account-tab]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tab = btn.getAttribute('data-account-tab');
+            if (tab === 'sessions') {
+                // Fetch sessions then render
+                fetchUserSessions(userData.uid || '').then(() => renderAccountView(userData, tab));
+            } else {
+                renderAccountView(userData, tab);
+            }
+        });
+    });
+
+    container.querySelector('#account-signout-btn')?.addEventListener('click', () => signOut(auth));
+}
+
+function renderAccountTabContent(tab, userData, license, initials, fmt, pill) {
+    if (tab === 'overview') return renderAccountOverview(userData, license);
+    if (tab === 'sessions') return renderAccountSessions();
+    if (tab === 'license') return renderAccountLicense(userData, license, fmt, pill);
+    if (tab === 'profile') return renderAccountProfile(userData, initials, fmt);
+    return '';
+}
+
+function renderAccountOverview(userData, license) {
+    const sessions = cachedSessions || [];
+    const totalSessions = sessions.filter(s => !s.archived).length;
+    const totalSeconds = sessions.reduce((a, s) => a + (s.duration || 0), 0);
+    const totalHours = (totalSeconds / 3600).toFixed(1);
+    const scored = sessions.filter(s => s.metrics?.score !== undefined);
+    const avgScore = scored.length ? Math.round(scored.reduce((a, s) => a + s.metrics.score, 0) / scored.length) : null;
+    const ownedModules = ((license?.environments?.length || 0) + (license?.characters?.length || 0));
+    const recent = sessions.slice(0, 5);
+
+    const fmtRelDate = (val) => {
+        if (!val) return '—';
+        const d = val.toDate ? val.toDate() : new Date(val);
+        const now = new Date();
+        const diff = Math.floor((now - d) / 86400000);
+        if (diff === 0) return 'Today';
+        if (diff === 1) return 'Yesterday';
+        return d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
+    };
+
+    return `
+    <div class="space-y-6">
+      <div>
+        <h1 class="text-2xl font-bold">Welcome back, <span class="gradient-text">${userData.displayName || userData.email?.split('@')[0] || 'User'}</span></h1>
+        <p class="text-sm mt-1" style="color:var(--text-muted);">Here's a summary of your Synthetic Scenes activity</p>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-4 gap-4">
+        ${[
+            { label: 'Total Sessions', value: totalSessions, sub: sessions.length > 0 ? `${sessions.length} all time` : 'No sessions yet', icon: `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>` },
+            { label: 'Hours Practiced', value: totalHours + 'h', sub: 'Total training time', icon: `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>` },
+            { label: 'Average Score', value: avgScore !== null ? avgScore + '%' : 'N/A', sub: scored.length > 0 ? `${scored.length} scored sessions` : 'No scored sessions', icon: `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>` },
+            { label: 'Owned Modules', value: ownedModules, sub: 'Environments & Characters', icon: `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>` },
+        ].map(s => `
+        <div class="stat-card">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-medium" style="color:var(--text-muted);">${s.label}</span>
+            <span style="color:var(--text-muted);">${s.icon}</span>
+          </div>
+          <div class="text-2xl font-bold mb-1">${s.value}</div>
+          <p class="text-xs" style="color:var(--text-muted);">${s.sub}</p>
+        </div>`).join('')}
+      </div>
+
+      <!-- Recent Sessions -->
+      <div class="account-card">
+        <div class="flex items-center gap-2 mb-4">
+          <svg class="w-4 h-4" style="color:var(--text-muted);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          <p class="font-semibold text-sm">Recent Sessions</p>
+        </div>
+        ${recent.length > 0 ? `
+        <div class="space-y-2">
+          ${recent.map(s => `
+          <div class="flex items-center justify-between p-3 rounded-lg" style="background:rgba(255,255,255,0.03);">
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium truncate">${s.characterName || '—'}</p>
+              <p class="text-xs truncate" style="color:var(--text-muted);">${s.environmentName || '—'}</p>
+            </div>
+            <div class="flex items-center gap-3 ml-4">
+              ${s.metrics?.score !== undefined ? `<span class="badge ${s.metrics.score >= 85 ? 'badge-success' : 'badge-muted'}">${s.metrics.score}%</span>` : ''}
+              <span class="text-xs" style="color:var(--text-muted);">${fmtRelDate(s.timestamp)}</span>
+            </div>
+          </div>`).join('')}
+        </div>` : `
+        <div class="text-center py-8" style="color:var(--text-muted);">
+          <svg class="w-10 h-10 mx-auto mb-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          <p class="text-sm">No sessions yet</p>
+          <p class="text-xs mt-1">Complete a VR training session to see your activity here</p>
+        </div>`}
+      </div>
+    </div>`;
+}
+
+function renderAccountSessions() {
+    const sessions = (cachedSessions || []).filter(s => !s.archived);
+
+    const fmtDur = (sec) => {
+        if (!sec) return '—';
+        const m = Math.floor(sec / 60);
+        return m < 60 ? `${m}m` : `${Math.floor(m/60)}h ${m%60}m`;
+    };
+    const fmtDate = (val) => {
+        if (!val) return '—';
+        const d = val.toDate ? val.toDate() : new Date(val);
+        const diff = Math.floor((new Date() - d) / 86400000);
+        if (diff === 0) return 'Today';
+        if (diff === 1) return 'Yesterday';
+        return d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
+    };
+
+    return `
+    <div class="space-y-4">
+      <div>
+        <h2 class="text-xl font-bold">Session History</h2>
+        <p class="text-sm mt-1" style="color:var(--text-muted);">Review your practice sessions and track your progress</p>
+      </div>
+
+      ${sessions.length === 0 ? `
+      <div class="account-card text-center py-12">
+        <svg class="w-12 h-12 mx-auto mb-3 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        <h3 class="font-semibold">No sessions found</h3>
+        <p class="text-sm mt-1" style="color:var(--text-muted);">Your session history will appear here after you complete VR training sessions</p>
+      </div>` : `
+      <div class="space-y-3">
+        ${sessions.map(s => `
+        <div class="session-row p-4 cursor-pointer" onclick="this.querySelector('.session-transcript')?.classList.toggle('hidden')">
+          <div class="flex items-center gap-4">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:rgba(255,255,255,0.05);">
+              <svg class="w-5 h-5" style="color:var(--text-muted);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="font-semibold text-sm">${s.characterName || '—'}</p>
+              <p class="text-xs" style="color:var(--text-muted);">${s.environmentName || '—'}</p>
+            </div>
+            <div class="flex items-center gap-4">
+              ${s.metrics?.score !== undefined ? `<span class="badge ${s.metrics.score >= 85 ? 'badge-success' : 'badge-muted'}">${s.metrics.score}%</span>` : ''}
+              <span class="badge ${s.completed ? 'badge-success' : 'badge-muted'}">${s.completed ? 'Completed' : 'In Progress'}</span>
+              <div class="text-right">
+                <p class="text-xs" style="color:var(--text-muted);">${fmtDate(s.timestamp)}</p>
+                <p class="text-xs" style="color:var(--text-muted);">${fmtDur(s.duration)}</p>
+              </div>
+            </div>
+          </div>
+          ${s.transcript?.length ? `
+          <div class="session-transcript hidden mt-4 pt-4 space-y-2" style="border-top:1px solid var(--border);">
+            <p class="text-xs font-semibold mb-2" style="color:var(--text-muted);">TRANSCRIPT</p>
+            ${s.transcript.slice(0, 10).map(t => {
+                const isUser = t.speaker === 'Guest' || t.speaker === 'Doctor' || t.speaker?.toLowerCase().includes('doctor');
+                return `<div class="flex ${isUser ? 'justify-start' : 'justify-end'}">
+                  <div class="max-w-xs p-2.5 rounded-xl text-xs" style="background:${isUser ? 'rgba(59,130,246,0.1)' : 'rgba(16,185,129,0.1)'};border:1px solid ${isUser ? 'rgba(59,130,246,0.2)' : 'rgba(16,185,129,0.2)'};">
+                    <p class="font-medium mb-0.5" style="color:${isUser ? '#60a5fa' : '#34d399'};">${t.speaker}</p>
+                    <p>${t.message}</p>
+                  </div>
+                </div>`;
+            }).join('')}
+            ${s.transcript.length > 10 ? `<p class="text-xs text-center" style="color:var(--text-muted);">+${s.transcript.length - 10} more messages</p>` : ''}
+          </div>` : ''}
+        </div>`).join('')}
+      </div>`}
+    </div>`;
+}
+
+function renderAccountLicense(userData, license, fmt, pill) {
+    if (!license) return `
+    <div class="space-y-4">
+      <div><h2 class="text-xl font-bold">My License</h2></div>
+      <div class="account-card text-center py-12">
+        <svg class="w-12 h-12 mx-auto mb-3 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+        <h3 class="font-semibold">No License Allocated</h3>
+        <p class="text-sm mt-1" style="color:var(--text-muted);">Contact your organization administrator to get access</p>
+      </div>
+    </div>`;
+
+    const now = new Date();
+    const endDate = license.endDate?.toDate ? license.endDate.toDate() : (license.endDate ? new Date(license.endDate) : null);
+    const startDate = license.startDate?.toDate ? license.startDate.toDate() : (license.startDate ? new Date(license.startDate) : null);
+    const isExpired = endDate && now > endDate;
+    const isPending = startDate && now < startDate;
+    const isActive = license.isActive !== false && !isExpired && !isPending;
+    const daysLeft = endDate ? Math.max(0, Math.ceil((endDate - now) / 86400000)) : null;
+    const statusColor = isActive ? '#4ade80' : '#f87171';
+    const statusBar = isActive ? 'background:linear-gradient(90deg,#22c55e,#16a34a)' : 'background:#ef4444';
+    const statusLabel = !license.isActive ? 'Inactive' : isExpired ? 'Expired' : isPending ? 'Pending' : 'Active';
+
+    return `
+    <div class="space-y-6">
+      <div><h2 class="text-xl font-bold">My License</h2><p class="text-sm mt-1" style="color:var(--text-muted);">View your license information and access details</p></div>
+
+      <!-- License Status Card -->
+      <div class="account-card overflow-hidden p-0">
+        <div style="height:3px;${statusBar};"></div>
+        <div class="p-5">
+          <div class="flex items-start justify-between gap-4 mb-4">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background:rgba(255,255,255,0.05);color:var(--text-muted);">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+              </div>
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-widest mb-1" style="color:var(--text-muted);">License Key</p>
+                <code class="text-sm" style="color:var(--text);">${license.key || userData.allocatedLicenseId || '—'}</code>
+              </div>
+            </div>
+            <span class="badge ${isActive ? 'badge-success' : 'badge-error'} flex-shrink-0">${isActive ? '●' : '○'} ${statusLabel}</span>
+          </div>
+          <div class="grid grid-cols-4 gap-3">
+            ${[
+                { icon: `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>`, label: 'Organization', value: userData.organizationName || userData.organizationId || '—' },
+                { icon: `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`, label: 'Start Date', value: fmt(license.startDate) },
+                { icon: `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`, label: 'End Date', value: fmt(license.endDate) },
+                { icon: `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`, label: 'Days Remaining', value: daysLeft !== null ? (daysLeft > 0 ? `${daysLeft} days` : 'Expired') : 'No expiry', highlight: daysLeft !== null && daysLeft <= 7 },
+            ].map(item => `
+            <div class="p-3 rounded-lg" style="background:rgba(255,255,255,0.03);">
+              <div class="flex items-center gap-1.5 mb-1.5" style="color:var(--text-muted);">
+                ${item.icon}
+                <span class="text-xs" style="color:var(--text-muted);">${item.label}</span>
+              </div>
+              <p class="text-sm font-semibold ${item.highlight ? 'text-yellow-400' : ''}">${item.value}</p>
+            </div>`).join('')}
+          </div>
+        </div>
+      </div>
+
+      <!-- Access Grid -->
+      <div class="grid grid-cols-2 gap-4">
+        <div class="account-card">
+          <div class="flex items-center gap-1.5 mb-3" style="color:var(--text-muted);"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg><p class="text-xs font-semibold uppercase tracking-widest">Environments</p></div>
+          <div class="flex flex-wrap gap-2">${pill(license.environments)}</div>
+        </div>
+        <div class="account-card">
+          <div class="flex items-center gap-1.5 mb-3" style="color:var(--text-muted);"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg><p class="text-xs font-semibold uppercase tracking-widest">Characters</p></div>
+          <div class="flex flex-wrap gap-2">${pill(license.characters, '#86efac', 'rgba(34,197,94,0.2)')}</div>
+        </div>
+      </div>
+
+      <!-- License Details -->
+      <div class="account-card">
+        <div class="flex items-center gap-1.5 mb-4" style="color:var(--text-muted);"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg><p class="text-xs font-semibold uppercase tracking-widest">License Details</p></div>
+        <div class="space-y-3">
+          ${[
+            ['License ID', `<code class="text-xs" style="color:var(--text);">${userData.allocatedLicenseId || '—'}</code>`],
+            ['Total DLC Access', `${(license.dlcAccess || []).length} modules`],
+          ].map(([k, v]) => `
+          <div class="flex items-center justify-between py-2" style="border-bottom:1px solid var(--border);">
+            <span class="text-xs" style="color:var(--text-muted);">${k}</span>
+            <span class="text-xs">${v}</span>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderAccountProfile(userData, initials, fmt) {
+    return `
+    <div class="space-y-6 max-w-lg">
+      <div><h2 class="text-xl font-bold">Profile</h2></div>
+
+      <div class="account-card flex items-center gap-4">
+        <div class="avatar-circle" style="width:56px;height:56px;font-size:1.1rem;">${initials}</div>
+        <div class="flex-1 min-w-0">
+          <p class="font-semibold truncate">${userData.displayName || '—'}</p>
+          <p class="text-sm truncate" style="color:var(--text-muted);">${userData.email || '—'}</p>
+        </div>
+      </div>
+
+      ${userData.organizationId ? `
+      <div class="account-card space-y-3">
+        <p class="text-xs font-semibold uppercase tracking-widest" style="color:var(--text-muted);">Organization</p>
+        <div class="flex items-center justify-between">
+          <span class="text-xs" style="color:var(--text-muted);">Name</span>
+          <span class="text-sm font-medium">${userData.organizationName || '—'}</span>
+        </div>
+        <div class="flex items-center justify-between" style="border-top:1px solid var(--border);padding-top:0.75rem;">
+          <span class="text-xs" style="color:var(--text-muted);">Org ID</span>
+          <code class="text-xs" style="color:var(--text-muted);">${userData.organizationId}</code>
+        </div>
+      </div>` : ''}
+
+      <button id="account-signout-btn" class="btn-outline w-full">Sign Out</button>
+    </div>`;
+}
+
+// ─── Store View ──────────────────────────────────────────────────────────────
+
+let catalogCache = null;
+let storeActiveTab = 'environments';
+
+async function renderStoreView() {
+    const container = document.getElementById('store-view');
+    if (!container) return;
+
+    container.innerHTML = `
+    <div class="space-y-6 animate-fade-in">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold">Module Store</h1>
+          <p class="text-sm mt-1" style="color:var(--text-muted);">Browse environments and characters included with your license</p>
+        </div>
+        <button id="store-refresh-btn" class="btn-outline" style="height:2rem;padding:0 0.75rem;font-size:0.8rem;gap:6px;display:inline-flex;align-items:center;">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          Refresh
+        </button>
+      </div>
+
+      <!-- Tab bar -->
+      <div style="background:#1a1a1a;border-radius:var(--radius);padding:4px;display:inline-flex;gap:2px;">
+        <button class="store-tab active" data-store-tab="environments">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          Environments
+        </button>
+        <button class="store-tab" data-store-tab="characters">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          Characters
+        </button>
+        <button class="store-tab" data-store-tab="owned">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+          Owned
+        </button>
+      </div>
+
+      <div id="store-grid-container">
+        <div class="flex items-center justify-center py-16" style="color:var(--text-muted);">
+          <svg class="w-5 h-5 animate-spin mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+          Loading catalog...
+        </div>
+      </div>
+    </div>`;
+
+    container.querySelector('#store-refresh-btn').addEventListener('click', () => {
+        catalogCache = null;
+        loadAndRenderStoreGrid(storeActiveTab);
+    });
+
+    container.querySelectorAll('[data-store-tab]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            storeActiveTab = btn.getAttribute('data-store-tab');
+            container.querySelectorAll('[data-store-tab]').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderStoreGrid(storeActiveTab, catalogCache);
+        });
+    });
+
+    await loadAndRenderStoreGrid(storeActiveTab);
+}
+
+async function loadAndRenderStoreGrid(tab) {
+    if (!catalogCache) {
+        try {
+            const result = await window.electronAPI.fetchCatalog();
+            if (!result.success) throw new Error(result.error || 'Unknown error');
+            catalogCache = result;
+        } catch (err) {
+            console.error('Failed to fetch catalog:', err);
+            const grid = document.getElementById('store-grid-container');
+            if (grid) grid.innerHTML = `<p class="text-center py-12 text-sm" style="color:var(--text-muted);">Could not load catalog. Check your connection.</p>`;
+            return;
+        }
+    }
+    renderStoreGrid(tab, catalogCache);
+}
+
+function renderStoreGrid(tab, result) {
+    const grid = document.getElementById('store-grid-container');
+    if (!grid || !result) return;
+
+    // catalog.builds[buildType].dlcs
+    const buildType = result.buildType || 'production';
+    const dlcs = result.catalog?.builds?.[buildType]?.dlcs || [];
+
+    const license = currentUserData?.licenseData;
+    // License stores DLC IDs in environments, characters, dlcAccess arrays
+    const ownedIds = new Set([
+        ...(license?.environments || []),
+        ...(license?.characters || []),
+        ...(license?.dlcAccess || []),
+    ]);
+    const environments = dlcs.filter(d => d.type === 'environment');
+    const characters = dlcs.filter(d => d.type === 'character');
+
+    let items = [];
+    if (tab === 'environments') items = environments;
+    else if (tab === 'characters') items = characters;
+    else if (tab === 'owned') items = dlcs.filter(d => ownedIds.has(d.id) || ownedIds.has(d.folderName));
+
+    if (items.length === 0) {
+        grid.innerHTML = `
+        <div class="text-center py-16" style="color:var(--text-muted);">
+          <svg class="w-12 h-12 mx-auto mb-3 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+          <p class="font-semibold">${tab === 'owned' ? 'No owned modules' : 'No modules found'}</p>
+          <p class="text-sm mt-1">${tab === 'owned' ? 'Modules included in your license will appear here' : 'Check back later'}</p>
+        </div>`;
+        return;
+    }
+
+    grid.innerHTML = `<div class="grid grid-cols-3 gap-5">${items.map(d => {
+        const isEnv = d.type === 'environment';
+        const isOwned = ownedIds.has(d.id) || ownedIds.has(d.folderName);
+
+        return `
+        <div class="store-card">
+          <div class="${isEnv ? 'store-card-bar-env' : 'store-card-bar-char'}"></div>
+          <div class="p-4">
+            <div class="flex items-start justify-between gap-2 mb-1">
+              <div class="flex items-center gap-2" style="color:var(--text-muted);">
+                ${isEnv
+                    ? `<svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>`
+                    : `<svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>`}
+                <p class="font-semibold text-sm leading-tight" style="color:var(--text);">${d.name || d.folderName || d.id}</p>
+              </div>
+              ${isOwned ? `<span class="badge badge-success flex-shrink-0" style="font-size:0.65rem;">✓ Owned</span>` : ''}
+            </div>
+            <p class="text-xs mb-1" style="color:var(--text-muted);">${isEnv ? 'Environment' : `Character${d.parentId ? ` · Requires ${d.parentId}` : ''}`}</p>
+            ${d.description ? `<p class="text-xs mb-3 line-clamp-2" style="color:var(--text-muted);">${d.description}</p>` : '<div class="mb-3"></div>'}
+            <div class="flex items-center justify-between">
+              <span class="text-xs" style="color:var(--text-muted);">v${d.version || '1.0.0'}</span>
+              <span class="btn-outline" style="font-size:0.72rem;height:1.75rem;padding:0 0.6rem;display:inline-flex;align-items:center;gap:4px;cursor:default;">
+                ${isOwned ? '✓ Available' : '○ Not owned'}
+              </span>
+            </div>
+          </div>
+        </div>`;
+    }).join('')}</div>`;
 }
 
 // Render apps grid
@@ -1618,6 +2269,13 @@ function initLauncher() {
             console.error('Game not found:', currentGameId);
             return;
         }
+
+        // Ignore if already in an active state (download starting or in progress)
+        if (game.status === 'downloading') {
+            console.log('handleActionButtonClick: download already in progress, ignoring');
+            return;
+        }
+
         console.log(`Action button clicked for ${currentGameId}, status: ${game.status}`);
 
         switch (game.status) {
@@ -1751,6 +2409,19 @@ function initLauncher() {
 
     async function syncFiles(gameId) {
         const game = gameLibrary[gameId]?.[currentBuildType] || gameLibrary[gameId];
+
+        // Log call stack to identify unexpected callers
+        const stack = new Error().stack.split('\n').slice(1, 4).join(' | ');
+        const msg = `syncFiles called — status=${game?.status} | ${stack}`;
+        console.log(msg);
+        window.electronAPI.logError(msg);
+
+        // Prevent concurrent sync calls (e.g. double-click)
+        if (game.status === 'syncing' || game.status === 'downloading' || game.status === 'checking_update') {
+            console.log(`syncFiles: already in progress (status=${game.status}), ignoring`);
+            return;
+        }
+
         console.log(`Syncing files for ${gameId}`);
 
         if (!game.installPath) {
@@ -1788,12 +2459,17 @@ function initLauncher() {
         };
 
         const resultHandler = (result) => {
-            // Final result received - process it
-            console.log('Sync result received:', result);
+            const logMsg = `chunk-check-result: error=${result.error} isUpdateAvailable=${result.isUpdateAvailable} filesToUpdate=${result.filesToUpdate?.length} manifestType=${result.manifestType}`;
+            console.log(logMsg);
+            window.electronAPI.logError(logMsg);
 
             if (result.error) {
+                const msg = `Sync error (result.error): ${result.error}`;
+                window.electronAPI.logError(msg);
                 game.status = 'needs_sync';
                 gameStatusTextEl.innerText = `Sync error: ${result.error}`;
+                window.electronAPI.saveGameData(gameLibrary);
+                renderGame(gameId);
             } else if (result.isUpdateAvailable) {
                 game.status = 'needs_update';
                 game.filesToUpdate = result.filesToUpdate || [];
@@ -1801,25 +2477,31 @@ function initLauncher() {
                 game.manifestType = result.manifestType || 'chunk-based';
                 game.version = result.latestVersion;
 
-                if (result.executableMissing) {
-                    gameStatusTextEl.innerText = result.message || `Main executable missing. Will download ${game.filesToUpdate.length} files including the executable.`;
-                } else {
-                    if (game.manifestType === 'chunk-based') {
-                        const totalChunks = game.filesToUpdate.reduce((sum, file) => sum + (file.chunks ? file.chunks.length : 0), 0);
-                        gameStatusTextEl.innerText = result.message || `Update available. ${game.filesToUpdate.length} files, ${totalChunks} parts to download.`;
-                    } else {
-                        gameStatusTextEl.innerText = result.message || `Update available. ${game.filesToUpdate.length} files to download.`;
-                    }
-                }
+                // Don't save huge manifest to disk — causes save-data issues
+                const manifestBackup = game.manifest;
+                game.manifest = null;
+                window.electronAPI.saveGameData(gameLibrary);
+                game.manifest = manifestBackup;
+
+                renderGame(gameId);
+
+                // Auto-start the download now that we know what needs updating
+                const dlMsg = `Sync complete: ${game.filesToUpdate.length} files need update — auto-starting download`;
+                console.log(dlMsg);
+                window.electronAPI.logError(dlMsg);
+                handleActionButtonClick().catch(err => {
+                    const errMsg = `Auto-download failed: ${err?.message || err}`;
+                    console.error(errMsg);
+                    window.electronAPI.logError(errMsg);
+                });
             } else {
                 // No update needed - versions match after sync
                 game.status = 'installed';
                 game.version = result.latestVersion;
                 gameStatusTextEl.innerText = 'Files are up to date!';
+                window.electronAPI.saveGameData(gameLibrary);
+                renderGame(gameId);
             }
-
-            window.electronAPI.saveGameData(gameLibrary);
-            renderGame(gameId);
 
             // Clean up listeners
             if (window.electronAPI.removeChunkCheckListeners) {
@@ -1828,6 +2510,9 @@ function initLauncher() {
         };
 
         const errorHandler = (error) => {
+            const msg = `chunk-check-error received: cancelled=${error.cancelled} error=${error.error}`;
+            console.error(msg);
+            window.electronAPI.logError(msg);
             // Handle cancellation
             if (error.cancelled) {
                 gameStatusTextEl.innerText = 'Sync cancelled.';
@@ -1867,13 +2552,49 @@ function initLauncher() {
                 manifestUrl: game.manifestUrl
             });
 
-            // If result indicates syncing is in progress, wait for async result
+            // If result indicates syncing is in progress, skip slow chunk verification
+            // and go straight to download using the manifest we already have.
             if (result.isSyncing) {
-                // Don't process result here - wait for chunk-check-result event
+                // Cancel the background chunk check — we don't need it
+                if (window.electronAPI.cancelVerification) {
+                    window.electronAPI.cancelVerification();
+                }
+                if (window.electronAPI.removeChunkCheckListeners) {
+                    window.electronAPI.removeChunkCheckListeners();
+                }
+
                 game.manifest = result.manifest;
-                game.manifestType = result.manifestType;
+                game.manifestType = result.manifestType || 'chunk-based';
                 game.version = result.latestVersion;
-                return; // Exit early, result will come via event
+
+                // Build filesToUpdate from the full manifest (all files need downloading)
+                const excludedNames = new Set([
+                    'manifest_nonufsfiles_win64.txt',
+                    'roleplayai_launcher.exe',
+                    'roleplayai.txt',
+                    'version.json',
+                ]);
+                game.filesToUpdate = (result.manifest?.files || []).filter(f => {
+                    const lower = (f.filename || '').toLowerCase();
+                    const base = lower.split(/[\\/]/).pop();
+                    return !lower.includes('saved/') && !lower.includes('saved\\')
+                        && !excludedNames.has(base);
+                });
+
+                const dlMsg = `Sync skipping chunk check — direct download: ${game.filesToUpdate.length} files`;
+                console.log(dlMsg);
+                window.electronAPI.logError(dlMsg);
+
+                game.status = 'needs_update';
+                window.electronAPI.saveGameData(gameLibrary);
+                renderGame(gameId);
+
+                handleActionButtonClick().catch(err => {
+                    const errMsg = `Auto-download failed: ${err?.message || err}`;
+                    console.error(errMsg);
+                    window.electronAPI.logError(errMsg);
+                });
+                return;
             }
 
             // For file-based or immediate results, process normally
@@ -1898,6 +2619,12 @@ function initLauncher() {
 
             window.electronAPI.saveGameData(gameLibrary);
             renderGame(gameId);
+
+            // Auto-start download if sync found missing files
+            if (game.status === 'needs_update') {
+                console.log(`Sync complete: ${game.filesToUpdate.length} files need update — auto-starting download`);
+                handleActionButtonClick().catch(err => console.error('Auto-download failed:', err));
+            }
         } catch (error) {
             console.error('Sync files failed:', error);
             game.status = 'needs_sync';
@@ -2254,14 +2981,13 @@ function initLauncher() {
             currentGameId = firstGameId;
             selectApp(firstGameId);
         } else {
-            // Fallback to home view if no game is available
-            console.warn('No games available in gameLibrary, showing home view');
-            switchView('home');
+            // Fallback — no app available
+            console.warn('No games available in gameLibrary');
         }
 
-        // App selector modal handlers
-        const addFavoriteButton = document.getElementById('add-favorite-button');
-        const addFavoriteButtonAppsView = document.getElementById('add-favorite-button-apps-view');
+        // App selector modal handlers (favorites feature removed — elements are no-ops)
+        const addFavoriteButton = null;
+        const addFavoriteButtonAppsView = null;
         const appSelectorModal = document.getElementById('app-selector-modal');
         const appSelectorModalContent = document.getElementById('app-selector-modal-content');
         const closeAppSelector = document.getElementById('close-app-selector');

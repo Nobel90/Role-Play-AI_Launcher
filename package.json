@@ -32,7 +32,9 @@
       "icon": "assets/icon-white_s.ico",
       "signAndEditExecutable": true,
       "signtoolOptions": {
-        "signingHashAlgorithms": ["sha256"]
+        "signingHashAlgorithms": [
+          "sha256"
+        ]
       }
     },
     "artifactName": "${productName}-Setup-${version}.${ext}",

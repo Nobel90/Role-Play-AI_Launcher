@@ -1,16 +1,74 @@
 // main.js
 
 const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
-const { autoUpdater } = require('electron-updater');
+let autoUpdater = null; // Lazy-loaded inside app.whenReady() — electron-updater requires app to be initialized
 const log = require('electron-log');
 const path = require('path');
 const fs = require('fs').promises; // Use promises-based fs
 const fsSync = require('fs'); // Use sync for specific cases if needed
 const crypto = require('crypto');
 const axios = require('axios');
+const http = require('http');
 const { session } = require('electron');
 const { ChunkManager } = require('./chunkManager');
 const { parseManifest, getAllChunks, getFileChunks, calculateDownloadSize } = require('./manifestUtils');
+
+// --- UE APP AUTH BRIDGE (local HTTP session server) ---
+const SESSION_PORT = 45678;
+let activeSession = null;
+let sessionServer = null;
+
+function startSessionServer() {
+    sessionServer = http.createServer((req, res) => {
+        // Only allow requests from localhost
+        const remoteAddr = req.socket.remoteAddress;
+        if (remoteAddr !== '127.0.0.1' && remoteAddr !== '::1' && remoteAddr !== '::ffff:127.0.0.1') {
+            res.writeHead(403);
+            res.end(JSON.stringify({ error: 'Forbidden' }));
+            return;
+        }
+
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Access-Control-Allow-Origin', '*');
+
+        if (req.method === 'GET' && req.url === '/session') {
+            if (activeSession) {
+                res.writeHead(200);
+                res.end(JSON.stringify({ authenticated: true, ...activeSession }));
+            } else {
+                res.writeHead(401);
+                res.end(JSON.stringify({ authenticated: false }));
+            }
+        } else {
+            res.writeHead(404);
+            res.end(JSON.stringify({ error: 'Not found' }));
+        }
+    });
+
+    sessionServer.listen(SESSION_PORT, '127.0.0.1', () => {
+        log.info(`Session server listening on localhost:${SESSION_PORT}`);
+    });
+
+    sessionServer.on('error', (err) => {
+        log.error('Session server error:', err);
+    });
+}
+
+ipcMain.handle('set-session', (event, sessionData) => {
+    activeSession = sessionData;
+    log.info(`Session set for user: ${sessionData?.email}`);
+    return { success: true };
+});
+
+ipcMain.handle('clear-session', () => {
+    activeSession = null;
+    log.info('Session cleared');
+    return { success: true };
+});
+
+ipcMain.handle('log-error', (event, msg) => {
+    log.error('[renderer]', msg);
+});
 
 let downloadManager = null;
 let mainWindow = null;
@@ -205,8 +263,7 @@ async function detectGameInstallPath(selectedPath) {
     
     // Check if executable exists directly in selected path (root level)
     const executableInRoot = path.join(selectedPath, executable);
-    try {
-        await fs.access(executableInRoot);
+    if (fsSync.existsSync(executableInRoot)) {
         console.log(`Game executable found in root: ${selectedPath}`);
         // If path doesn't end with RolePlay_AI, we need to adjust it
         if (lastPart !== requiredFolderName) {
@@ -215,27 +272,21 @@ async function detectGameInstallPath(selectedPath) {
             return selectedPath;
         }
         return selectedPath; // This is the game root directory
-    } catch (error) {
-        // Executable not in root, continue checking
     }
-    
+
     // Check if executable exists in RolePlay_AI subfolder (Binaries/Win64)
     const rolePlayAIBinariesPath = path.join(selectedPath, requiredFolderName, 'Binaries', 'Win64', executable);
-    try {
-        await fs.access(rolePlayAIBinariesPath);
+    if (fsSync.existsSync(rolePlayAIBinariesPath)) {
         console.log(`Game executable found in RolePlay_AI/Binaries/Win64: ${selectedPath}`);
         // Return the path that includes RolePlay_AI
         return path.join(selectedPath, requiredFolderName);
-    } catch (error) {
-        // Not found here either
     }
-    
+
     // Check if selected path is inside RolePlay_AI folder - go up to find root
     let currentPath = selectedPath;
     for (let i = 0; i < 3; i++) { // Check up to 3 levels up
         const executableCheck = path.join(currentPath, executable);
-        try {
-            await fs.access(executableCheck);
+        if (fsSync.existsSync(executableCheck)) {
             console.log(`Game executable found by going up: ${currentPath}`);
             // Ensure path ends with RolePlay_AI
             const currentParts = path.normalize(currentPath).split(path.sep).filter(p => p.length > 0);
@@ -245,12 +296,11 @@ async function detectGameInstallPath(selectedPath) {
                 return currentPath;
             }
             return currentPath;
-        } catch (error) {
-            // Not found, go up one level
-            const parentPath = path.dirname(currentPath);
-            if (parentPath === currentPath) break; // Reached filesystem root
-            currentPath = parentPath;
         }
+        // Not found, go up one level
+        const parentPath = path.dirname(currentPath);
+        if (parentPath === currentPath) break; // Reached filesystem root
+        currentPath = parentPath;
     }
     
     // For new installations, ensure the path ends with "RolePlay_AI"
@@ -302,105 +352,84 @@ async function createWindow() {
     log.info(`Checking for GH_TOKEN: ${process.env.GH_TOKEN ? 'Token is set' : 'Token is NOT set'}`);
 }
 
-autoUpdater.logger = log;
-
 app.whenReady().then(() => {
+    // Load autoUpdater here so it initializes after Electron's app is ready
+    autoUpdater = require('electron-updater').autoUpdater;
+    autoUpdater.logger = log;
+    autoUpdater.on('checking-for-update', () => {
+        console.log('Checking for update...');
+        if (mainWindow) mainWindow.webContents.send('auto-updater-status', { status: 'checking' });
+    });
+    autoUpdater.on('update-available', (info) => {
+        console.log('Update available.');
+        log.info('Update available:', info);
+        updateDownloaded = false;
+        if (mainWindow) mainWindow.webContents.send('auto-updater-status', { status: 'update-available', info });
+    });
+    autoUpdater.on('update-not-available', () => {
+        console.log('Update not available.');
+        log.info('Update not available. Current version is up to date.');
+        updateDownloaded = false;
+        if (mainWindow) mainWindow.webContents.send('auto-updater-status', { status: 'update-not-available' });
+    });
+    autoUpdater.on('error', (err) => {
+        console.log('Error in auto-updater. ' + err);
+        log.error('Auto-updater error:', err);
+        if (!updateDownloaded && mainWindow) {
+            mainWindow.webContents.send('auto-updater-status', { status: 'error', error: err.message || 'Unknown error occurred during update check' });
+        } else if (updateDownloaded) {
+            log.info('Error occurred after update was downloaded (likely during installation):', err.message);
+        }
+    });
+    autoUpdater.on('download-progress', (progressObj) => {
+        if (mainWindow) {
+            mainWindow.webContents.send('auto-updater-status', {
+                status: 'download-progress',
+                progress: { percent: progressObj.percent, transferred: progressObj.transferred, total: progressObj.total, bytesPerSecond: progressObj.bytesPerSecond }
+            });
+        }
+    });
+    autoUpdater.on('update-downloaded', (info) => {
+        console.log('Update downloaded');
+        log.info('Update downloaded successfully:', info);
+        updateDownloaded = true;
+        if (mainWindow) {
+            mainWindow.webContents.send('auto-updater-status', { status: 'update-downloaded', info });
+            dialog.showMessageBox(mainWindow, {
+                type: 'info',
+                title: 'Update Ready',
+                message: 'A new version has been downloaded. Restart the application to apply the updates.',
+                buttons: ['Restart', 'Later']
+            }).then((buttonIndex) => {
+                if (buttonIndex.response === 0) {
+                    try {
+                        log.info('User chose to restart. Calling quitAndInstall()...');
+                        autoUpdater.quitAndInstall(false, true);
+                    } catch (error) {
+                        log.error('Error calling quitAndInstall:', error);
+                        if (mainWindow) mainWindow.webContents.send('auto-updater-status', { status: 'error', error: 'Failed to restart application. Please restart manually.' });
+                    }
+                } else {
+                    log.info('User chose to restart later.');
+                }
+            }).catch((dialogErr) => {
+                log.error('Error showing update dialog:', dialogErr);
+            });
+        }
+    });
+
     createWindow();
+    startSessionServer();
     autoUpdater.checkForUpdates();
 });
 
-autoUpdater.on('checking-for-update', () => {
-    console.log('Checking for update...');
-    if (mainWindow) {
-        mainWindow.webContents.send('auto-updater-status', { status: 'checking' });
+app.on('before-quit', () => {
+    if (sessionServer) {
+        sessionServer.close();
+        sessionServer = null;
     }
 });
-autoUpdater.on('update-available', (info) => {
-    console.log('Update available.');
-    log.info('Update available:', info);
-    updateDownloaded = false; // Reset flag when new update is available
-    if (mainWindow) {
-        mainWindow.webContents.send('auto-updater-status', { status: 'update-available', info });
-    }
-});
-autoUpdater.on('update-not-available', (info) => {
-    console.log('Update not available.');
-    log.info('Update not available. Current version is up to date.');
-    updateDownloaded = false; // Reset flag
-    if (mainWindow) {
-        mainWindow.webContents.send('auto-updater-status', { status: 'update-not-available' });
-    }
-});
-autoUpdater.on('error', (err) => {
-    console.log('Error in auto-updater. ' + err);
-    log.error('Auto-updater error:', err);
-    
-    // Don't show error if update was already successfully downloaded
-    // Some errors can occur after successful download (e.g., during installation)
-    if (!updateDownloaded && mainWindow) {
-        mainWindow.webContents.send('auto-updater-status', { 
-            status: 'error', 
-            error: err.message || 'Unknown error occurred during update check'
-        });
-    } else if (updateDownloaded) {
-        // Log but don't show to user if update was already downloaded
-        log.info('Error occurred after update was downloaded (likely during installation):', err.message);
-    }
-});
-autoUpdater.on('download-progress', (progressObj) => {
-    let log_message = "Download speed: " + progressObj.bytesPerSecond;
-    log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
-    log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
-    console.log(log_message);
-    if (mainWindow) {
-        mainWindow.webContents.send('auto-updater-status', { 
-            status: 'download-progress', 
-            progress: {
-                percent: progressObj.percent,
-                transferred: progressObj.transferred,
-                total: progressObj.total,
-                bytesPerSecond: progressObj.bytesPerSecond
-            }
-        });
-    }
-});
-autoUpdater.on('update-downloaded', (info) => {
-    console.log('Update downloaded');
-    log.info('Update downloaded successfully:', info);
-    updateDownloaded = true; // Mark that update was successfully downloaded
-    
-    if (mainWindow) {
-        mainWindow.webContents.send('auto-updater-status', { status: 'update-downloaded', info });
-        
-        // Show dialog with error handling
-        dialog.showMessageBox(mainWindow, {
-            type: 'info',
-            title: 'Update Ready',
-            message: 'A new version has been downloaded. Restart the application to apply the updates.',
-            buttons: ['Restart', 'Later']
-        }).then((buttonIndex) => {
-            if (buttonIndex.response === 0) {
-                try {
-                    log.info('User chose to restart. Calling quitAndInstall()...');
-                    autoUpdater.quitAndInstall(false, true); // false = isSilent, true = isForceRunAfter
-                } catch (error) {
-                    log.error('Error calling quitAndInstall:', error);
-                    if (mainWindow) {
-                        mainWindow.webContents.send('auto-updater-status', { 
-                            status: 'error', 
-                            error: 'Failed to restart application. Please restart manually.'
-                        });
-                    }
-                }
-            } else {
-                log.info('User chose to restart later.');
-            }
-        }).catch((error) => {
-            log.error('Error showing update dialog:', error);
-            // Still send the update-downloaded status even if dialog fails
-        });
-    }
-});
+
 
 ipcMain.handle('get-app-version', () => {
     return app.getVersion();
@@ -460,7 +489,7 @@ async function getFileChecksum(filePath) {
 async function getLocalVersion(installPath) {
     const versionFilePath = path.join(installPath, 'version.json');
     try {
-        await fs.access(versionFilePath); // Check if file exists
+        if (!fsSync.existsSync(versionFilePath)) return '0.0.0';
         const data = await fs.readFile(versionFilePath, 'utf-8');
         return JSON.parse(data).version || '0.0.0';
     } catch (error) {
@@ -1292,12 +1321,9 @@ ipcMain.handle('move-install-path', async (event, currentPath) => {
         return null;
     }
 
-    try {
-        await fs.access(newPath);
+    if (fsSync.existsSync(newPath)) {
         dialog.showErrorBox('Move Error', `The destination folder "${newPath}" already exists. Please choose a different location or remove the existing folder.`);
         return null;
-    } catch (e) {
-        // Folder doesn't exist, which is what we want. Continue.
     }
 
     try {
@@ -1531,7 +1557,9 @@ ipcMain.handle('check-version-only', async (event, { gameId, installPath, manife
 // Sync files handler - triggers full chunk matching
 ipcMain.handle('sync-files', async (event, { gameId, installPath, manifestUrl }) => {
     try {
-        const response = await axios.get(manifestUrl, { headers: browserHeaders });
+        const finalManifestUrl = manifestUrl || getR2Config().manifestUrl;
+        console.log(`[Sync Files] Using manifest URL: ${finalManifestUrl} (build type: ${currentBuildType})`);
+        const response = await axios.get(finalManifestUrl, { headers: browserHeaders });
         const serverManifestData = response.data;
         const { type, manifest: serverManifest } = parseManifest(serverManifestData);
         const serverVersion = serverManifest.version || 'N/A';
@@ -1545,18 +1573,11 @@ ipcMain.handle('sync-files', async (event, { gameId, installPath, manifestUrl })
             };
         }
 
-        // Check if main executable exists
+        // Check if main executable exists (sync to avoid hanging on network/cross-OS paths)
         const executable = 'RolePlay_AI.exe';
         const executablePath = path.join(installPath, executable);
-        let executableMissing = false;
-        
-        try {
-            await fs.access(executablePath);
-            console.log(`Main executable found at ${executablePath}`);
-        } catch (error) {
-            console.log(`Main executable not found at ${executablePath}.`);
-            executableMissing = true;
-        }
+        const executableMissing = !fsSync.existsSync(executablePath);
+        console.log(`Main executable ${executableMissing ? 'NOT found' : 'found'} at ${executablePath}`);
 
         if (type === 'chunk-based') {
             // Reset cancellation flag and track sender
@@ -1689,18 +1710,11 @@ ipcMain.handle('check-for-updates', async (event, { gameId, installPath, manifes
             }
         }
 
-        // Check if main executable exists
+        // Check if main executable exists (sync to avoid hanging on network/cross-OS paths)
         const executable = 'RolePlay_AI.exe';
         const executablePath = path.join(installPath, executable);
-        let executableMissing = false;
-        
-        try {
-            await fs.access(executablePath);
-            console.log(`Main executable found at ${executablePath}`);
-        } catch (error) {
-            console.log(`Main executable not found at ${executablePath}.`);
-            executableMissing = true;
-        }
+        const executableMissing = !fsSync.existsSync(executablePath);
+        console.log(`Main executable ${executableMissing ? 'NOT found' : 'found'} at ${executablePath}`);
 
         if (type === 'chunk-based') {
             // Reset cancellation flag and track sender
@@ -1808,10 +1822,10 @@ async function checkChunkBasedUpdates(serverManifest, installPath, serverVersion
                     
                     // Use manifest path as-is to preserve exact structure
                     const localFilePath = path.join(installPath, serverFile.filename);
-                    
+
                     try {
-                        await fs.access(localFilePath);
-                        
+                        if (!fsSync.existsSync(localFilePath)) throw new Error('File not found');
+
                         // Send progress update at start of file check
                         if (eventSender) {
                             eventSender.send('chunk-check-progress', {
@@ -1987,7 +2001,7 @@ async function checkFileBasedUpdates(serverManifest, installPath, serverVersion,
         // Use manifest path as-is to preserve exact structure
         const localFilePath = path.join(installPath, fileInfo.path);
         try {
-            await fs.access(localFilePath);
+            if (!fsSync.existsSync(localFilePath)) throw new Error('File not found');
             const localStats = await fs.stat(localFilePath);
             let isMatch = false;
             
@@ -2201,7 +2215,7 @@ function validateDLCDependencies(dlc, dlcList) {
  */
 async function isDLCInstalled(installPath) {
     try {
-        await fs.access(installPath);
+        if (!fsSync.existsSync(installPath)) return false;
         const files = await fs.readdir(installPath);
         // Consider installed if folder exists and has files
         return files.length > 0;
@@ -2429,17 +2443,19 @@ ipcMain.handle('verify-dlc', async (event, { dlcId, manifestUrl, installPath }) 
         for (const file of manifest.files) {
             const filePath = path.join(installPath, file.filename);
             
-            try {
-                await fs.access(filePath);
-                const stats = await fs.stat(filePath);
-                
-                // Check size
-                const expectedSize = file.chunks.reduce((sum, chunk) => sum + chunk.size, 0);
-                if (stats.size !== expectedSize) {
-                    corruptedFiles.push({ file: file.filename, expected: expectedSize, actual: stats.size });
-                }
-            } catch (error) {
+            if (!fsSync.existsSync(filePath)) {
                 missingFiles.push(file.filename);
+            } else {
+                try {
+                    const stats = await fs.stat(filePath);
+                    // Check size
+                    const expectedSize = file.chunks.reduce((sum, chunk) => sum + chunk.size, 0);
+                    if (stats.size !== expectedSize) {
+                        corruptedFiles.push({ file: file.filename, expected: expectedSize, actual: stats.size });
+                    }
+                } catch (error) {
+                    missingFiles.push(file.filename);
+                }
             }
         }
         
@@ -2464,7 +2480,7 @@ ipcMain.handle('get-dlc-status', async (event, { gamePath }) => {
         const pluginsPath = path.join(gamePath, 'RolePlay_AI', 'Plugins');
         
         try {
-            await fs.access(pluginsPath);
+            if (!fsSync.existsSync(pluginsPath)) throw new Error('Plugins path not found');
             const folders = await fs.readdir(pluginsPath);
             
             // Check each folder
