@@ -2238,13 +2238,13 @@ ipcMain.handle('get-dlcs', async (event, { appId }) => {
             
             // Firebase config - same as renderer.js
             const firebaseConfig = {
-                apiKey: "AIzaSyDigbqsTEMSRXz_JgqBAIJ1BKmr6Zb7DzQ",
-                authDomain: "vr-centre-7bdac.firebaseapp.com",
-                projectId: "vr-centre-7bdac",
-                storageBucket: "vr-centre-7bdac.firebasestorage.app",
-                messagingSenderId: "236273910700",
-                appId: "1:236273910700:web:10d6825337bfd26fb43009",
-                measurementId: "G-7P6X25QK1R"
+                apiKey: "AIzaSyDgXMCkVl-ne68k6_SwQDr9yakNNomVttM",
+                authDomain: "vrcentre-roleplayai-website.firebaseapp.com",
+                projectId: "vrcentre-roleplayai-website",
+                storageBucket: "vrcentre-roleplayai-website.firebasestorage.app",
+                messagingSenderId: "594002655240",
+                appId: "1:594002655240:web:cf661f2cba121d8aa179bd",
+                measurementId: "G-CGZDF7355G"
             };
             
             global.firebaseApp = initializeApp(firebaseConfig);
