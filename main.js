@@ -70,6 +70,64 @@ ipcMain.handle('log-error', (event, msg) => {
     log.error('[renderer]', msg);
 });
 
+const LICENSE_REQUIRED_MESSAGE = 'An active license is required to download, install, or launch Role Play AI. Contact your organization admin to request access.';
+
+function toDateValue(value) {
+    if (!value) return null;
+    if (value.toDate) return value.toDate();
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function getSessionLicenseAccessState(sessionData = activeSession) {
+    const license = sessionData?.license;
+    if (!license) {
+        return {
+            active: false,
+            reason: 'missing',
+            message: LICENSE_REQUIRED_MESSAGE,
+        };
+    }
+
+    const now = new Date();
+    const startDate = toDateValue(license.startDate);
+    const endDate = toDateValue(license.endDate);
+    const pending = !!startDate && now < startDate;
+    const expired = !!endDate && now > endDate;
+    const inactive = license.isActive === false;
+    const active = !pending && !expired && !inactive;
+
+    if (active) {
+        return { active: true, reason: 'active', message: '' };
+    }
+
+    if (pending) {
+        return {
+            active: false,
+            reason: 'pending',
+            message: 'Your license is not active yet. Contact your organization admin to confirm the start date.',
+        };
+    }
+
+    if (expired) {
+        return {
+            active: false,
+            reason: 'expired',
+            message: 'Your license has expired. Contact your organization admin to renew access.',
+        };
+    }
+
+    return {
+        active: false,
+        reason: 'inactive',
+        message: 'Your license is inactive. Contact your organization admin to reactivate access.',
+    };
+}
+
+function getLicenseRequirementMessage(sessionData = activeSession) {
+    return getSessionLicenseAccessState(sessionData).message;
+}
+
 let downloadManager = null;
 let mainWindow = null;
 let updateDownloaded = false; // Track if update was successfully downloaded
@@ -505,7 +563,9 @@ class DownloadManager {
         this.state = this.getInitialState();
         this.activeRequests = new Map(); // Track active chunk downloads
         this.speedInterval = null;
-        this.bytesSinceLastInterval = 0;
+        this.speedSamples = [];
+        this.speedWindowMs = 10000;
+        this.smoothedDownloadSpeed = 0;
         this.debugInfo = null;
         this.isChunkBased = false; // Track if using chunk-based downloads
         this.maxConcurrentDownloads = 5; // Parallel chunk downloads
@@ -521,6 +581,8 @@ class DownloadManager {
             chunksDownloaded: 0,
             totalBytes: 0,
             downloadedBytes: 0,
+            overallTotalBytes: 0,
+            overallDownloadedBytes: 0,
             currentFileName: '',
             currentOperation: '', // 'downloading' or 'reconstructing'
             downloadSpeed: 0, // Bytes per second
@@ -532,6 +594,67 @@ class DownloadManager {
         this.state = { ...this.state, ...newState };
         console.log('Download state updated:', this.state.status);
         this.win.webContents.send('download-state-update', this.state);
+    }
+
+    startSpeedTracking() {
+        this.stopSpeedTracking();
+        const now = Date.now();
+        this.speedSamples = [{ time: now, bytes: this.state.overallDownloadedBytes || 0 }];
+        this.smoothedDownloadSpeed = 0;
+
+        this.speedInterval = setInterval(() => {
+            if (this.state.status !== 'downloading') {
+                this.setState({ downloadSpeed: 0 });
+                return;
+            }
+
+            const sampleTime = Date.now();
+            const currentBytes = this.state.overallDownloadedBytes || 0;
+            this.speedSamples.push({ time: sampleTime, bytes: currentBytes });
+
+            const cutoff = sampleTime - this.speedWindowMs;
+            while (this.speedSamples.length > 2 && this.speedSamples[0].time < cutoff) {
+                this.speedSamples.shift();
+            }
+
+            const oldest = this.speedSamples[0];
+            const newest = this.speedSamples[this.speedSamples.length - 1];
+            const elapsedSeconds = oldest && newest ? (newest.time - oldest.time) / 1000 : 0;
+            const bytesPerSecond = elapsedSeconds > 0
+                ? Math.max(0, (newest.bytes - oldest.bytes) / elapsedSeconds)
+                : 0;
+
+            const alpha = this.smoothedDownloadSpeed > 0 ? 0.2 : 1;
+            this.smoothedDownloadSpeed = (this.smoothedDownloadSpeed * (1 - alpha)) + (bytesPerSecond * alpha);
+
+            this.setState({ downloadSpeed: this.smoothedDownloadSpeed });
+        }, 4000);
+    }
+
+    stopSpeedTracking() {
+        if (this.speedInterval) {
+            clearInterval(this.speedInterval);
+            this.speedInterval = null;
+        }
+        this.speedSamples = [];
+        this.smoothedDownloadSpeed = 0;
+    }
+
+    recordTransferredBytes(delta) {
+        if (!delta || delta <= 0) return;
+
+        const newDownloadedBytes = (this.state.downloadedBytes || 0) + delta;
+        const newOverallDownloadedBytes = (this.state.overallDownloadedBytes || 0) + delta;
+        const progressBase = this.state.overallTotalBytes || this.state.totalBytes || 0;
+        const progress = progressBase > 0
+            ? Math.min(100, (newOverallDownloadedBytes / progressBase) * 100)
+            : this.state.progress;
+
+        this.setState({
+            downloadedBytes: newDownloadedBytes,
+            overallDownloadedBytes: newOverallDownloadedBytes,
+            progress
+        });
     }
 
     async start(gameId, installPath, manifestData, latestVersion, filesToUpdate = null) {
@@ -633,7 +756,8 @@ class DownloadManager {
                 totalFiles: filteredFiles.length,
                 totalChunks: allChunks.length,
                 chunksDownloaded: allChunks.length,
-                currentOperation: 'reconstructing'
+                currentOperation: 'reconstructing',
+                overallTotalBytes: calculateDownloadSize(missingChunks)
             });
         } else {
             this.setState({
@@ -642,80 +766,65 @@ class DownloadManager {
                 totalFiles: filteredFiles.length,
                 totalChunks: missingChunks.length,
                 totalBytes: calculateDownloadSize(missingChunks),
+                overallTotalBytes: calculateDownloadSize(missingChunks),
                 currentOperation: 'downloading'
             });
         }
 
-        this.bytesSinceLastInterval = 0;
-        if (this.speedInterval) clearInterval(this.speedInterval);
-
-        this.speedInterval = setInterval(() => {
-            if (this.state.status === 'downloading') {
-                this.setState({ downloadSpeed: this.bytesSinceLastInterval * 4 });
-                this.bytesSinceLastInterval = 0;
-            } else {
-                this.setState({ downloadSpeed: 0 });
+        this.startSpeedTracking();
+        try {
+            // Download missing chunks
+            if (missingChunks.length > 0) {
+                await this.downloadChunks(missingChunks);
             }
-        }, 250);
 
-        // Download missing chunks
-        if (missingChunks.length > 0) {
-            await this.downloadChunks(missingChunks);
-        }
-
-        if (this.state.status === 'cancelling') {
-            if (this.speedInterval) {
-                clearInterval(this.speedInterval);
-                this.speedInterval = null;
+            if (this.state.status === 'cancelling') {
+                this.setState(this.getInitialState());
+                return;
             }
-            this.setState(this.getInitialState());
-            return;
-        }
 
-        // Reconstruct files from chunks
-        // Defer reconstruction to allow UI to render first (fixes UI hanging)
-        this.setState({ currentOperation: 'reconstructing' });
-        
-        // Use setImmediate to defer reconstruction until UI is ready
-        await new Promise((resolve) => {
-            setImmediate(async () => {
-                try {
-                    await this.reconstructFiles(filteredFiles, installPath);
-                    resolve();
-                } catch (error) {
-                    console.error('Reconstruction error:', error);
-                    throw error;
-                }
+            // Reconstruct files from chunks
+            // Defer reconstruction to allow UI to render first (fixes UI hanging)
+            this.setState({ currentOperation: 'reconstructing' });
+            
+            // Use setImmediate to defer reconstruction until UI is ready
+            await new Promise((resolve) => {
+                setImmediate(async () => {
+                    try {
+                        await this.reconstructFiles(filteredFiles, installPath);
+                        resolve();
+                    } catch (error) {
+                        console.error('Reconstruction error:', error);
+                        throw error;
+                    }
+                });
             });
-        });
 
-        if (this.speedInterval) {
-            clearInterval(this.speedInterval);
-            this.speedInterval = null;
-        }
-
-        if (this.state.status === 'downloading') {
-            const versionFilePath = path.join(installPath, 'version.json');
-            await fs.writeFile(versionFilePath, JSON.stringify({ version: latestVersion }, null, 2));
-            
-            // Clean up old chunks not in current manifest (after reconstruction is complete)
-            try {
-                console.log('Starting automatic chunk cache cleanup...');
-                const keepHashes = new Set(allChunks.map(chunk => chunk.hash));
-                const cleanupResult = await this.chunkManager.cleanupOldChunks(keepHashes);
+            if (this.state.status === 'downloading') {
+                const versionFilePath = path.join(installPath, 'version.json');
+                await fs.writeFile(versionFilePath, JSON.stringify({ version: latestVersion }, null, 2));
                 
-                if (cleanupResult.deleted > 0) {
-                    const freedMB = (cleanupResult.freedBytes / (1024 * 1024)).toFixed(2);
-                    console.log(`✅ Cache cleanup: Removed ${cleanupResult.deleted} unused chunks, freed ${freedMB} MB`);
-                } else {
-                    console.log('✅ Cache cleanup: No unused chunks found');
+                // Clean up old chunks not in current manifest (after reconstruction is complete)
+                try {
+                    console.log('Starting automatic chunk cache cleanup...');
+                    const keepHashes = new Set(allChunks.map(chunk => chunk.hash));
+                    const cleanupResult = await this.chunkManager.cleanupOldChunks(keepHashes);
+                    
+                    if (cleanupResult.deleted > 0) {
+                        const freedMB = (cleanupResult.freedBytes / (1024 * 1024)).toFixed(2);
+                        console.log(`✅ Cache cleanup: Removed ${cleanupResult.deleted} unused chunks, freed ${freedMB} MB`);
+                    } else {
+                        console.log('✅ Cache cleanup: No unused chunks found');
+                    }
+                } catch (cleanupError) {
+                    console.warn('Cache cleanup failed (non-critical):', cleanupError.message);
+                    // Don't fail the update if cleanup fails
                 }
-            } catch (cleanupError) {
-                console.warn('Cache cleanup failed (non-critical):', cleanupError.message);
-                // Don't fail the update if cleanup fails
+                
+                this.setState({ status: 'success', progress: 100, downloadSpeed: 0 });
             }
-            
-            this.setState({ status: 'success', progress: 100, downloadSpeed: 0 });
+        } finally {
+            this.stopSpeedTracking();
         }
     }
 
@@ -746,100 +855,93 @@ class DownloadManager {
             return;
         }
 
+        const totalBytes = filteredFiles.reduce((sum, file) => sum + (file.size || 0), 0);
+
         this.setState({
             ...this.getInitialState(),
             status: 'downloading',
             totalFiles: filteredFiles.length,
+            totalBytes,
+            overallTotalBytes: totalBytes
         });
 
-        this.bytesSinceLastInterval = 0;
-        if (this.speedInterval) clearInterval(this.speedInterval);
+        this.startSpeedTracking();
 
-        this.speedInterval = setInterval(() => {
-            if (this.state.status === 'downloading') {
-                this.setState({ downloadSpeed: this.bytesSinceLastInterval * 4 });
-                this.bytesSinceLastInterval = 0;
-            } else {
-                this.setState({ downloadSpeed: 0 });
-            }
-        }, 250);
+        try {
+            let i = 0;
+            while (i < filteredFiles.length) {
+                if (this.state.status === 'cancelling') break;
 
-        let i = 0;
-        while (i < filteredFiles.length) {
-            if (this.state.status === 'cancelling') break;
+                const file = filteredFiles[i];
+                this.setState({ 
+                    currentFileName: path.basename(file.path), 
+                    downloadedBytes: 0, 
+                    totalBytes: file.size || 0,
+                    progress: ((i) / this.state.totalFiles) * 100
+                });
 
-            const file = filteredFiles[i];
-            this.setState({ 
-                currentFileName: path.basename(file.path), 
-                downloadedBytes: 0, 
-                totalBytes: file.size || 0,
-                progress: ((i) / this.state.totalFiles) * 100
-            });
-
-            let success = false;
-            let attempts = 0;
-            while (!success && attempts < 3 && this.state.status !== 'cancelling') {
-                if (this.state.status === 'paused') {
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                    continue;
-                }
-
-                try {
-                    // Use manifest path as-is to preserve exact structure
-                    const destinationPath = path.join(installPath, file.path);
-                    await this.downloadFile(file.url, destinationPath);
-                    
-                    const localStats = await fs.stat(destinationPath);
-                    if (file.size && file.size > 0) {
-                        if (localStats.size === file.size) {
-                            success = true;
-                            console.log(`✅ Size verified for ${file.path} (${localStats.size} bytes)`);
-                        } else {
-                            attempts++;
-                            console.warn(`❌ Size mismatch for ${file.path}. Attempt ${attempts + 1}/3.`);
-                            try { await fs.unlink(destinationPath); } catch (e) { console.error('Failed to delete corrupt file:', e); }
-                        }
-                    } else {
-                        if (localStats.size > 0) {
-                            success = true;
-                            console.log(`✅ File downloaded successfully for ${file.path} (${localStats.size} bytes)`);
-                        } else {
-                            attempts++;
-                            try { await fs.unlink(destinationPath); } catch (e) { console.error('Failed to delete corrupt file:', e); }
-                        }
+                let success = false;
+                let attempts = 0;
+                while (!success && attempts < 3 && this.state.status !== 'cancelling') {
+                    if (this.state.status === 'paused') {
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                        continue;
                     }
-                } catch (error) {
-                    if (this.state.status === 'cancelling' || this.state.status === 'paused') break;
-                    attempts++;
-                    console.error(`Error downloading ${file.path}, attempt ${attempts + 1}/3:`, error);
+
+                    try {
+                        // Use manifest path as-is to preserve exact structure
+                        const destinationPath = path.join(installPath, file.path);
+                        await this.downloadFile(file.url, destinationPath);
+                        
+                        const localStats = await fs.stat(destinationPath);
+                        if (file.size && file.size > 0) {
+                            if (localStats.size === file.size) {
+                                success = true;
+                                console.log(`✅ Size verified for ${file.path} (${localStats.size} bytes)`);
+                            } else {
+                                attempts++;
+                                console.warn(`❌ Size mismatch for ${file.path}. Attempt ${attempts + 1}/3.`);
+                                try { await fs.unlink(destinationPath); } catch (e) { console.error('Failed to delete corrupt file:', e); }
+                            }
+                        } else {
+                            if (localStats.size > 0) {
+                                success = true;
+                                console.log(`✅ File downloaded successfully for ${file.path} (${localStats.size} bytes)`);
+                            } else {
+                                attempts++;
+                                try { await fs.unlink(destinationPath); } catch (e) { console.error('Failed to delete corrupt file:', e); }
+                            }
+                        }
+                    } catch (error) {
+                        if (this.state.status === 'cancelling' || this.state.status === 'paused') break;
+                        attempts++;
+                        console.error(`Error downloading ${file.path}, attempt ${attempts + 1}/3:`, error);
+                    }
+                }
+
+                if (success) {
+                    i++;
+                    this.setState({ filesDownloaded: i });
+                } else {
+                    if (this.state.status !== 'paused' && this.state.status !== 'cancelling') {
+                        this.setState({ 
+                            status: 'error', 
+                            error: `Failed to download ${file.path} after 3 attempts.`
+                        });
+                    }
+                    break;
                 }
             }
 
-            if (success) {
-                i++;
-                this.setState({ filesDownloaded: i });
-            } else {
-                if (this.state.status !== 'paused' && this.state.status !== 'cancelling') {
-                    this.setState({ 
-                        status: 'error', 
-                        error: `Failed to download ${file.path} after 3 attempts.`
-                    });
-                }
-                break;
+            if (this.state.status === 'downloading') {
+                const versionFilePath = path.join(installPath, 'version.json');
+                await fs.writeFile(versionFilePath, JSON.stringify({ version: latestVersion }, null, 2));
+                this.setState({ status: 'success', progress: 100, downloadSpeed: 0 });
+            } else if (this.state.status === 'cancelling') {
+                this.setState(this.getInitialState());
             }
-        }
-
-        if (this.speedInterval) {
-            clearInterval(this.speedInterval);
-            this.speedInterval = null;
-        }
-
-        if (this.state.status === 'downloading') {
-            const versionFilePath = path.join(installPath, 'version.json');
-            await fs.writeFile(versionFilePath, JSON.stringify({ version: latestVersion }, null, 2));
-            this.setState({ status: 'success', progress: 100, downloadSpeed: 0 });
-        } else if (this.state.status === 'cancelling') {
-            this.setState(this.getInitialState());
+        } finally {
+            this.stopSpeedTracking();
         }
     }
 
@@ -867,14 +969,19 @@ class DownloadManager {
                 try {
                     // Construct full R2 URL if chunk.url is a relative path
                     const chunkUrl = R2_CONFIG.constructChunkUrl(chunk.url);
+                    chunk.downloadedBytes = 0;
                     
                     const response = await axios.get(chunkUrl, { 
                         responseType: 'arraybuffer',
                         headers: browserHeaders,
                         onDownloadProgress: (progressEvent) => {
                             if (progressEvent.loaded) {
-                                this.bytesSinceLastInterval += progressEvent.loaded - (chunk.downloadedBytes || 0);
-                                chunk.downloadedBytes = progressEvent.loaded;
+                                const previousLoaded = chunk.downloadedBytes || 0;
+                                const delta = progressEvent.loaded - previousLoaded;
+                                if (delta > 0) {
+                                    chunk.downloadedBytes = progressEvent.loaded;
+                                    this.recordTransferredBytes(delta);
+                                }
                             }
                         }
                     });
@@ -895,11 +1002,15 @@ class DownloadManager {
                     // Store chunk
                     await this.chunkManager.storeChunk(chunk.hash, chunkData);
 
+                    const remainingBytes = Math.max(0, chunk.size - (chunk.downloadedBytes || 0));
+                    if (remainingBytes > 0) {
+                        this.recordTransferredBytes(remainingBytes);
+                    }
+                    delete chunk.downloadedBytes;
+
                     downloadedCount++;
                     this.setState({
-                        chunksDownloaded: downloadedCount,
-                        downloadedBytes: this.state.downloadedBytes + chunk.size,
-                        progress: (downloadedCount / this.state.totalChunks) * 100
+                        chunksDownloaded: downloadedCount
                     });
 
                     return { success: true, chunk };
@@ -1120,21 +1231,7 @@ class DownloadManager {
                 request.pipe(writer);
 
                 request.on('data', (chunk) => {
-                    this.bytesSinceLastInterval += chunk.length;
-                    const newDownloadedBytes = (this.state.downloadedBytes || 0) + chunk.length;
-                    
-                    const baseProgress = (this.state.filesDownloaded / this.state.totalFiles) * 100;
-                    
-                    let currentFileProgress = 0;
-                    if (this.state.totalBytes > 0) {
-                        const currentFileDownloadPercentage = newDownloadedBytes / this.state.totalBytes;
-                        currentFileProgress = currentFileDownloadPercentage * (1 / this.state.totalFiles) * 100;
-                    }
-                    
-                    this.setState({ 
-                        downloadedBytes: newDownloadedBytes,
-                        progress: baseProgress + currentFileProgress
-                    });
+                    this.recordTransferredBytes(chunk.length);
                 });
 
                 writer.on('finish', () => {
@@ -1201,6 +1298,11 @@ ipcMain.on('handle-download-action', (event, action) => {
     if (!downloadManager) return;
     switch(action.type) {
         case 'START':
+            if (!getSessionLicenseAccessState().active) {
+                const message = getLicenseRequirementMessage();
+                dialog.showErrorBox('License Required', message);
+                return;
+            }
             // Support both old format (files) and new format (manifest)
             const manifestData = action.payload.manifest || action.payload.files;
             // Pass filesToUpdate if provided (for chunk-based downloads, only download chunks for files that need updating)
@@ -1211,6 +1313,11 @@ ipcMain.on('handle-download-action', (event, action) => {
             downloadManager.pause();
             break;
         case 'RESUME':
+            if (!getSessionLicenseAccessState().active) {
+                const message = getLicenseRequirementMessage();
+                dialog.showErrorBox('License Required', message);
+                return;
+            }
             downloadManager.resume();
             break;
         case 'CANCEL':
@@ -1348,6 +1455,11 @@ ipcMain.handle('move-install-path', async (event, currentPath) => {
 });
 
 ipcMain.on('launch-game', (event, { installPath, executable }) => {
+    const licenseState = getSessionLicenseAccessState();
+    if (!licenseState.active) {
+        dialog.showErrorBox('License Required', licenseState.message);
+        return;
+    }
     if (!installPath || !executable) return;
     const executablePath = path.join(installPath, executable);
     if (fsSync.existsSync(executablePath)) {
@@ -2309,6 +2421,11 @@ ipcMain.handle('get-dlcs', async (event, { appId }) => {
  */
 ipcMain.handle('download-dlc', async (event, { dlcId, manifestUrl, gamePath, dlcFolderName, dlcList }) => {
     try {
+        if (!getSessionLicenseAccessState().active) {
+            const message = getLicenseRequirementMessage();
+            dialog.showErrorBox('License Required', message);
+            return { success: false, error: message };
+        }
         // Validate dependencies
         const dlc = dlcList[dlcId];
         if (!dlc) {

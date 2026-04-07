@@ -1,6 +1,6 @@
 // Import Firebase modules. The 'type="module"' in the HTML script tag makes this possible.
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, getMultiFactorResolver, TotpMultiFactorGenerator } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { getAuth, onAuthStateChanged, onIdTokenChanged, signInWithEmailAndPassword, signOut, getMultiFactorResolver, TotpMultiFactorGenerator } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { getFirestore, doc, getDoc, onSnapshot, collection, query, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 // --- FIREBASE CONFIGURATION ---
@@ -42,6 +42,7 @@ let launcherSettings = {
 
 // Apps library - stores all apps from Firestore
 let appsLibrary = {};
+let appsConfigLoadPromise = null;
 
 // Favorites management
 const FAVORITES_STORAGE_KEY = 'launcher_favorites';
@@ -155,117 +156,26 @@ function updateLauncherSettingsFromApp(data) {
     }
 }
 
-// Listen for all apps in the collection
-// Try new structure first: apps collection
-// Fallback to legacy: settings/launcher
-const appsQuery = query(collection(db, "apps"));
-onSnapshot(appsQuery, (querySnapshot) => {
-    let hasRolePlayAI = false;
-    let hasAnyApps = false;
+function ensureDefaultAppLibrary() {
+    if (!appsLibrary.RolePlayAI) {
+        appsLibrary.RolePlayAI = {
+            appId: 'RolePlayAI',
+            name: 'Role Play AI',
+            ui: {},
+            news: { active: false, text: '' }
+        };
+    }
+}
 
-    // Process all document changes
-    querySnapshot.docChanges().forEach((change) => {
-        const appId = change.doc.id;
-        const data = change.doc.data();
-        hasAnyApps = true;
-
-        if (change.type === 'added' || change.type === 'modified') {
-            // Add or update app in library
-            appsLibrary[appId] = {
-                appId: appId,
-                name: data.name || appId,
-                ui: data.ui || {},
-                news: data.news || { active: false, text: '' }
-            };
-
-            if (appId === 'RolePlayAI') {
-                hasRolePlayAI = true;
-            }
-
-            // If this is the current app, update launcherSettings
-            if (appId === currentGameId || (!currentGameId && appId === 'RolePlayAI')) {
-                updateLauncherSettingsFromApp(data);
-                if (typeof triggerUIUpdate === 'function') {
-                    triggerUIUpdate();
-                }
-            }
-        } else if (change.type === 'removed') {
-            // Remove app from library (but don't remove RolePlayAI)
-            if (appId !== 'RolePlayAI') {
-                delete appsLibrary[appId];
-            }
-        }
-    });
-
-    // Check if we have any apps (for fallback logic)
-    if (querySnapshot.empty === false) {
-        querySnapshot.forEach((docSnapshot) => {
-            if (docSnapshot.id === 'RolePlayAI') {
-                hasRolePlayAI = true;
-            }
-        });
+async function loadLauncherApps() {
+    if (appsConfigLoadPromise) {
+        return appsConfigLoadPromise;
     }
 
-    // Update UI after processing all changes
-    if (typeof renderAppFavorites === 'function') {
-        renderAppFavorites();
-    }
-    if (typeof renderAppsGrid === 'function') {
-        renderAppsGrid();
-    }
-
-    // Fallback to legacy if no apps found
-    if (!hasAnyApps) {
-        console.log('No apps found in collection, trying legacy launcher document');
-        // Fallback to legacy launcher document
-        onSnapshot(doc(db, "settings", "launcher"), (docSnapshot) => {
-            if (docSnapshot.exists()) {
-                const data = docSnapshot.data();
-                appsLibrary['RolePlayAI'] = {
-                    appId: 'RolePlayAI',
-                    name: 'Role Play AI',
-                    ui: data.ui || {},
-                    news: data.news || { active: false, text: '' }
-                };
-
-                // Update launcherSettings if RolePlayAI is current
-                if (currentGameId === 'RolePlayAI' || !currentGameId) {
-                    updateLauncherSettingsFromApp(data);
-                    // Trigger UI update
-                    if (typeof triggerUIUpdate === 'function') {
-                        triggerUIUpdate();
-                    }
-                }
-
-                if (typeof renderAppFavorites === 'function') {
-                    renderAppFavorites();
-                }
-                if (typeof renderAppsGrid === 'function') {
-                    renderAppsGrid();
-                }
-            }
-        }, (legacyError) => {
-            console.error('Error listening to legacy launcher settings:', legacyError);
-        });
-    }
-}, (error) => {
-    console.error('Error listening to apps collection:', error);
-    console.log('Falling back to legacy launcher document');
-    // Fallback to legacy launcher document
-    onSnapshot(doc(db, "settings", "launcher"), (docSnapshot) => {
-        if (docSnapshot.exists()) {
-            const data = docSnapshot.data();
-            appsLibrary['RolePlayAI'] = {
-                appId: 'RolePlayAI',
-                name: 'Role Play AI',
-                ui: data.ui || {},
-                news: data.news || { active: false, text: '' }
-            };
-
-            // Update launcherSettings if RolePlayAI is current
+    appsConfigLoadPromise = (async () => {
+        const applyAndRender = (appData) => {
             if (currentGameId === 'RolePlayAI' || !currentGameId) {
-                updateLauncherSettingsFromApp(data);
-                // Trigger UI update
+                updateLauncherSettingsFromApp(appData);
                 if (typeof triggerUIUpdate === 'function') {
                     triggerUIUpdate();
                 }
@@ -277,11 +187,65 @@ onSnapshot(appsQuery, (querySnapshot) => {
             if (typeof renderAppsGrid === 'function') {
                 renderAppsGrid();
             }
+        };
+
+        try {
+            const appsQuery = query(collection(db, "apps"));
+            const querySnapshot = await getDocs(appsQuery);
+
+            if (!querySnapshot.empty) {
+                appsLibrary = {};
+                querySnapshot.forEach((docSnapshot) => {
+                    const data = docSnapshot.data();
+                    const appId = docSnapshot.id;
+                    appsLibrary[appId] = {
+                        appId,
+                        name: data.name || appId,
+                        ui: data.ui || {},
+                        news: data.news || { active: false, text: '' }
+                    };
+                });
+
+                ensureDefaultAppLibrary();
+                applyAndRender(appsLibrary.RolePlayAI || { ui: {}, news: { active: false, text: '' } });
+                return;
+            }
+        } catch (error) {
+            console.info('[Launcher] Apps collection unavailable, using launcher defaults.');
         }
-    }, (legacyError) => {
-        console.error('Error listening to legacy launcher settings:', legacyError);
+
+        try {
+            const legacySnapshot = await getDoc(doc(db, "settings", "launcher"));
+            if (legacySnapshot.exists()) {
+                const data = legacySnapshot.data();
+                appsLibrary = {
+                    RolePlayAI: {
+                        appId: 'RolePlayAI',
+                        name: 'Role Play AI',
+                        ui: data.ui || {},
+                        news: data.news || { active: false, text: '' }
+                    }
+                };
+                applyAndRender(data);
+                return;
+            }
+        } catch (legacyError) {
+            console.info('[Launcher] Legacy launcher settings unavailable, using built-in defaults.');
+        }
+
+        ensureDefaultAppLibrary();
+        if (typeof renderAppFavorites === 'function') {
+            renderAppFavorites();
+        }
+        if (typeof renderAppsGrid === 'function') {
+            renderAppsGrid();
+        }
+    })().finally(() => {
+        appsConfigLoadPromise = null;
     });
-});
+
+    return appsConfigLoadPromise;
+}
 
 
 // --- VIEWS & DOM Elements ---
@@ -304,6 +268,100 @@ const showLoginButton = document.getElementById('show-login-button');
 let pendingMfaResolver = null;
 // Stores current user's data (profile + license) after login
 let currentUserData = null;
+let startupOverlayHidden = false;
+
+const LICENSE_REQUIRED_MESSAGE = 'An active license is required to download, install, or launch Role Play AI. Contact your organization admin to request access.';
+
+function hideStartupOverlay() {
+    if (startupOverlayHidden) return;
+    const overlay = document.getElementById('startup-overlay');
+    if (!overlay) return;
+    startupOverlayHidden = true;
+    overlay.classList.add('dismissed');
+}
+
+function toDateValue(value) {
+    if (!value) return null;
+    if (value.toDate) return value.toDate();
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function getLicenseAccessState(userData = currentUserData) {
+    const license = userData?.licenseData;
+    if (!license) {
+        return {
+            active: false,
+            reason: 'missing',
+            message: LICENSE_REQUIRED_MESSAGE,
+        };
+    }
+
+    const now = new Date();
+    const startDate = toDateValue(license.startDate);
+    const endDate = toDateValue(license.endDate);
+    const pending = !!startDate && now < startDate;
+    const expired = !!endDate && now > endDate;
+    const inactive = license.isActive === false;
+    const active = !pending && !expired && !inactive;
+
+    if (active) {
+        return { active: true, reason: 'active', message: '' };
+    }
+
+    if (pending) {
+        return {
+            active: false,
+            reason: 'pending',
+            message: 'Your license is not active yet. Contact your organization admin to confirm the start date.',
+        };
+    }
+
+    if (expired) {
+        return {
+            active: false,
+            reason: 'expired',
+            message: 'Your license has expired. Contact your organization admin to renew access.',
+        };
+    }
+
+    return {
+        active: false,
+        reason: 'inactive',
+        message: 'Your license is inactive. Contact your organization admin to reactivate access.',
+    };
+}
+
+function hasActiveLicense(userData = currentUserData) {
+    return getLicenseAccessState(userData).active;
+}
+
+function getLicenseRequirementMessage(userData = currentUserData) {
+    return getLicenseAccessState(userData).message;
+}
+
+async function pushSessionToMain(user, userData, licenseData) {
+    try {
+        const idToken = await user.getIdToken();
+        await window.electronAPI.setSession({
+            uid: user.uid,
+            email: user.email,
+            displayName: userData.displayName || user.email,
+            idToken,
+            license: licenseData ? {
+                licenseId: userData.allocatedLicenseId,
+                environments: licenseData.environments || [],
+                characters: licenseData.characters || [],
+                dlcAccess: licenseData.dlcAccess || [],
+                isActive: licenseData.isActive ?? true,
+                startDate: licenseData.startDate || null,
+                endDate: licenseData.endDate || null,
+            } : null,
+        });
+    } catch (err) {
+        console.warn('Could not push session to main process:', err);
+    }
+}
 
 async function fetchUserSession(user) {
     let userDoc;
@@ -378,27 +436,8 @@ async function fetchUserSession(user) {
         window.electronAPI.logError(`Missing license fields. userData keys: ${Object.keys(userData).join(', ')}`).catch(() => {});
     }
 
-    // Get a fresh ID token and push session to main process (for UE app HTTP server)
-    try {
-        const idToken = await user.getIdToken();
-        await window.electronAPI.setSession({
-            uid: user.uid,
-            email: user.email,
-            displayName: userData.displayName || user.email,
-            idToken,
-            license: licenseData ? {
-                licenseId: userData.allocatedLicenseId,
-                environments: licenseData.environments || [],
-                characters: licenseData.characters || [],
-                dlcAccess: licenseData.dlcAccess || [],
-                isActive: licenseData.isActive ?? true,
-                startDate: licenseData.startDate || null,
-                endDate: licenseData.endDate || null,
-            } : null,
-        });
-    } catch (err) {
-        console.warn('Could not push session to main process:', err);
-    }
+    // Push the latest token + license state to the launcher main process.
+    await pushSessionToMain(user, userData, licenseData);
 
     showLauncher({ ...userData, licenseData, organizationName });
 }
@@ -410,8 +449,16 @@ onAuthStateChanged(auth, async (user) => {
     } else {
         // Clear session in main process on logout
         try { await window.electronAPI.clearSession(); } catch (_) {}
+        currentUserData = null;
         showLogin();
     }
+});
+
+// Refresh the launcher session whenever Firebase rotates the ID token.
+// onAuthStateChanged handles login/logout; this listener keeps the token fresh.
+onIdTokenChanged(auth, async (user) => {
+    if (!user || !currentUserData) return;
+    await pushSessionToMain(user, currentUserData, currentUserData.licenseData);
 });
 
 
@@ -552,6 +599,7 @@ function showLauncher(userData) {
 function showLogin(clearError = true) {
     loginView.classList.remove('hidden');
     launcherVIew.classList.add('hidden');
+    hideStartupOverlay();
     if (clearError) errorMessage.textContent = '';
     // Reset MFA step if visible
     document.getElementById('mfa-step')?.classList.add('hidden');
@@ -907,7 +955,7 @@ function renderAccountLicense(userData, license, fmt, pill) {
       <div class="account-card text-center py-12">
         <svg class="w-12 h-12 mx-auto mb-3 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
         <h3 class="font-semibold">No License Allocated</h3>
-        <p class="text-sm mt-1" style="color:var(--text-muted);">Contact your organization administrator to get access</p>
+        <p class="text-sm mt-1" style="color:var(--text-muted);">An active license is required to download, install, or launch the app. Contact your organization admin to get access.</p>
       </div>
     </div>`;
 
@@ -921,10 +969,21 @@ function renderAccountLicense(userData, license, fmt, pill) {
     const statusColor = isActive ? '#4ade80' : '#f87171';
     const statusBar = isActive ? 'background:linear-gradient(90deg,#22c55e,#16a34a)' : 'background:#ef4444';
     const statusLabel = !license.isActive ? 'Inactive' : isExpired ? 'Expired' : isPending ? 'Pending' : 'Active';
+    const statusNotice = isActive ? '' : `
+      <div class="account-card mb-4 border border-red-500/20 bg-red-500/10">
+        <div class="flex items-start gap-3">
+          <svg class="w-5 h-5 mt-0.5 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M10.29 3.86l-7.41 12.8A1.5 1.5 0 004.17 19h15.66a1.5 1.5 0 001.29-2.34l-7.41-12.8a1.5 1.5 0 00-2.58 0z" /></svg>
+          <div>
+            <p class="font-semibold text-red-300">License unavailable</p>
+            <p class="text-sm mt-1 text-red-200/90">${getLicenseRequirementMessage(userData)}</p>
+          </div>
+        </div>
+      </div>`;
 
     return `
     <div class="space-y-6">
       <div><h2 class="text-xl font-bold">My License</h2><p class="text-sm mt-1" style="color:var(--text-muted);">View your license information and access details</p></div>
+      ${statusNotice}
 
       <!-- License Status Card -->
       <div class="account-card overflow-hidden p-0">
@@ -1024,22 +1083,63 @@ function renderAccountProfile(userData, initials, fmt) {
 let catalogCache = null;
 let storeActiveTab = 'environments';
 
+function resolveCatalogBuildForDisplay(catalog, preferredBuildType = currentBuildType) {
+    const builds = catalog?.builds || {};
+    const preferredBuild = builds[preferredBuildType];
+
+    if (preferredBuild?.dlcs?.length) {
+        return {
+            buildType: preferredBuildType,
+            buildCatalog: preferredBuild,
+        };
+    }
+
+    const fallbackBuildType = ['staging', 'production'].find(buildType => (builds[buildType]?.dlcs || []).length > 0);
+    if (fallbackBuildType) {
+        return {
+            buildType: fallbackBuildType,
+            buildCatalog: builds[fallbackBuildType],
+        };
+    }
+
+    return {
+        buildType: preferredBuildType,
+        buildCatalog: preferredBuild || null,
+    };
+}
+
 async function renderStoreView() {
     const container = document.getElementById('store-view');
     if (!container) return;
+
+    const licenseState = getLicenseAccessState();
+    const storeSubtitle = licenseState.active
+        ? 'Browse environments and characters included with your license'
+        : 'Your module library is locked until your organization admin assigns an active license';
+    const storeNotice = licenseState.active ? '' : `
+      <div class="account-card mb-4 border border-red-500/20 bg-red-500/10">
+        <div class="flex items-start gap-3">
+          <svg class="w-5 h-5 mt-0.5 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M10.29 3.86l-7.41 12.8A1.5 1.5 0 004.17 19h15.66a1.5 1.5 0 001.29-2.34l-7.41-12.8a1.5 1.5 0 00-2.58 0z" /></svg>
+          <div>
+            <p class="font-semibold text-red-300">Active license required</p>
+            <p class="text-sm mt-1 text-red-200/90">${licenseState.message}</p>
+          </div>
+        </div>
+      </div>`;
 
     container.innerHTML = `
     <div class="space-y-6 animate-fade-in">
       <div class="flex items-center justify-between">
         <div>
           <h1 class="text-2xl font-bold">Module Store</h1>
-          <p class="text-sm mt-1" style="color:var(--text-muted);">Browse environments and characters included with your license</p>
+          <p class="text-sm mt-1" style="color:var(--text-muted);">${storeSubtitle}</p>
         </div>
         <button id="store-refresh-btn" class="btn-outline" style="height:2rem;padding:0 0.75rem;font-size:0.8rem;gap:6px;display:inline-flex;align-items:center;">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
           Refresh
         </button>
       </div>
+      ${storeNotice}
 
       <!-- Tab bar -->
       <div style="background:#1a1a1a;border-radius:var(--radius);padding:4px;display:inline-flex;gap:2px;">
@@ -1102,16 +1202,16 @@ function renderStoreGrid(tab, result) {
     const grid = document.getElementById('store-grid-container');
     if (!grid || !result) return;
 
-    // catalog.builds[buildType].dlcs
-    const buildType = result.buildType || 'production';
-    const dlcs = result.catalog?.builds?.[buildType]?.dlcs || [];
+    const { buildType, buildCatalog } = resolveCatalogBuildForDisplay(result.catalog, result.buildType || currentBuildType);
+    const dlcs = buildCatalog?.dlcs || [];
 
     const license = currentUserData?.licenseData;
+    const licenseState = getLicenseAccessState();
     // License stores DLC IDs in environments, characters, dlcAccess arrays
     const ownedIds = new Set([
-        ...(license?.environments || []),
-        ...(license?.characters || []),
-        ...(license?.dlcAccess || []),
+        ...(licenseState.active ? (license?.environments || []) : []),
+        ...(licenseState.active ? (license?.characters || []) : []),
+        ...(licenseState.active ? (license?.dlcAccess || []) : []),
     ]);
     const environments = dlcs.filter(d => d.type === 'environment');
     const characters = dlcs.filter(d => d.type === 'character');
@@ -1593,6 +1693,101 @@ function initLauncher() {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
     }
 
+    function formatDownloadSpeed(bytesPerSecond) {
+        if (!bytesPerSecond || bytesPerSecond <= 0) return '0.0 MB/s';
+        return `${(bytesPerSecond / (1024 * 1024)).toFixed(1)} MB/s`;
+    }
+
+    let latestDownloadState = null;
+    let downloadSpeedSamples = [];
+    let speedSampleInterval = null;
+    let speedLabelUpdateInterval = null;
+    let displayedDownloadSpeedMbps = null;
+
+    function updateDownloadSpeedLabel() {
+        if (!downloadSpeedEl) return;
+
+        const state = latestDownloadState;
+        if (!state || state.status !== 'downloading') {
+            downloadSpeedEl.innerText = '';
+            displayedDownloadSpeedMbps = null;
+            return;
+        }
+
+        if (downloadSpeedSamples.length < 2) {
+            return;
+        }
+
+        const oldest = downloadSpeedSamples[0];
+        const newest = downloadSpeedSamples[downloadSpeedSamples.length - 1];
+        const elapsedSeconds = (newest.time - oldest.time) / 1000;
+        const bytesPerSecond = elapsedSeconds > 0
+            ? Math.max(0, (newest.bytes - oldest.bytes) / elapsedSeconds)
+            : 0;
+        const mbps = bytesPerSecond / (1024 * 1024);
+        const roundedMbps = Math.round(mbps * 10) / 10;
+
+        if (displayedDownloadSpeedMbps !== null && Math.abs(displayedDownloadSpeedMbps - roundedMbps) < 0.2) {
+            return;
+        }
+
+        displayedDownloadSpeedMbps = roundedMbps;
+        downloadSpeedEl.innerText = `Speed: ${roundedMbps.toFixed(1)} MB/s`;
+    }
+
+    function sampleDownloadSpeed() {
+        if (!latestDownloadState || latestDownloadState.status !== 'downloading') {
+            downloadSpeedSamples = [];
+            return;
+        }
+
+        const now = Date.now();
+        const bytes = latestDownloadState.overallDownloadedBytes ?? latestDownloadState.downloadedBytes ?? 0;
+
+        const lastSample = downloadSpeedSamples[downloadSpeedSamples.length - 1];
+        if (!lastSample || lastSample.bytes !== bytes) {
+            downloadSpeedSamples.push({ time: now, bytes });
+        }
+
+        const cutoff = now - 15000;
+        while (downloadSpeedSamples.length > 2 && downloadSpeedSamples[0].time < cutoff) {
+            downloadSpeedSamples.shift();
+        }
+    }
+
+    function startSpeedSampling() {
+        if (speedSampleInterval) return;
+        sampleDownloadSpeed();
+        speedSampleInterval = setInterval(sampleDownloadSpeed, 500);
+    }
+
+    function stopSpeedSampling() {
+        if (speedSampleInterval) {
+            clearInterval(speedSampleInterval);
+            speedSampleInterval = null;
+        }
+        downloadSpeedSamples = [];
+    }
+
+    function startSpeedLabelUpdates() {
+        if (speedLabelUpdateInterval) return;
+        startSpeedSampling();
+        updateDownloadSpeedLabel();
+        speedLabelUpdateInterval = setInterval(updateDownloadSpeedLabel, 500);
+    }
+
+    function stopSpeedLabelUpdates() {
+        if (speedLabelUpdateInterval) {
+            clearInterval(speedLabelUpdateInterval);
+            speedLabelUpdateInterval = null;
+        }
+        stopSpeedSampling();
+        if (downloadSpeedEl) {
+            downloadSpeedEl.innerText = '';
+        }
+        displayedDownloadSpeedMbps = null;
+    }
+
     // Sidebar removed - no longer needed
 
     // Background slideshow function
@@ -1756,7 +1951,16 @@ function initLauncher() {
     }
 
     function updateButtonAndStatus(game) {
+        const primaryActionButtonClasses = 'px-12 py-4 text-xl font-bold rounded-lg transition-all duration-300 flex items-center justify-center min-w-[200px] shadow-lg';
+        const downloadPauseButtonClasses = `${primaryActionButtonClasses} btn-glow bg-blue-500 hover:bg-blue-600 text-white`;
+        const downloadResumeButtonClasses = `${primaryActionButtonClasses} btn-glow bg-blue-700 hover:bg-blue-800 text-white`;
+        const downloadDangerButtonClasses = `${primaryActionButtonClasses} btn-glow-danger bg-red-600 hover:bg-red-700 text-white`;
+
         actionButtonEl.className = 'px-12 py-4 text-xl font-bold rounded-lg transition-all duration-300 flex items-center justify-center min-w-[200px]';
+        pauseResumeButtonEl.className = game.status === 'paused'
+            ? downloadResumeButtonClasses
+            : downloadPauseButtonClasses;
+        cancelButtonEl.className = downloadDangerButtonClasses;
         actionButtonEl.disabled = false;
         actionButtonEl.classList.remove('hidden');
         downloadControlsEl.classList.add('hidden');
@@ -1767,6 +1971,19 @@ function initLauncher() {
         cancelButtonEl.classList.add('hidden'); // Hide cancel button by default
         progressContainerEl.style.display = 'none';
         locateGameContainerEl.classList.add('hidden');
+
+        const licenseState = getLicenseAccessState();
+        if (!licenseState.active) {
+            actionButtonEl.innerText = 'LICENSE REQUIRED';
+            actionButtonEl.classList.add('bg-gray-500', 'hover:bg-gray-500', 'cursor-not-allowed');
+            actionButtonEl.disabled = true;
+            gameStatusTextEl.innerText = licenseState.message;
+            settingsButtonEl.classList.add('hidden');
+            uninstallButtonEl.classList.add('hidden');
+            checkUpdateButtonEl.classList.add('hidden');
+            if (dlcButtonEl) dlcButtonEl.classList.add('hidden');
+            return;
+        }
 
         // Reset button styles to defaults
         settingsButtonEl.style.cursor = '';
@@ -2270,6 +2487,13 @@ function initLauncher() {
             return;
         }
 
+        if (!hasActiveLicense()) {
+            const message = getLicenseRequirementMessage();
+            gameStatusTextEl.innerText = message;
+            showToast(message, 6000);
+            return;
+        }
+
         // Ignore if already in an active state (download starting or in progress)
         if (game.status === 'downloading') {
             console.log('handleActionButtonClick: download already in progress, ignoring');
@@ -2361,6 +2585,9 @@ function initLauncher() {
     }
 
     async function checkVersionOnly(gameId) {
+        if (!hasActiveLicense()) {
+            return;
+        }
         const game = gameLibrary[gameId]?.[currentBuildType] || gameLibrary[gameId];
         console.log(`Fast version check for ${gameId}, installPath: ${game.installPath}`);
 
@@ -2408,6 +2635,12 @@ function initLauncher() {
     }
 
     async function syncFiles(gameId) {
+        if (!hasActiveLicense()) {
+            const message = getLicenseRequirementMessage();
+            gameStatusTextEl.innerText = message;
+            showToast(message, 6000);
+            return;
+        }
         const game = gameLibrary[gameId]?.[currentBuildType] || gameLibrary[gameId];
 
         // Log call stack to identify unexpected callers
@@ -2581,7 +2814,7 @@ function initLauncher() {
                         && !excludedNames.has(base);
                 });
 
-                const dlMsg = `Sync skipping chunk check — direct download: ${game.filesToUpdate.length} files`;
+                const dlMsg = `Sync skipping parts check — direct download: ${game.filesToUpdate.length} files`;
                 console.log(dlMsg);
                 window.electronAPI.logError(dlMsg);
 
@@ -2639,6 +2872,12 @@ function initLauncher() {
     }
 
     async function checkForUpdates(gameId) {
+        if (!hasActiveLicense()) {
+            const message = getLicenseRequirementMessage();
+            gameStatusTextEl.innerText = message;
+            showToast(message, 6000);
+            return;
+        }
         const game = gameLibrary[gameId]?.[currentBuildType] || gameLibrary[gameId];
         console.log(`Checking for updates for ${gameId}, status: ${game.status}, installPath: ${game.installPath}`);
 
@@ -2786,7 +3025,7 @@ function initLauncher() {
             } else {
                 if (game.manifestType === 'chunk-based') {
                     const totalChunks = game.filesToUpdate.reduce((sum, file) => sum + (file.chunks ? file.chunks.length : 0), 0);
-                    gameStatusTextEl.innerText = result.message || `Update available. ${game.filesToUpdate.length} files, ${totalChunks} chunks to download.`;
+                    gameStatusTextEl.innerText = result.message || `Update available. ${game.filesToUpdate.length} files, ${totalChunks} parts to download.`;
                 } else {
                     gameStatusTextEl.innerText = result.message || `Update available. ${game.filesToUpdate.length} files to download.`;
                 }
@@ -2959,6 +3198,10 @@ function initLauncher() {
             console.error('Error loading build type:', err);
         });
 
+        // Load launcher app metadata before the first visible launcher render.
+        // If Firestore is unavailable, the launcher still falls back to built-in defaults.
+        await loadLauncherApps();
+
         // Render app favorites bar
         renderAppFavorites();
 
@@ -2984,6 +3227,16 @@ function initLauncher() {
             // Fallback — no app available
             console.warn('No games available in gameLibrary');
         }
+
+        if (currentGameId && typeof window.loadDLCs === 'function') {
+            try {
+                await window.loadDLCs(currentGameId);
+            } catch (dlcError) {
+                console.warn('Initial DLC load failed:', dlcError);
+            }
+        }
+
+        hideStartupOverlay();
 
         // App selector modal handlers (favorites feature removed — elements are no-ops)
         const addFavoriteButton = null;
@@ -3176,6 +3429,12 @@ function initLauncher() {
 
         locateGameLinkEl.addEventListener('click', async (e) => {
             e.preventDefault();
+            if (!hasActiveLicense()) {
+                const message = getLicenseRequirementMessage();
+                gameStatusTextEl.innerText = message;
+                showToast(message, 6000);
+                return;
+            }
             const game = getCurrentGame();
 
             // This just opens a dialog and returns a path, no verification happens here.
@@ -3212,13 +3471,30 @@ function initLauncher() {
         });
 
         window.electronAPI.onDownloadStateUpdate((state) => {
+            latestDownloadState = state;
             const game = getCurrentGame();
-            game.status = state.status;
-            renderGame(currentGameId);
+            const previousStatus = game ? game.status : null;
+            if (game) {
+                game.status = state.status;
+            }
 
             switch (state.status) {
-                case 'downloading':
-                    progressBarEl.style.width = `${state.progress.toFixed(2)}%`;
+                case 'downloading': {
+                    if (previousStatus !== state.status) {
+                        renderGame(currentGameId);
+                    }
+                    const overallTotalBytes = state.overallTotalBytes || state.totalBytes || 0;
+                    const overallDownloadedBytes = state.overallDownloadedBytes ?? state.downloadedBytes ?? 0;
+                    const usesByteProgress = state.currentOperation !== 'reconstructing' && overallTotalBytes > 0;
+                    const sizeProgress = usesByteProgress
+                        ? Math.min(100, (overallDownloadedBytes / overallTotalBytes) * 100)
+                        : state.progress;
+                    const progressPercent = Number.isFinite(sizeProgress) ? sizeProgress : 0;
+                    progressBarEl.style.width = `${progressPercent.toFixed(2)}%`;
+                    if (progressContainerEl) {
+                        progressContainerEl.style.display = 'block';
+                        progressContainerEl.classList.remove('hidden');
+                    }
 
                     // Display different messages based on operation type
                     if (state.currentOperation === 'reconstructing') {
@@ -3228,16 +3504,16 @@ function initLauncher() {
                         // Chunk-based or file-based downloading
                         if (state.totalChunks && state.chunksDownloaded !== undefined) {
                             // Chunk-based download
-                            if (state.totalBytes > 0) {
-                                progressTextEl.innerText = `Downloading parts: ${state.chunksDownloaded}/${state.totalChunks} (${formatBytes(state.downloadedBytes)} / ${formatBytes(state.totalBytes)})`;
+                            if (overallTotalBytes > 0) {
+                                progressTextEl.innerText = `Downloading parts: ${state.chunksDownloaded}/${state.totalChunks} (${formatBytes(overallDownloadedBytes)} / ${formatBytes(overallTotalBytes)} - ${Math.round(progressPercent)}%)`;
                             } else {
                                 progressTextEl.innerText = `Downloading parts: ${state.chunksDownloaded}/${state.totalChunks}`;
                             }
                             gameStatusTextEl.innerText = `Downloading parts... (${state.chunksDownloaded}/${state.totalChunks} parts)`;
                         } else {
                             // File-based download
-                            if (state.totalBytes > 0) {
-                                progressTextEl.innerText = `Downloading: ${state.currentFileName} (${formatBytes(state.downloadedBytes)} / ${formatBytes(state.totalBytes)})`;
+                            if (overallTotalBytes > 0) {
+                                progressTextEl.innerText = `Downloading: ${state.currentFileName} (${formatBytes(overallDownloadedBytes)} / ${formatBytes(overallTotalBytes)} - ${Math.round(progressPercent)}%)`;
                             } else {
                                 progressTextEl.innerText = `Downloading: ${state.currentFileName}`;
                             }
@@ -3245,23 +3521,35 @@ function initLauncher() {
                         }
                     }
 
-                    downloadSpeedEl.innerText = `Speed: ${formatBytes(state.downloadSpeed)}/s`;
+                    startSpeedLabelUpdates();
                     pauseResumeButtonEl.innerText = 'Pause';
+                    pauseResumeButtonEl.classList.remove('bg-blue-700', 'hover:bg-blue-800');
+                    pauseResumeButtonEl.classList.add('bg-blue-500', 'hover:bg-blue-600');
                     break;
+                }
                 case 'paused':
+                    if (previousStatus !== state.status) {
+                        renderGame(currentGameId);
+                    }
                     gameStatusTextEl.innerText = 'Download paused.';
                     pauseResumeButtonEl.innerText = 'Resume';
-                    downloadSpeedEl.innerText = '';
+                    pauseResumeButtonEl.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+                    pauseResumeButtonEl.classList.add('bg-blue-700', 'hover:bg-blue-800');
+                    stopSpeedLabelUpdates();
                     break;
                 case 'success':
-                    game.status = 'installed';
-                    game.filesToUpdate = [];
-                    window.electronAPI.saveGameData(gameLibrary);
+                    if (game) {
+                        game.status = 'installed';
+                        game.filesToUpdate = [];
+                        window.electronAPI.saveGameData(gameLibrary);
+                    }
                     renderGame(currentGameId);
-                    downloadSpeedEl.innerText = '';
+                    stopSpeedLabelUpdates();
                     break;
                 case 'error':
-                    game.status = 'needs_update';
+                    if (game) {
+                        game.status = 'needs_update';
+                    }
                     renderGame(currentGameId);
 
                     // Enhanced error display with debug information
@@ -3282,12 +3570,14 @@ function initLauncher() {
                     }
 
                     gameStatusTextEl.innerText = errorMessage;
-                    downloadSpeedEl.innerText = '';
+                    stopSpeedLabelUpdates();
                     break;
                 case 'idle':
-                    game.status = 'uninstalled';
+                    if (game) {
+                        game.status = 'uninstalled';
+                    }
                     renderGame(currentGameId);
-                    downloadSpeedEl.innerText = '';
+                    stopSpeedLabelUpdates();
                     break;
             }
         });
@@ -3332,6 +3622,7 @@ function initLauncher() {
      * @param {boolean} forceRefresh - If true, bypass cache and add cache-busting
      * @returns {Object|null} Catalog data or null if fetch fails
      */
+    let catalogFetchPromise = null;
     async function fetchCatalog(forceRefresh = false) {
         const now = Date.now();
 
@@ -3341,13 +3632,17 @@ function initLauncher() {
             return catalogCache;
         }
 
+        if (catalogFetchPromise) {
+            console.log('[Catalog] Awaiting in-flight catalog request');
+            return catalogFetchPromise;
+        }
+
         try {
-            // Add cache-busting parameter to bypass CDN cache
-            const cacheBuster = `?t=${now}`;
-            const urlWithCacheBuster = CATALOG_URL + cacheBuster;
+            // Add cache-busting parameter only when an explicit refresh is requested.
+            const urlWithCacheBuster = forceRefresh ? `${CATALOG_URL}?t=${now}` : CATALOG_URL;
 
             console.log('[Catalog] Fetching fresh catalog from:', urlWithCacheBuster);
-            const response = await fetch(urlWithCacheBuster, {
+            catalogFetchPromise = fetch(urlWithCacheBuster, {
                 cache: 'no-store', // Bypass browser cache
                 headers: {
                     'Accept': 'application/json',
@@ -3355,6 +3650,7 @@ function initLauncher() {
                     'Pragma': 'no-cache'
                 }
             });
+            const response = await catalogFetchPromise;
 
             if (!response.ok) {
                 console.warn('[Catalog] Fetch failed:', response.status, response.statusText);
@@ -3389,6 +3685,8 @@ function initLauncher() {
         } catch (error) {
             console.error('[Catalog] Error fetching:', error);
             return null;
+        } finally {
+            catalogFetchPromise = null;
         }
     }
 
@@ -3419,124 +3717,149 @@ function initLauncher() {
      * Load DLCs for the current app
      * Priority: catalog.json (R2) → Firebase → IPC fallback
      */
-    async function loadDLCs(appId) {
-        console.log(`[DLC] ========================================`);
-        console.log(`[DLC] Loading DLCs for ${appId}`);
-        console.log(`[DLC] Current build type: ${currentBuildType}`);
-        console.log(`[DLC] ========================================`);
+    let dlcLoadPromise = null;
+    let lastLoadedDlcKey = null;
 
-        // IMPORTANT: Clear existing DLCs to prevent mixing between build types
-        dlcList = {};
+    async function loadDLCs(appId, forceRefresh = false) {
+        const loadKey = `${appId}:${currentBuildType}`;
 
-        // Strategy 1: Try catalog.json first (canonical source published by Admin)
-        // Force refresh to ensure we get the latest catalog
-        const catalog = await fetchCatalog(true);
-
-        console.log('[DLC] Catalog fetch result:', catalog ? 'SUCCESS' : 'FAILED');
-        if (catalog) {
-            console.log('[DLC] Catalog builds available:', Object.keys(catalog.builds || {}));
-            console.log('[DLC] Current build type:', currentBuildType);
+        if (!forceRefresh && lastLoadedDlcKey === loadKey && !dlcLoadPromise) {
+            console.log(`[DLC] Skipping reload for ${loadKey} - already current`);
+            return dlcList;
         }
 
-        // IMPORTANT: If catalog was fetched successfully, USE IT as source of truth
-        // Even if it has 0 DLCs for this build type, that's the correct state from R2
-        if (catalog && catalog.builds) {
-            const buildCatalog = catalog.builds[currentBuildType];
-            const catalogDLCs = buildCatalog?.dlcs || [];
+        if (dlcLoadPromise) {
+            console.log('[DLC] Awaiting in-flight DLC load');
+            return dlcLoadPromise;
+        }
 
-            console.log(`[DLC] Catalog fetched - ${currentBuildType} has ${catalogDLCs.length} DLCs`);
+        dlcLoadPromise = (async () => {
+            console.log(`[DLC] ========================================`);
+            console.log(`[DLC] Loading DLCs for ${appId}`);
+            console.log(`[DLC] Current build type: ${currentBuildType}`);
+            console.log(`[DLC] ========================================`);
 
-            if (catalogDLCs.length > 0) {
-                console.log(`[DLC] ✓ DLCs in catalog for ${currentBuildType}:`);
-                catalogDLCs.forEach(d => console.log(`[DLC]   - ${d.folderName} v${d.version}`));
-            }
-
-            // Convert catalog DLCs to internal format (may be empty - that's OK!)
+            // IMPORTANT: Clear existing DLCs to prevent mixing between build types
             dlcList = {};
-            for (const dlcEntry of catalogDLCs) {
-                if (dlcEntry.enabled !== false) {
-                    dlcList[dlcEntry.id] = catalogDLCToInternal(dlcEntry);
+
+            // Strategy 1: Try catalog.json first (canonical source published by Admin)
+            const catalog = await fetchCatalog(forceRefresh);
+
+            console.log('[DLC] Catalog fetch result:', catalog ? 'SUCCESS' : 'FAILED');
+            if (catalog) {
+                console.log('[DLC] Catalog builds available:', Object.keys(catalog.builds || {}));
+                console.log('[DLC] Current build type:', currentBuildType);
+            }
+
+            // IMPORTANT: If catalog was fetched successfully, USE IT as source of truth
+            // Even if it has 0 DLCs for this build type, that's the correct state from R2
+            if (catalog && catalog.builds) {
+                const { buildType: catalogBuildType, buildCatalog } = resolveCatalogBuildForDisplay(catalog, currentBuildType);
+                const catalogDLCs = buildCatalog?.dlcs || [];
+
+                console.log(`[DLC] Catalog fetched - ${catalogBuildType} has ${catalogDLCs.length} DLCs`);
+
+                if (catalogDLCs.length > 0) {
+                    console.log(`[DLC] ✓ DLCs in catalog for ${catalogBuildType}:`);
+                    catalogDLCs.forEach(d => console.log(`[DLC]   - ${d.folderName} v${d.version}`));
                 }
-            }
 
-            console.log(`[DLC] ✓✓✓ SOURCE: CATALOG (R2) - ${Object.keys(dlcList).length} DLCs for ${currentBuildType}`);
-
-            if (Object.keys(dlcList).length === 0) {
-                console.log(`[DLC] ℹ️ No DLCs available for ${currentBuildType} build. This is correct if none were uploaded.`);
-            }
-
-            await refreshDLCStatus();
-            renderDLCs();
-            return; // ALWAYS return here if catalog was fetched - don't fall back to Firebase
-        }
-
-        console.log(`[DLC] ⚠️ Catalog fetch FAILED, falling back to Firebase...`);
-        console.log(`[DLC] ⚠️ WARNING: Firebase may have stale data! Consider using Uploader's "Rebuild Catalog" button.`);
-
-        // Strategy 2: Fallback to Firebase
-        try {
-            const appDoc = doc(db, 'apps', appId);
-            const appSnapshot = await getDoc(appDoc);
-
-            if (appSnapshot.exists()) {
-                const data = appSnapshot.data();
-
-                // Read from buildTypes structure first (new), fallback to legacy dlcs
-                const buildTypes = data.buildTypes || {};
-                const buildTypeData = buildTypes[currentBuildType] || {};
-                const allDlcs = buildTypeData.dlcs || data.dlcs || {};
-
-                console.log(`[DLC] Firebase: Found ${Object.keys(allDlcs).length} DLCs in ${buildTypeData.dlcs ? 'buildTypes.' + currentBuildType : 'legacy'} location`);
-
-                // Filter only enabled DLCs and update manifest URLs based on current build type
+                // Convert catalog DLCs to internal format (may be empty - that's OK!)
                 dlcList = {};
-
-                for (const [dlcId, dlc] of Object.entries(allDlcs)) {
-                    if (dlc.enabled) {
-                        const dlcCopy = { ...dlc };
-
-                        // Update manifest URL to use current build type
-                        if (dlc.folderName && dlc.version) {
-                            dlcCopy.manifestUrl = `${R2_BASE_URL}/${currentBuildType}/${dlc.folderName}/${dlc.version}/manifest.json`;
-                        }
-
-                        dlcList[dlcId] = dlcCopy;
+                for (const dlcEntry of catalogDLCs) {
+                    if (dlcEntry.enabled !== false) {
+                        dlcList[dlcEntry.id] = catalogDLCToInternal(dlcEntry);
                     }
                 }
 
-                if (Object.keys(dlcList).length > 0) {
-                    console.log(`[DLC] ⚠️⚠️⚠️ SOURCE: FIREBASE (FALLBACK) - Found ${Object.keys(dlcList).length} DLCs`);
+                console.log(`[DLC] ✓✓✓ SOURCE: CATALOG (R2) - ${Object.keys(dlcList).length} DLCs for ${catalogBuildType}`);
+
+                if (Object.keys(dlcList).length === 0) {
+                    console.log(`[DLC] ℹ️ No DLCs available for ${catalogBuildType} build. This is correct if none were uploaded.`);
+                }
+
+                await refreshDLCStatus();
+                renderDLCs();
+                lastLoadedDlcKey = loadKey;
+                return dlcList;
+            }
+
+            console.log(`[DLC] ⚠️ Catalog fetch FAILED, falling back to Firebase...`);
+            console.log(`[DLC] ⚠️ WARNING: Firebase may have stale data! Consider using Uploader's "Rebuild Catalog" button.`);
+
+            // Strategy 2: Fallback to Firebase
+            try {
+                const appDoc = doc(db, 'apps', appId);
+                const appSnapshot = await getDoc(appDoc);
+
+                if (appSnapshot.exists()) {
+                    const data = appSnapshot.data();
+
+                    // Read from buildTypes structure first (new), fallback to legacy dlcs
+                    const buildTypes = data.buildTypes || {};
+                    const buildTypeData = buildTypes[currentBuildType] || {};
+                    const allDlcs = buildTypeData.dlcs || data.dlcs || {};
+
+                    console.log(`[DLC] Firebase: Found ${Object.keys(allDlcs).length} DLCs in ${buildTypeData.dlcs ? 'buildTypes.' + currentBuildType : 'legacy'} location`);
+
+                    // Filter only enabled DLCs and update manifest URLs based on current build type
+                    dlcList = {};
+
+                    for (const [dlcId, dlc] of Object.entries(allDlcs)) {
+                        if (dlc.enabled) {
+                            const dlcCopy = { ...dlc };
+
+                            // Update manifest URL to use current build type
+                            if (dlc.folderName && dlc.version) {
+                                dlcCopy.manifestUrl = `${R2_BASE_URL}/${currentBuildType}/${dlc.folderName}/${dlc.version}/manifest.json`;
+                            }
+
+                            dlcList[dlcId] = dlcCopy;
+                        }
+                    }
+
+                    if (Object.keys(dlcList).length > 0) {
+                        console.log(`[DLC] ⚠️⚠️⚠️ SOURCE: FIREBASE (FALLBACK) - Found ${Object.keys(dlcList).length} DLCs`);
+                        console.log(`[DLC] ⚠️ This data may be stale! Use Uploader's "Rebuild Catalog" to sync from R2.`);
+                        await refreshDLCStatus();
+                        renderDLCs();
+                        lastLoadedDlcKey = loadKey;
+                        return dlcList;
+                    }
+                }
+            } catch (firebaseError) {
+                console.error('[DLC] Firebase fetch failed:', firebaseError);
+            }
+
+            console.log('[DLC] Firebase empty or unavailable, trying IPC fallback...');
+
+            // Strategy 3: Final fallback to IPC handler (main process Firebase)
+            try {
+                const result = await window.electronAPI.getDLCs({ appId });
+                if (result.success && Object.keys(result.dlcs || {}).length > 0) {
+                    dlcList = result.dlcs;
+                    console.log(`[DLC] ⚠️⚠️⚠️ SOURCE: IPC (FALLBACK) - Found ${Object.keys(dlcList).length} DLCs`);
                     console.log(`[DLC] ⚠️ This data may be stale! Use Uploader's "Rebuild Catalog" to sync from R2.`);
                     await refreshDLCStatus();
                     renderDLCs();
-                    return;
+                    lastLoadedDlcKey = loadKey;
+                    return dlcList;
                 }
+            } catch (ipcError) {
+                console.error('IPC DLC fetch failed:', ipcError);
             }
-        } catch (firebaseError) {
-            console.error('[DLC] Firebase fetch failed:', firebaseError);
-        }
 
-        console.log('[DLC] Firebase empty or unavailable, trying IPC fallback...');
+            // No DLCs found from any source
+            console.log('No DLCs found from any source');
+            dlcList = {};
+            renderDLCs();
+            lastLoadedDlcKey = loadKey;
+            return dlcList;
+        })().finally(() => {
+            dlcLoadPromise = null;
+        });
 
-        // Strategy 3: Final fallback to IPC handler (main process Firebase)
-        try {
-            const result = await window.electronAPI.getDLCs({ appId });
-            if (result.success && Object.keys(result.dlcs || {}).length > 0) {
-                dlcList = result.dlcs;
-                console.log(`[DLC] ⚠️⚠️⚠️ SOURCE: IPC (FALLBACK) - Found ${Object.keys(dlcList).length} DLCs`);
-                console.log(`[DLC] ⚠️ This data may be stale! Use Uploader's "Rebuild Catalog" to sync from R2.`);
-                await refreshDLCStatus();
-                renderDLCs();
-                return;
-            }
-        } catch (ipcError) {
-            console.error('IPC DLC fetch failed:', ipcError);
-        }
-
-        // No DLCs found from any source
-        console.log('No DLCs found from any source');
-        dlcList = {};
-        renderDLCs();
+        return dlcLoadPromise;
     }
 
     /**
@@ -3564,6 +3887,8 @@ function initLauncher() {
     function invalidateCatalogCache() {
         catalogCache = null;
         catalogFetchTime = 0;
+        catalogFetchPromise = null;
+        lastLoadedDlcKey = null;
         console.log('[Catalog] Cache invalidated - will fetch fresh on next request');
     }
 
@@ -3696,6 +4021,7 @@ function initLauncher() {
      */
     function createDLCCard(dlc, childCharacters = []) {
         const card = document.createElement('div');
+        const licenseState = getLicenseAccessState();
 
         // Determine card styling based on type
         const cardClass = dlc.type === 'environment'
@@ -3717,9 +4043,14 @@ function initLauncher() {
             !dlcStatus.environments[dlc.parentId]?.version ||
             dlcStatus.environments[dlc.parentId]?.version >= dlc.parentVersion;
 
-        const canInstall = dlc.type === 'base' ? false :
+        const canInstall = licenseState.active && (dlc.type === 'base' ? false :
             dlc.type === 'environment' ? true :
-                dlc.type === 'character' ? (parentInstalled && parentVersionOk) : false;
+                dlc.type === 'character' ? (parentInstalled && parentVersionOk) : false);
+        const installBlockedMessage = !licenseState.active
+            ? licenseState.message
+            : !parentInstalled
+                ? 'Install parent first'
+                : 'Parent version mismatch';
 
         // Get level display
         const levelBadge = dlc.level === 1
@@ -3772,7 +4103,15 @@ function initLauncher() {
                                 <button class="px-4 py-2 bg-gray-600 text-gray-400 rounded-lg text-sm font-medium cursor-not-allowed" disabled>
                                     Install
                                 </button>
-                                <span class="text-[10px] text-yellow-500">${!parentInstalled ? 'Install parent first' : 'Parent version mismatch'}</span>
+                                <span class="text-[10px] text-yellow-500">${installBlockedMessage}</span>
+                            </div>
+                        ` : ''}
+                        ${!isInstalled && !canInstall && dlc.type === 'environment' ? `
+                            <div class="flex flex-col items-end gap-1">
+                                <button class="px-4 py-2 bg-gray-600 text-gray-400 rounded-lg text-sm font-medium cursor-not-allowed" disabled>
+                                    Install
+                                </button>
+                                <span class="text-[10px] text-yellow-500">${installBlockedMessage}</span>
                             </div>
                         ` : ''}
                         ${isInstalled ? `
@@ -3910,6 +4249,10 @@ function initLauncher() {
      * Handle DLC installation
      */
     async function handleDLCInstall(dlcId) {
+        if (!hasActiveLicense()) {
+            showToast(getLicenseRequirementMessage(), 6000);
+            return;
+        }
         const dlc = dlcList[dlcId];
         if (!dlc) {
             showToast('DLC not found', 3000);
